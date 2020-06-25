@@ -1,2 +1,0 @@
-slam/global_mapping:slam/localization:slam/realsense-ros/realsense2_camera:slam/realsense-ros/realsense2_description
--DCATKIN_DEVEL_PREFIX=/home/jeongwoooh/zero/devel -DCMAKE_INSTALL_PREFIX=/home/jeongwoooh/zero/install -G Unix Makefiles
