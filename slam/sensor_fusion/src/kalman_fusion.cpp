@@ -42,31 +42,31 @@ class Kalman_fusion{
         this->RGPS=RGPS;
     }
 
-    void IMUCallback(const sensor_fusion::IMU& messag){
-        predict(messag.header.stamp);
+    void IMUCallback(const sensor_fusion::IMU& msg){
+        predict(msg.header.stamp);
         // z = Hst+v ?
         // v ~ N(0,RIMU)
         Matrix<float,_ZIMU,_ST> H;
         H << 0,0,0,0,1;
         Matrix<float,_ZIMU,1> z;
-        z << messag.th;
+        z << msg.th;
         Matrix<float,_ZIMU,_ZIMU> S = H*P*H.transpose()+RIMU;
         Matrix<float,_ST,_ZIMU> K = P*H.transpose()*S.inverse();
         P = (P.Identity()-K*H)*P;
         st = st + K*(z - H*st);
 
-        u(0)=messag.ax;
-        u(1)=messag.ay;
-        u(2)=messag.om;
+        u(0)=msg.ax;
+        u(1)=msg.ay;
+        u(2)=msg.om;
     }
-    void GPSCallback(const sensor_fusion::GPS& messag){
-        predict(messag.header.stamp);
+    void GPSCallback(const sensor_fusion::GPS& msg){
+        predict(msg.header.stamp);
         // z = Hst+v ?
         // v ~ N(0,RGPS)
         Matrix<float,_ZGPS,_ST> H;
         H << 1,0,0,0,0 , 0,1,0,0,0;
         Matrix<float,_ZGPS,1> z;
-        z << messag.x,messag.y;
+        z << msg.x,msg.y;
         Matrix<float,_ZGPS,_ZGPS> S = H*P*H.transpose()+RGPS;
         Matrix<float,_ST,_ZGPS> K = P*H.transpose()*S.inverse();
         P = (P.Identity()-K*H)*P;
@@ -98,34 +98,39 @@ class Kalman_fusion{
 };
 
 template <int _ST=5, int _U=3, int _ZIMU=1, int _ZGPS=4>
-class Kalman_fusion_with_GPS_dif : Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>{
+class Kalman_fusion_with_GPS_change : public Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>{
     //  u,v,theta can be estimated from change of GPS
     Matrix<float,_ZIMU,_ZIMU> RIMU;
     double prevZx;
     double prevZy;
     ros::Time prevZt;
     bool isFirst=true;
+    using Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>::st;
+    using Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>::P;
+    using Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>::RGPS;
+    using Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>::predict;
 
-    void GPSCallback(const sensor_fusion::GPS& messag){
+    void GPSCallback(const sensor_fusion::GPS& msg){
+    
         if(isFirst==true){
             isFirst=false;
         }else{
-            predict(messag.header.stamp);
+            predict(msg.header.stamp);
             // z = Hst+v
             // v ~ N(0,RGPS)
             Matrix<float,_ZGPS,_ST> H;
             H << 1,0,0,0,0 , 0,1,0,0,0 , 0,0,1,0,0 , 0,0,0,1,0;
-            double dt = (messag.header.stamp-prevZt).toSec();
+            double dt = (msg.header.stamp-prevZt).toSec();
             Matrix<float,_ZGPS,1> z;
-            z << messag.x,messag.y,(messag.x-prevZx)/dt,(messag.y-prevZy)/dt;
+            z << msg.x,msg.y,(msg.x-prevZx)/dt,(msg.y-prevZy)/dt;
             Matrix<float,_ZGPS,_ZGPS> S = H*P*H.transpose()+RGPS;
             Matrix<float,_ST,_ZGPS> K = P*H.transpose()*S.inverse();
             P = (P.Identity()-K*H)*P;
             st = st + K*(z - H*st);
         }
-        prevZx = messag.x;
-        prevZy = messag.y;
-        prevZt = messag.header.stamp;           
+        prevZx = msg.x;
+        prevZy = msg.y;
+        prevZt = msg.header.stamp;           
     }
 };
 
