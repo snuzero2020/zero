@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
 )
 
-add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg)
+add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg Data.msg Gps.msg Imu.msg)
 generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package()
@@ -48,3 +48,7 @@ add_executable(show_car_position src/show_car_position.cpp)
 find_package(OpenCV)
 target_link_libraries(show_car_position ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(show_car_position localization_generate_messages_cpp)
+
+add_executable(simulation src/simulation.cpp)
+target_link_libraries(simulation ${catkin_LIBRARIES})
+add_dependencies(simulation localization_generate_messages_cpp)
