@@ -1,7 +1,7 @@
 #include "ros/ros.h"
 #include <iostream>
-#include <sensor_fusion/Imu.h>
-#include <sensor_fusion/Gps.h>
+#include <localization/Imu.h>
+#include <localization/Gps.h>
 #include "Eigen/Eigen"
 
 using namespace Eigen;
@@ -23,6 +23,8 @@ class Kalman_fusion{
     Matrix<float,_ST,_ST> Q;
     Matrix<float,_ZIMU,_ZIMU> RIMU;
     Matrix<float,_ZGPS,_ZGPS> RGPS;
+    ros::NodeHandle n_;
+    ros::Publisher pub_;
     
     Kalman_fusion(){
         st.setZero();
@@ -31,6 +33,7 @@ class Kalman_fusion{
         Q.setIdentity();
         RIMU.setIdentity();
         RGPS.setIdentity();
+        pub_ = n_.advertise<localization::Gps>("kalman", 1000);
     }
 
     Kalman_fusion(Matrix<float,_ST,1> st, Matrix<float,_ST,_ST> P, Matrix<float,_U,1> u, Matrix<float,_ST,_ST> Q, Matrix<float,_ZIMU,_ZIMU> RIMU, Matrix<float,_ZGPS,_ZGPS> RGPS){
@@ -42,24 +45,30 @@ class Kalman_fusion{
         this->RGPS=RGPS;
     }
 
-    void IMUCallback(const sensor_fusion::Imu& msg){
+    void IMUCallback(const localization::Imu& msg){
         predict(msg.header.stamp);
         // z = Hst+v ?
         // v ~ N(0,RIMU)
         Matrix<float,_ZIMU,_ST> H;
         H << 0,0,0,0,1;
         Matrix<float,_ZIMU,1> z;
-        z << msg.th;
+        z << msg.theta;
         Matrix<float,_ZIMU,_ZIMU> S = H*P*H.transpose()+RIMU;
         Matrix<float,_ST,_ZIMU> K = P*H.transpose()*S.inverse();
         P = (P.Identity()-K*H)*P;
         st = st + K*(z - H*st);
 
-        u(0)=msg.ax;
-        u(1)=msg.ay;
-        u(2)=msg.om;
+        u(0)=msg.local_ax;
+        u(1)=msg.local_ay;
+        u(2)=msg.omega;
+
+        localization::Gps rt;
+        rt.header = msg.header;
+        rt.x = st(0);
+        rt.y = st(1);
+        pub_.publish(rt);
     }
-    void GPSCallback(const sensor_fusion::Gps& msg){
+    void GPSCallback(const localization::Gps& msg){
         predict(msg.header.stamp);
         // z = Hst+v ?
         // v ~ N(0,RGPS)
@@ -71,6 +80,11 @@ class Kalman_fusion{
         Matrix<float,_ST,_ZGPS> K = P*H.transpose()*S.inverse();
         P = (P.Identity()-K*H)*P;
         st = st + K*(z - H*st);
+        localization::Gps rt;
+        rt.header = msg.header;
+        rt.x = st(0);
+        rt.y = st(1);
+        pub_.publish(rt);
     }
 
     void predict(ros::Time t){
@@ -110,7 +124,7 @@ class Kalman_fusion_with_GPS_change : public Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>{
     using Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>::RGPS;
     using Kalman_fusion<_ST,_U,_ZIMU,_ZGPS>::predict;
 
-    void GPSCallback(const sensor_fusion::Gps& msg){
+    void GPSCallback(const localization::Gps& msg){
     
         if(isFirst==true){
             isFirst=false;

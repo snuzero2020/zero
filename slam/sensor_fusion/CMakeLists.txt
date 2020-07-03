@@ -12,7 +12,7 @@ find_package(cmake_modules REQUIRED)
 list(APPEND CMAKE_MODUlE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen REQUIRED)
 
-add_message_files(DIRECTORY msg FILES GPS.msg IMU.msg)
+add_message_files(DIRECTORY msg FILES Gps.msg Imu.msg)
 generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)

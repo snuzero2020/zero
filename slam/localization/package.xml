@@ -22,11 +22,14 @@
   <exec_depend>std_msgs</exec_depend>
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>
+  <build_depend>cmake_modules</build_depend>
+  <exec_depend>cmake_modules</exec_depend>
   
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-
+    <cpp cflags="`pkg-config --cflags eigen3` -I${prefix}/include `rosboost-cfg --cflags`" 
+         lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lplanning_models"/>
   </export>
 </package>
