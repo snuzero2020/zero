@@ -9,12 +9,15 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
 )
 
-add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg)
+find_package(cmake_modules REQUIRED)
+list(APPEND CMAK_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(Eigen REQUIRED)
+add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg Data.msg Gps.msg Imu.msg)
 generate_messages(DEPENDENCIES std_msgs)
 
-catkin_package()
+catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS})
 
 add_executable(camera_motor src/camera_motor.cpp)
 target_link_libraries(camera_motor ${catkin_LIBRARIES})
@@ -48,3 +51,19 @@ add_executable(show_car_position src/show_car_position.cpp)
 find_package(OpenCV)
 target_link_libraries(show_car_position ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(show_car_position localization_generate_messages_cpp)
+
+add_executable(simulation src/simulation.cpp)
+target_link_libraries(simulation ${catkin_LIBRARIES})
+add_dependencies(simulation localization_generate_messages_cpp)
+
+add_executable(gps src/gps.cpp)
+target_link_libraries(gps ${catkin_LIBRARIES})
+add_dependencies(gps localization_generate_messages_cpp)
+
+add_executable(imu src/imu.cpp)
+target_link_libraries(imu ${catkin_LIBRARIES})
+add_dependencies(imu localization_generate_messages_cpp)
+
+add_executable(kalman_fusion src/kalman_fusion.cpp)
+target_link_libraries(kalman_fusion ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(kalman_fusion localization_generate_messages_cpp)
