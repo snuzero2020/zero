@@ -67,3 +67,7 @@ add_dependencies(imu localization_generate_messages_cpp)
 add_executable(kalman_fusion src/kalman_fusion.cpp)
 target_link_libraries(kalman_fusion ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(kalman_fusion localization_generate_messages_cpp)
+
+add_executable(evaluator src/evaluator.cpp)
+target_link_libraries(evaluator ${catkin_LIBRARIES})
+add_dependencies(evaluator localization_generate_messages_cpp)
