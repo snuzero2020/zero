@@ -4,4 +4,5 @@
 <node pkg="localization" name="gps" type="gps"/>
 <node pkg="localization" name="imu" type="imu"/>
 <node pkg="localization" name="kalman" type="kalman_fusion"/>
+<node pkg="localization" name="evaluator" type="evaluator"/>
 </launch>
