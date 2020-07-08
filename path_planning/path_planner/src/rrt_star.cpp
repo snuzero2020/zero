@@ -257,7 +257,7 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 	start_tree.insert(Node(start));
 	Tree goal_tree = Tree(size); goal_tree.insert(Node(goal));
 	// iteration start
-	int t = time(0);
+	int t = clock(0);
 	srand(t); ROS_INFO("srand %d",t);
 	for (int i = 0; !find_path || i < iternum; i++) {
 		Cor q_rand = random_point();
@@ -327,7 +327,6 @@ debug();
 			}
 		}
 
-		if (i == iternum - 1 && !find_path) i--;
 	}
 
 /*
