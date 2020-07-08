@@ -44,19 +44,45 @@ public:
 		Cor x(0,100), y(199,100);
 
 // !!!!!!!!!!!!!!!!!! TODO : change solve function (check line path possibility) 
-		rrt.solve(path,cost_map,x, y,1000);
+		rrt.solve(path,cost_map,x, y,500);
 
 		// convert path
 		nav_msgs::Path local_path;
 	
 		geometry_msgs::PoseStamped poseStamped;
 		int cnt = 0;
-		for(Cor cor : path){
-			poseStamped.header.seq = ++cnt;
-			poseStamped.pose.position.x = cor.x;
-			poseStamped.pose.position.y = cor.y;
-			local_path.poses.push_back(poseStamped);
+//		for(Cor cor : path){
+//			poseStamped.header.seq = ++cnt;
+//			poseStamped.pose.position.x = cor.x;
+//			poseStamped.pose.position.y = cor.y;
+//			local_path.poses.push_back(poseStamped);
+//		}
+		for(int i{0}; i<path.size()-1; ++i)
+		{
+			double stepsize{5};
+			double ds{path[i].dist(path[i+1])};
+			double dx{(path[i+1].x-path[i].x)*stepsize/ds};
+			double dy{(path[i+1].y-path[i].y)*stepsize/ds};
+			double steptime{-1};
+			Cor temp{path[i]};
+			while (1)
+			{
+				poseStamped.header.seq = ++cnt;
+				poseStamped.pose.position.x = temp.x;
+				poseStamped.pose.position.y = temp.y;
+				local_path.poses.push_back(poseStamped);
+				temp.x += dx;
+				temp.y += dy;
+				steptime++;
+				if (steptime*stepsize > ds)
+					break;
+			}
 		}
+		poseStamped.header.seq = ++cnt;
+		poseStamped.pose.position.x = path[path.size()-1].x;
+		poseStamped.pose.position.y = path[path.size()-1].y;
+		local_path.poses.push_back(poseStamped);
+			
 		poseStamped.header.seq = 0;
 		local_path.poses.push_back(poseStamped);
 

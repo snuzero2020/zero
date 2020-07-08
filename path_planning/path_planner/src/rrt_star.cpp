@@ -47,7 +47,7 @@ double RRT::cost(Cor start, Cor dest)
 		marcher.x += dx;
 		marcher.y += dy;
     }
-	return ds * ret / step_times;
+	return ds * ret / step_times + 1e-6;
 }
 
 // pick random point in map
@@ -257,7 +257,7 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 	start_tree.insert(Node(start));
 	Tree goal_tree = Tree(size); goal_tree.insert(Node(goal));
 	// iteration start
-	int t = clock(0);
+	int t = clock();
 	srand(t); ROS_INFO("srand %d",t);
 	for (int i = 0; !find_path || i < iternum; i++) {
 		Cor q_rand = random_point();
@@ -326,7 +326,6 @@ debug();
 				middle_goal = q_newnode_ptr_goal;
 			}
 		}
-
 	}
 
 /*

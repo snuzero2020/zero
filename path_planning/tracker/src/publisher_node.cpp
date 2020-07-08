@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 		}
 		publisher.curr_odom.twist.twist.linear.x = vel_x;
 		publisher.curr_odom.twist.twist.linear.y = vel_y;
-		publisher.local_path_pub.publish(publisher.curr_local_path);
+		//publisher.local_path_pub.publish(publisher.curr_local_path);
 		publisher.odometry_pub.publish(publisher.curr_odom);
 		loop_rate.sleep();
 		vel_x += 1;

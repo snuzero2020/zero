@@ -157,6 +157,7 @@ void Tracker::set_look_ahead_point()
 		}
 		idx++;
 	}
+	look_ahead_point.x -= 100;
 }
 
 // input : look_ahead_point
