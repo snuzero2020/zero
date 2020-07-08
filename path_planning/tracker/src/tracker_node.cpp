@@ -100,7 +100,6 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		}
 		else
 		{
-			ROS_INFO("%x",msg->poses[i].header.seq);
 			curr_local_path.poses.push_back(msg->poses[i]);
 			break;
 		}
@@ -116,13 +115,13 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 	curr_odom.pose = msg->pose;
 	curr_odom.twist = msg->twist;
 
+	if (curr_local_path.poses.size()==0)
+		return;
+
 	int time{static_cast<int>(clock())};
 	
-	cout << "main_check1, ";
 	determind_steering_angle();
-	cout << "main_check2, ";
 	steering_angle_pub.publish(get_steering_angle());
-	cout << "main_check3" << endl;
 	cout << "current_vel : " << current_vel << endl;
 	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
 	cout << "steering_angle : " << steering_angle << endl;
@@ -147,17 +146,16 @@ void Tracker::set_look_ahead_point()
 			idx = 0;
 			continue;
 		}
-		check_outside = (curr_local_path.poses[idx].pose.position.x)*(curr_local_path.poses[idx].pose.position.x)/((major_axis_radius/look_ahead_oval_ratio)* (major_axis_radius/look_ahead_oval_ratio))
+		check_outside = (curr_local_path.poses[idx].pose.position.x-100)*(curr_local_path.poses[idx].pose.position.x-100)/((major_axis_radius/look_ahead_oval_ratio)* (major_axis_radius/look_ahead_oval_ratio))
 			+ (curr_local_path.poses[idx].pose.position.y)*(curr_local_path.poses[idx].pose.position.y)/((major_axis_radius)*(major_axis_radius));
 		if (check_outside>1)
 		{
-			look_ahead_point.x = curr_local_path.poses[idx].pose.position.x;
+			look_ahead_point.x = curr_local_path.poses[idx].pose.position.x-100;
 			look_ahead_point.y = curr_local_path.poses[idx].pose.position.y;
 			break;
 		}
 		idx++;
 	}
-	look_ahead_point.x -= 100;
 }
 
 // input : look_ahead_point
@@ -174,7 +172,7 @@ void Tracker::solve_pure_pursuit()
 		nonslip_steering_angle = temp_angle;
 	else
 		nonslip_steering_angle = temp_angle-3.141592;
-	cout << "atan2(" << -rotational_center.y << "," << rotational_center.x << ")\n";
+	//cout << "atan2(" << -rotational_center.y << "," << rotational_center.x << ")\n";
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)

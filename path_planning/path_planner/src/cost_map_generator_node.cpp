@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	cost_map.info.height = 200;
 	for(int i = 0;i<200;i++){
 		for(int j = 0;j<200;j++){
-			if(j >=90 && j<=110) cost_map.data.push_back((int8_t)10);
+			if(i >=90 && i<=110) cost_map.data.push_back((int8_t)10);
 			else cost_map.data.push_back((int8_t)100);
 		}
 	}

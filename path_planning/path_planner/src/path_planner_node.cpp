@@ -41,7 +41,7 @@ public:
 
 		// rrt star algorithm
 		vector<Cor> path;
-		Cor x(0,100), y(199,100);
+		Cor x(100,0), y(100,199);
 
 // !!!!!!!!!!!!!!!!!! TODO : change solve function (check line path possibility) 
 		rrt.solve(path,cost_map,x, y,500);

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	Publisher publisher{Publisher()};
 	cout << "aloha2" << endl;
 	//ros::spin();
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(10);
 	cout << "aloha3" << endl;
 
 	PoseStamped pose;
