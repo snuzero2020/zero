@@ -168,7 +168,7 @@ class Kalman_fusion{
     }
 
     void updateQRIMU( Matrix<float,_ST,_ZIMU> invHS ){
-        float weight = 1.0/256.0;
+        float weight = 1.0/std::min(countIMU+16,256);
         Matrix<float,_ZIMU,_ST> H;
         H << 0,0,0,0,1;
         Matrix<float,_ZIMU,_ZIMU> Rsample = prevASIMU + H*F.inverse()*invHS;
@@ -182,7 +182,7 @@ class Kalman_fusion{
     }
 
     void updateQRGPS( Matrix<float,_ST,_ZGPS> invHS ){
-        float weight = 1.0/256.0;
+        float weight = 1.0/std::min(countGPS+16,256);
         Matrix<float,_ZGPS,_ST> H;
         H << 1,0,0,0,0 , 0,1,0,0,0;
         Matrix<float,_ZGPS,_ZGPS> Rsample = prevASGPS + H*F.inverse()*invHS;
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
     //kf.P *= small;
     //kf.Q *= 0.1*0.1;
     //kf.RIMU *= 0.2*0.2;
-    kf.st << -200,-200,-40,-40,-1;
+    kf.st << -5,-10,-1,-2,-1;
     ros::Subscriber subIMU = n.subscribe("/imu",100,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",100,&Kalman_fusion<>::GPSCallback,&kf);
     ros::spin();

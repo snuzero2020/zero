@@ -38,8 +38,8 @@ class IMU{
     std::random_device rd{};
     std::mt19937 gen{rd()};
     std::normal_distribution<float> a{0, 0.2};
-    std::normal_distribution<float> th{0, 1};
-    std::normal_distribution<float> o{0, 1};
+    std::normal_distribution<float> th{0, 0.1};
+    std::normal_distribution<float> o{0, 0.2};
 };
 
 int main(int argc, char **argv){
