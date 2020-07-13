@@ -7,6 +7,7 @@
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Point.h>
+#include "core_msgs/Control.h"
 
 using namespace std;
 using namespace std_msgs;
@@ -43,11 +44,28 @@ class Tracker
 		double nonslip_steering_angle{0}; // right side is positive
 		double rotational_radius{0};
 
+		// PID control
+		double recommend_vel{0}; // determine by mission master and location
+        double desired_vel{0}; // get from current_vel and recommend_vel
+
+		double P_gain{0.2};
+        double I_gain{0.04};
+        double D_gain{0};
+        double error{0};
+        double integral_error{0};
+        double differential_error{0};
+        double Prev_error{0};
+        double pid_input{0};
+        clock_t time = clock();
+
+
 	public:
 
 		ros::Publisher steering_angle_pub;
+        ros::Publisher car_signal_pub;
 		ros::Subscriber local_path_sub;
 		ros::Subscriber odometry_sub;
+        ros::Subscriber recommend_vel_sub;
 
 
 		// initializer
@@ -56,8 +74,10 @@ class Tracker
 				look_ahead_oval_ratio(0)
 			{
 				steering_angle_pub = nh.advertise<Float32>("configuration",1000);
+				car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
 				local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
 				odometry_sub = nh.subscribe("odometory",100,&Tracker::odometory_callback,this);
+				recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
 			}
 
 		// setter function
@@ -71,6 +91,7 @@ class Tracker
 		// callback function
 		void local_path_callback(const Path::ConstPtr msg);
 		void odometory_callback(const Odometry::ConstPtr msg);
+		void recommend_vel_callback(const Float32::ConstPtr msg);
 
 		// Fuctions for determind steering angle
 		// 1. set look ahead point under considering velocity
@@ -83,6 +104,12 @@ class Tracker
 		void determind_steering_angle();
 
 		double determind_major_axis_radius();
+
+		// PID control
+		double calculate_desired_vel();
+        void calculate_input_signal();
+        void vehicle_output_signal();
+
 };
 
 void Tracker::local_path_callback(const Path::ConstPtr msg)
@@ -122,13 +149,21 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 	
 	determind_steering_angle();
 	steering_angle_pub.publish(get_steering_angle());
+	calculate_input_signal();
+	vehicle_output_signal();
+
 	cout << "current_vel : " << current_vel << endl;
 	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
 	cout << "steering_angle : " << steering_angle << endl;
+	cout << "pid_input : " << pid_input << endl;
 	cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
-
-
 }
+
+void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
+{
+    recommend_vel = msg->data;
+}
+
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
 // output : look_ahead_point
@@ -201,6 +236,50 @@ double Tracker::determind_major_axis_radius()
 	major_axis_radius = lower_radius + (upper_radius-lower_radius)*current_vel/20;
 	return major_axis_radius;
 }
+
+
+// input : recommend_vel, curvature
+// output : desired_vel
+double Tracker::calculate_desired_vel(){
+    return recommend_vel - 0.1 * curvature; // should be changed
+}
+
+// input : current_vel, recommed_vel, curvature
+// output : control Pid input
+void Tracker::calculate_input_signal(){
+    static bool first = true;
+	if (first == true)
+	{
+		time = clock();
+		first = false;
+		return;
+	}
+	error = calculate_desired_vel() - current_vel;
+    integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
+    differential_error = (error - Prev_error)/(double(clock() - time)/(double)CLOCKS_PER_SEC);
+    pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
+    Prev_error = error;
+	cout << "dt : " << (clock()-time)/(double)CLOCKS_PER_SEC << endl;
+    time = clock();
+	cout << "error : " << error << endl;
+	cout << "integral_error : " << integral_error << endl;
+	cout << "differential_error : " << differential_error << endl;
+}
+
+
+void Tracker::vehicle_output_signal(){
+    core_msgs::Control msg;
+
+    msg.is_auto = 1;
+    msg.estop = 0;
+    msg.gear = 0;
+    msg.brake = 1;
+    msg.speed = pid_input;
+    msg.steer = get_steering_angle().data;
+
+    car_signal_pub.publish(msg);
+}
+
 
 
 int main(int argc, char *argv[])

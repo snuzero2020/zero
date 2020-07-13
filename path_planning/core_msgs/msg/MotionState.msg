@@ -1,0 +1,10 @@
+Header header
+
+# FORWARD_MOTION
+# FORWARD_MOTION_SLOW
+# HALT
+# LEFT_MOTION
+# RIGHT_MOTION
+# PARKING
+
+string motion_state
