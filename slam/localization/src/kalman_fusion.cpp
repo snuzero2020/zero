@@ -7,11 +7,11 @@
 #include "Eigen/Eigen"
 
 #define PI 3.141592653589793238463
-#define small 0.000001
+#define SMALL 0.000001
 
 using namespace Eigen;
 
-template <int _ST=5, int _U=3, int _ZIMU=1, int _ZGPS=2>
+template <int _ST=5, int _U=3, int _Q=3, int _ZIMU=1, int _ZGPS=2>
 class Kalman_fusion{
 // state : x,y,u,v,theta
 // observation : x,y(,u,v,theta) from GPS, theta from IMU
@@ -25,7 +25,7 @@ class Kalman_fusion{
     Matrix<float,_U,1> u;
     ros::Time t;
     Matrix<float,_ST,_ST> P;    // P is covariance of stATE
-    Matrix<float,_ST,_ST> Q;
+    Matrix<float,_Q,_Q> Q;
     Matrix<float,_ZIMU,_ZIMU> RIMU;
     Matrix<float,_ZGPS,_ZGPS> RGPS;                          
     ros::NodeHandle n_;
@@ -37,11 +37,10 @@ class Kalman_fusion{
     Matrix<float,_ZIMU,1> prevyIMU;
     Matrix<float,_ZGPS,1> prevyGPS;
     Matrix<float,_ST,_ST> F;
+    Matrix<float,_ST,_Q> B;
+    Matrix<float,_ST,_Q> prevB;
     int countIMU = 0;
     int countGPS = 0;
-
-    // R = C - HPHt
-    // Q = KCKt
 
     Kalman_fusion(){
         st.setZero();
@@ -56,7 +55,7 @@ class Kalman_fusion{
 
     void IMUCallback(const localization::Imu& msg){
         predict(msg.header.stamp);
-        // z = Hst+v ?
+        // z = Hst+v
         // v ~ N(0,RIMU)
         Matrix<float,_ZIMU,_ST> H;
         H << 0,0,0,0,1;
@@ -64,7 +63,6 @@ class Kalman_fusion{
         z << msg.theta;
         Matrix<float,_ZIMU,1> y = z-H*st;
         y(0)=remainderf(y(0),2*PI);
-
 
         if(prevType>-1){
             Matrix<float,_ST,_ZIMU> invH = P*H.transpose()*(H*P*H.transpose()).inverse();
@@ -90,10 +88,12 @@ class Kalman_fusion{
         prevASIMU = (S.Identity()-H*K)*y*y.transpose();
         prevyIMU = y;
         countIMU+=1;
+        prevB=B;
     }
+
     void GPSCallback(const localization::Gps& msg){
         predict(msg.header.stamp);
-        // z = Hst+v ?
+        // z = Hst+v
         // v ~ N(0,RGPS)
         Matrix<float,_ZGPS,_ST> H;
         H << 1,0,0,0,0 , 0,1,0,0,0;
@@ -122,29 +122,30 @@ class Kalman_fusion{
         prevASGPS = (S.Identity()-H*K)*y*y.transpose();;
         prevyGPS = y;
         countGPS+=1;
+        prevB=B;
     }
 
     void predict(ros::Time t){
-        // st = Fst+Bu+w ?
+        // st = f(st,u)+w
+        // F = df/dst
         // w ~ N(0,Q)
         double dt = (t-this->t).toSec();
         this->t=t;
         // Matrix<float,_ST,_ST> F;
         F << 1,0,dt,0,0 , 0,1,0,dt,0 , 0,0,1,0,0 , 0,0,0,1,0 , 0,0,0,0,1;
+        B << 0.5*dt*dt,0,0 , 0,0.5*dt*dt,0 , dt,0,0 , 0,dt,0 , 0,0,dt;
         float th = st(4);
         st = F*st;
         F(0,4)= 0.5*dt*dt*(-sin(th)*u(0) -cos(th)*u(1));
         F(1,4)= 0.5*dt*dt*(+cos(th)*u(0) -sin(th)*u(1));
         F(2,4)= dt*(-sin(th)*u(0) -cos(th)*u(1));
         F(3,4)= dt*(+cos(th)*u(0) -sin(th)*u(1));
-        P = F*P*F.transpose()+Q;
-        //Matrix<float,_ST,_U> B; 
-        //B << 0.5*dt*dt,0,0 , 0,0.5*dt*dt,0 , dt,0,0 , 0,dt,0 , 0,0,dt;
-        //st = F*st+B*u;
+        P = F*P*F.transpose()+B*Q*B.transpose();
         st(0) += 0.5*dt*dt*(+cos(th)*u(0) -sin(th)*u(1));
         st(1) += 0.5*dt*dt*(+sin(th)*u(0) +cos(th)*u(1));
         st(2) += dt*(+cos(th)*u(0) -sin(th)*u(1));
         st(3) += dt*(+sin(th)*u(0) +cos(th)*u(1));
+        st(4) += dt*u(2);
         st(4)=remainderf(st(4),2*PI);
     }
 
@@ -163,36 +164,38 @@ class Kalman_fusion{
         pub_.publish(rt);
         
         std_msgs::Float32MultiArray rte;
-        rte.data = {sqrt(P.trace()/_ST), sqrt(Q.trace()/_ST), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
+        rte.data = {sqrt(P.trace()/_ST), sqrt(Q.trace()/_Q), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
         pub_e.publish(rte);
     }
 
     void updateQRIMU( Matrix<float,_ST,_ZIMU> invHS ){
-        float weight = 1.0/256.0;
+        float weight = 1.0/std::min(countIMU+16,256);
         Matrix<float,_ZIMU,_ST> H;
         H << 0,0,0,0,1;
         Matrix<float,_ZIMU,_ZIMU> Rsample = prevASIMU + H*F.inverse()*invHS;
         RIMU *= 1-weight;
         RIMU += Rsample*weight;
         toSPD<_ZIMU>(RIMU);
-        Matrix<float,_ST,_ST> Qsample = invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose();
+        Matrix<float,_Q,_ST> invB = (prevB.transpose()*prevB).completeOrthogonalDecomposition().pseudoInverse()*prevB.transpose();
+        Matrix<float,_Q,_Q> Qsample = invB * invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose() * invB.transpose();
         Q *= 1-weight;
         Q += Qsample*weight;
-        toSPD<_ST>(Q);   
+        toSPD<_Q>(Q);
     }
 
     void updateQRGPS( Matrix<float,_ST,_ZGPS> invHS ){
-        float weight = 1.0/256.0;
+        float weight = 1.0/std::min(countGPS+16,256);
         Matrix<float,_ZGPS,_ST> H;
         H << 1,0,0,0,0 , 0,1,0,0,0;
         Matrix<float,_ZGPS,_ZGPS> Rsample = prevASGPS + H*F.inverse()*invHS;
         RGPS *= 1-weight;
         RGPS += Rsample*weight;
         toSPD<_ZGPS>(RGPS);
-        Matrix<float,_ST,_ST> Qsample = invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose();
+        Matrix<float,_Q,_ST> invB = (prevB.transpose()*prevB).completeOrthogonalDecomposition().pseudoInverse()*prevB.transpose();
+        Matrix<float,_Q,_Q> Qsample = invB * invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose() * invB.transpose();
         Q *= 1-weight;
         Q += Qsample*weight;
-        toSPD<_ST>(Q);   
+        toSPD<_Q>(Q);
     }
 
     template <int dim>
@@ -202,8 +205,8 @@ class Kalman_fusion{
         Matrix<float,dim,dim> D = es.pseudoEigenvalueMatrix();
         Matrix<float,dim,dim> V = es.pseudoEigenvectors();
         for(int i=0;i<dim;i+=1){
-            if(D(i,i)<small){
-                D(i,i)=small;
+            if(D(i,i)<SMALL){
+                D(i,i)=SMALL;
             }
         }
         A = V*D*V.transpose();
@@ -216,10 +219,10 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     Kalman_fusion<> kf;
-    //kf.P *= small;
+    //kf.P *= SMALL;
     //kf.Q *= 0.1*0.1;
     //kf.RIMU *= 0.2*0.2;
-    kf.st << -200,-200,-40,-40,-1;
+    kf.st << -5,-10,-1,-2,-1;
     ros::Subscriber subIMU = n.subscribe("/imu",100,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",100,&Kalman_fusion<>::GPSCallback,&kf);
     ros::spin();
