@@ -119,7 +119,7 @@ class Kalman_fusion{
         publish(msg.header.stamp);
 
         prevType = 1;
-        prevASGPS = (S.Identity()-H*K)*y*y.transpose();;
+        prevASGPS = (S.Identity()-H*K)*y*y.transpose();
         prevyGPS = y;
         countGPS+=1;
         prevB=B;
@@ -222,6 +222,7 @@ int main(int argc, char **argv)
     //kf.P *= SMALL;
     //kf.Q *= 0.1*0.1;
     //kf.RIMU *= 0.2*0.2;
+    //kf.RGPS *= 0.5*0.5;
     kf.st << -5,-10,-1,-2,-1;
     ros::Subscriber subIMU = n.subscribe("/imu",100,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",100,&Kalman_fusion<>::GPSCallback,&kf);
