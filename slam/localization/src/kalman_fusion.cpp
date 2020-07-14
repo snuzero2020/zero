@@ -170,11 +170,11 @@ class Kalman_fusion{
         pub_d.publish(rt);
         
         std_msgs::Float32MultiArray rte;
-        rte.data = {sqrt(Q.trace()/_Q), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
+        rte.data = {sqrt(P(0,0)),sqrt(P(1,1)),sqrt(P(2,2)),sqrt(P(3,3)),sqrt(P(4,4))};
         pub_e.publish(rte);
 
         std_msgs::Float32MultiArray rtc;
-        rtc.data = {sqrt(P(0,0)),sqrt(P(1,1)),sqrt(P(2,2)),sqrt(P(3,3)),sqrt(P(4,4))};
+        rtc.data = {sqrt(Q.trace()/_Q), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
         pub_c.publish(rtc);
     }
 
