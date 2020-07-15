@@ -17,6 +17,8 @@ generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)
 
+add_library(UnixtimeToSec lib/UnixtimeToSec.cpp)
+
 include_directories(include ${catkin_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS})
 
 add_executable(camera_motor src/camera_motor.cpp)
@@ -61,7 +63,7 @@ target_link_libraries(gps ${catkin_LIBRARIES})
 add_dependencies(gps localization_generate_messages_cpp)
 
 add_executable(imu src/imu.cpp)
-target_link_libraries(imu ${catkin_LIBRARIES})
+target_link_libraries(imu ${catkin_LIBRARIES} UnixtimeToSec)
 add_dependencies(imu localization_generate_messages_cpp)
 
 add_executable(kalman_fusion src/kalman_fusion.cpp)
