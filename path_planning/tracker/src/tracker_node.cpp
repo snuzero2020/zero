@@ -114,7 +114,6 @@ class Tracker
 
 void Tracker::local_path_callback(const Path::ConstPtr msg)
 {
-	cout << "local_path_callback is called\n";
 	//set_curr_local_path(msg);
 	curr_local_path = Path();
 	curr_local_path.header = msg->header;
@@ -136,7 +135,6 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 
 void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 {
-	cout << "odometry_callback is called\n";
 	//set_curr_odom(msg);
 	curr_odom.header = msg->header;
 	curr_odom.pose = msg->pose;
@@ -207,7 +205,6 @@ void Tracker::solve_pure_pursuit()
 		nonslip_steering_angle = temp_angle;
 	else
 		nonslip_steering_angle = temp_angle-3.141592;
-	//cout << "atan2(" << -rotational_center.y << "," << rotational_center.x << ")\n";
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)
@@ -233,7 +230,7 @@ void Tracker::determind_steering_angle()
 double Tracker::determind_major_axis_radius()
 {
 	double major_axis_radius{0};
-	major_axis_radius = lower_radius + (upper_radius-lower_radius)*current_vel/20;
+	major_axis_radius = lower_radius + (upper_radius-lower_radius)*current_vel/5;
 	return major_axis_radius;
 }
 
@@ -241,7 +238,7 @@ double Tracker::determind_major_axis_radius()
 // input : recommend_vel, curvature
 // output : desired_vel
 double Tracker::calculate_desired_vel(){
-    return recommend_vel - 0.1 * curvature; // should be changed
+    return recommend_vel*(1 - 1.0 * curvature); // should be changed
 }
 
 // input : current_vel, recommed_vel, curvature
@@ -274,7 +271,7 @@ void Tracker::vehicle_output_signal(){
     msg.estop = 0;
     msg.gear = 0;
     msg.brake = 1;
-    msg.speed = pid_input;
+    msg.speed = (pid_input>0)?pid_input:0; // try offset method
     msg.steer = get_steering_angle().data;
 
     car_signal_pub.publish(msg);

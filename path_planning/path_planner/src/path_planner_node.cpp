@@ -20,12 +20,13 @@ private:
 	ros::Publisher path_pub;
 public:
 	RosNode(){
-		cost_map_sub = n.subscribe("cost_map", 50000, &RosNode::costmapCallback, this);
+		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 50000, &RosNode::costmapCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 	}
 
 	void costmapCallback(const nav_msgs::OccupancyGrid & map){
-	
+		
+		cout << "callback\n";
 		static RRT rrt = RRT();
 		int t = clock();
 
@@ -35,13 +36,17 @@ public:
 		int w = map.info.width;
 		for(int i = 0; i<h; i++){
 			for(int j = 0; j<w;j++){
-				cost_map[i][j] = (double)(map.data[i*w+j]);
+				cost_map[i][j] = (double)(map.data[j*w+i] * 100 / 32.0 ) + 1;
 			}
 		}
+		cout << "90,198 cost ; " << cost_map[90][198] << endl;
 
 		// rrt star algorithm
 		vector<Cor> path;
 		Cor x(100,0), y(100,199);
+		y.x = map.data[w*h]*2;
+		y.y = map.data[w*h + 1]*2;
+		std::cout << y.x << "," << y.y << std::endl;
 
 // !!!!!!!!!!!!!!!!!! TODO : change solve function (check line path possibility) 
 		rrt.solve(path,cost_map,x, y,500);
@@ -57,6 +62,7 @@ public:
 //			poseStamped.pose.position.y = cor.y;
 //			local_path.poses.push_back(poseStamped);
 //		}
+
 		for(int i{0}; i<path.size()-1; ++i)
 		{
 			double stepsize{5};
@@ -98,7 +104,8 @@ public:
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "path_planner");
+	cout << "path_planner_node is called\n";
+	ros::init(argc, argv, "path_planner_node");
 	RosNode rosnode;
 	ros::spin();
 	return 0;

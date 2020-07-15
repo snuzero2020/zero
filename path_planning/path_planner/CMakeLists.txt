@@ -51,4 +51,3 @@ target_link_libraries(cost_map_generator_node  ${catkin_LIBRARIES} )
 
 set_target_properties(cost_map_generator_node PROPERTIES COMPILE_FLAGS "-O3")
 
-

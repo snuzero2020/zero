@@ -26,7 +26,7 @@ class Publisher
 		Path curr_local_path;
 		Odometry curr_odom;
 
-		ros::Publisher local_path_pub;
+		//ros::Publisher local_path_pub;
 		ros::Publisher odometry_pub;
 		ros::Publisher recommend_vel_pub;
 
@@ -36,7 +36,7 @@ class Publisher
 		Publisher() 
 			:curr_local_path(Path()), curr_odom(Odometry())
 			{
-				local_path_pub = nh.advertise<Path>("local_path",100);
+				//local_path_pub = nh.advertise<Path>("local_path",100);
 				odometry_pub = nh.advertise<Odometry>("odometory",100);
 				recommend_vel_pub = nh.advertise<Float32>("recommend_vel",100);
 			}
