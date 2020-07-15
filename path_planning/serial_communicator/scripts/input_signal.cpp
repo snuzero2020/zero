@@ -25,7 +25,7 @@ class Signal {
             brake = msg.brake;
             gear = msg.gear;
             speed = msg.speed;
-            steer = msg.steer;
+            steer = msg.steer + 1.5;
         }
 };
 

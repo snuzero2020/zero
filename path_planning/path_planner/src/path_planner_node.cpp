@@ -20,7 +20,8 @@ private:
 	ros::Publisher path_pub;
 public:
 	RosNode(){
-		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 50000, &RosNode::costmapCallback, this);
+		cost_map_sub = n.subscribe("cost_map", 50000, &RosNode::costmapCallback, this);
+		//cost_map_sub = n.subscribe("cost_map_with_goal_vector", 50000, &RosNode::costmapCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 	}
 
@@ -34,9 +35,14 @@ public:
 		vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
 		int h = map.info.height;
 		int w = map.info.width;
+//		for(int i = 0; i<h; i++){
+//			for(int j = 0; j<w;j++){
+//				cost_map[i][j] = (double)(map.data[j*w+i] * 100 / 32.0 ) + 1;
+//			}
+//		}
 		for(int i = 0; i<h; i++){
 			for(int j = 0; j<w;j++){
-				cost_map[i][j] = (double)(map.data[j*w+i] * 100 / 32.0 ) + 1;
+				cost_map[i][j] = (double)(map.data[i*w+j]);
 			}
 		}
 		cout << "90,198 cost ; " << cost_map[90][198] << endl;
@@ -44,8 +50,8 @@ public:
 		// rrt star algorithm
 		vector<Cor> path;
 		Cor x(100,0), y(100,199);
-		y.x = map.data[w*h]*2;
-		y.y = map.data[w*h + 1]*2;
+		//y.x = map.data[w*h]*2;
+		//y.y = map.data[w*h + 1]*2;
 		std::cout << y.x << "," << y.y << std::endl;
 
 // !!!!!!!!!!!!!!!!!! TODO : change solve function (check line path possibility) 

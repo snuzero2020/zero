@@ -45,7 +45,7 @@ class Tracker
 		double rotational_radius{0};
 
 		// PID control
-		double recommend_vel{0}; // determine by mission master and location
+		double recommend_vel{-1}; // determine by mission master and location
         double desired_vel{0}; // get from current_vel and recommend_vel
 
 		double P_gain{0.2};
@@ -142,12 +142,18 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 
 	if (curr_local_path.poses.size()==0)
 		return;
+	if (recommend_vel<-0.2)
+		return;
 
 	int time{static_cast<int>(clock())};
-	
+
+	cout << "before determind steering angle\n";	
 	determind_steering_angle();
+	cout << "after determind steering angle\n";	
 	steering_angle_pub.publish(get_steering_angle());
+	cout << "before calculate input signal\n";	
 	calculate_input_signal();
+	cout << "before vehicle output signal\n";	
 	vehicle_output_signal();
 
 	cout << "current_vel : " << current_vel << endl;
@@ -173,7 +179,7 @@ void Tracker::set_look_ahead_point()
 	double check_outside{0};
 	while(1)
 	{
-		if (curr_local_path.poses[idx].header.seq == -1)
+		if (curr_local_path.poses[idx].header.seq == 0)
 		{
 			major_axis_radius -= 50;
 			idx = 0;
@@ -202,9 +208,9 @@ void Tracker::solve_pure_pursuit()
 	rotational_radius = 1/curvature;
 	double temp_angle =  atan2(-rotational_center.y,rotational_center.x);
 	if (temp_angle < 3.141592/2.0)
-		nonslip_steering_angle = temp_angle;
+		nonslip_steering_angle = -temp_angle;
 	else
-		nonslip_steering_angle = temp_angle-3.141592;
+		nonslip_steering_angle = -(temp_angle-3.141592);
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)
@@ -219,9 +225,13 @@ void Tracker::adjust_steering_angle()
 // capsulized module
 void Tracker::determind_steering_angle()
 {
+	cout << "check1\n";
 	set_look_ahead_point();
+	cout << "check2\n";
 	solve_pure_pursuit();
+	cout << "check3\n";
 	adjust_steering_angle();
+	cout << "check4\n";
 }
 
 // input : current_vel
@@ -270,8 +280,8 @@ void Tracker::vehicle_output_signal(){
     msg.is_auto = 1;
     msg.estop = 0;
     msg.gear = 0;
-    msg.brake = 1;
-    msg.speed = (pid_input>0)?pid_input:0; // try offset method
+    msg.brake = 0;
+    msg.speed = 0.5;//(pid_input>0)?pid_input:0; // try offset method
     msg.steer = get_steering_angle().data;
 
     car_signal_pub.publish(msg);
