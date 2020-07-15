@@ -51,9 +51,11 @@ class GPS_Decoder{
 	    
 	    rt.x = xy.at(0);
 	    rt.y = xy.at(1);
-	    rt.header.stamp.sec= int(time);
-	    rt.header.stamp.nsec= (time-rt.header.stamp.sec)*1e9;
-	    
+	    //rt.header.stamp.sec= int(time);
+	    //rt.header.stamp.nsec= (time-rt.header.stamp.sec)*1e9;
+	    ros::Time tm = ros::Time::now();
+	    rt.header.stamp.sec = tm.sec;
+	    rt.header.stamp.nsec = tm.nsec;
 
 	    pub_.publish(rt);
         }
