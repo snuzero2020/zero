@@ -4,6 +4,7 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "geometry_msgs/Vector3Stamped.h"
+#include "UnixtimeToSec.h"
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -20,7 +21,9 @@ class IMU_Decoder{
     
     void callback_data(const sensor_msgs::Imu::ConstPtr& msg){
         localization::Imu rt;
+
         rt.header = msg->header;
+        rt.header.stamp.sec = UnixtimeToSec(msg->header.stamp.sec);
         rt.local_ax = msg->linear_acceleration.x;
         rt.local_ay = msg->linear_acceleration.y;
         rt.omega = msg->angular_velocity.z;
