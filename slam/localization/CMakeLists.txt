@@ -26,7 +26,7 @@ target_link_libraries(gps ${catkin_LIBRARIES})
 add_dependencies(gps localization_generate_messages_cpp)
 
 add_executable(imu src/imu.cpp)
-target_link_libraries(imu ${catkin_LIBRARIES} UnixtimeToSec)
+target_link_libraries(imu ${catkin_LIBRARIES})
 add_dependencies(imu localization_generate_messages_cpp)
 
 add_executable(kalman_fusion src/kalman_fusion.cpp)
@@ -38,5 +38,5 @@ target_link_libraries(evaluator ${catkin_LIBRARIES})
 add_dependencies(evaluator localization_generate_messages_cpp)
 
 add_executable(imu_decoder src/imu_decoder.cpp)
-target_link_libraries(imu_decoder ${catkin_LIBRARIES})
+target_link_libraries(imu_decoder ${catkin_LIBRARIES} UnixtimeToSec)
 add_dependencies(imu_decoder localization_generate_messages_cpp)
