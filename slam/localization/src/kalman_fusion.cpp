@@ -58,9 +58,10 @@ class Kalman_fusion{
     void IMUCallback(const localization::Imu& msg){
         if(countIMU == -1 || countGPS == -1){
             st(4) = remainder(msg.theta,2*PI);
-            u(0)=msg.local_ax;
-            u(1)=msg.local_ay;
-            u(2)=msg.omega;
+            u(0) = msg.local_ax;
+            u(1) = msg.local_ay;
+            u(2) = msg.omega;
+            t = msg.header.stamp;
             countIMU = 0;
             return ;
         }
@@ -105,6 +106,7 @@ class Kalman_fusion{
         if(countIMU == -1 || countGPS == -1){
             st(0) = msg.x;
             st(1) = msg.y;
+            t = msg.header.stamp;
             countGPS = 0;
             return ;
         }
@@ -189,7 +191,7 @@ class Kalman_fusion{
     }
 
     void updateQRIMU( Matrix<double,_ST,_ZIMU> invHS ){
-        double weight = 1.0/std::min(countIMU+16,256);
+        double weight = 1.0/std::min(countIMU+64,1024);
         Matrix<double,_ZIMU,_ST> H;
         H << 0,0,0,0,1;
         Matrix<double,_ZIMU,_ZIMU> Rsample = prevASIMU + H*F.inverse()*invHS;
@@ -204,7 +206,7 @@ class Kalman_fusion{
     }
 
     void updateQRGPS( Matrix<double,_ST,_ZGPS> invHS ){
-        double weight = 1.0/std::min(countGPS+16,256);
+        double weight = 1.0/std::min(countGPS+64,1024);
         Matrix<double,_ZGPS,_ST> H;
         H << 1,0,0,0,0 , 0,1,0,0,0;
         Matrix<double,_ZGPS,_ZGPS> Rsample = prevASGPS + H*F.inverse()*invHS;
@@ -240,8 +242,8 @@ int main(int argc, char **argv)
 
     Kalman_fusion<> kf;
     kf.P *= 10*10;
-    //kf.Q *= 0.1*0.1;
-    kf.RIMU *= 0.1*0.1;
+    kf.Q *= 400*400;
+    kf.RIMU *= 0.005*0.005;
     kf.RGPS *= 0.1*0.1;
     
     ros::Subscriber subIMU = n.subscribe("/imu",100,&Kalman_fusion<>::IMUCallback,&kf);
