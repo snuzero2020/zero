@@ -442,7 +442,7 @@ int return_vector_xbase(vector<int> x)
 cv::Point2i get_goal_point(cv::Mat lane_mask, int size)
 {
     int count = 0;
-    int sum = 0;
+    double sum = 0;
     for(int i=0; i<size ;i++)
     {
         if(lane_mask.at<uchar>(0,i) == 0)
