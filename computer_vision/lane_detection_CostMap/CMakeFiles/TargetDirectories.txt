@@ -1,3 +1,0 @@
-/home/giholee97/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/CMakeFiles/rebuild_cache.dir
-/home/giholee97/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/CMakeFiles/Lane_Detection.dir
-/home/giholee97/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/CMakeFiles/edit_cache.dir
