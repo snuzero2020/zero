@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/dongha/catkin_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/dongha/catkin_ws/src/gps_subscriber/include/**",
+                "/home/dongha/catkin_ws/src/zero/path_planning/path_planner/include/**",
+                "/home/dongha/catkin_ws/src/ros_cutting_topic/include/**",
+                "/home/dongha/catkin_ws/src/zero/path_planning/tracker/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}

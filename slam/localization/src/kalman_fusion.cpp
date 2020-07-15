@@ -29,8 +29,9 @@ class Kalman_fusion{
     Matrix<float,_ZIMU,_ZIMU> RIMU;
     Matrix<float,_ZGPS,_ZGPS> RGPS;                          
     ros::NodeHandle n_;
-    ros::Publisher pub_;
+    ros::Publisher pub_d;
     ros::Publisher pub_e;
+    ros::Publisher pub_c;
     int prevType = -1;   // 0 for IMU, 1 for GPS
     Matrix<float,_ZIMU,_ZIMU> prevASIMU;
     Matrix<float,_ZGPS,_ZGPS> prevASGPS;
@@ -49,12 +50,15 @@ class Kalman_fusion{
         Q.setIdentity();
         RIMU.setIdentity();
         RGPS.setIdentity();
-        pub_ = n_.advertise<localization::Data>("filtered_data", 1000);
-        pub_e = n_.advertise<std_msgs::Float32MultiArray>("estimated_error", 1000);
+        pub_d = n_.advertise<localization::Data>("filtered_data", 10);
+        pub_e = n_.advertise<std_msgs::Float32MultiArray>("estimated_err", 10);
+        pub_c = n_.advertise<std_msgs::Float32MultiArray>("estimated_cov", 10);
     }
 
     void IMUCallback(const localization::Imu& msg){
-        predict(msg.header.stamp);
+        if(countIMU+countGPS >0){
+            predict(msg.header.stamp);
+        }
         // z = Hst+v
         // v ~ N(0,RIMU)
         Matrix<float,_ZIMU,_ST> H;
@@ -92,7 +96,9 @@ class Kalman_fusion{
     }
 
     void GPSCallback(const localization::Gps& msg){
-        predict(msg.header.stamp);
+        if(countIMU+countGPS >0){
+            predict(msg.header.stamp);
+        }
         // z = Hst+v
         // v ~ N(0,RGPS)
         Matrix<float,_ZGPS,_ST> H;
@@ -119,7 +125,7 @@ class Kalman_fusion{
         publish(msg.header.stamp);
 
         prevType = 1;
-        prevASGPS = (S.Identity()-H*K)*y*y.transpose();;
+        prevASGPS = (S.Identity()-H*K)*y*y.transpose();
         prevyGPS = y;
         countGPS+=1;
         prevB=B;
@@ -161,11 +167,15 @@ class Kalman_fusion{
         rt.v = sqrt(st(2)*st(2)+st(3)*st(3));
         rt.vx = st(2);
         rt.vy = st(3);
-        pub_.publish(rt);
+        pub_d.publish(rt);
         
         std_msgs::Float32MultiArray rte;
-        rte.data = {sqrt(P.trace()/_ST), sqrt(Q.trace()/_Q), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
+        rte.data = {sqrt(P(0,0)),sqrt(P(1,1)),sqrt(P(2,2)),sqrt(P(3,3)),sqrt(P(4,4))};
         pub_e.publish(rte);
+
+        std_msgs::Float32MultiArray rtc;
+        rtc.data = {sqrt(Q.trace()/_Q), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
+        pub_c.publish(rtc);
     }
 
     void updateQRIMU( Matrix<float,_ST,_ZIMU> invHS ){
@@ -219,10 +229,11 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     Kalman_fusion<> kf;
-    //kf.P *= SMALL;
     //kf.Q *= 0.1*0.1;
     //kf.RIMU *= 0.2*0.2;
-    kf.st << -5,-10,-1,-2,-1;
+    //kf.RGPS *= 0.5*0.5;
+    
+    //kf.st << -5,-10,-1,-2,-1;
     ros::Subscriber subIMU = n.subscribe("/imu",100,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",100,&Kalman_fusion<>::GPSCallback,&kf);
     ros::spin();
