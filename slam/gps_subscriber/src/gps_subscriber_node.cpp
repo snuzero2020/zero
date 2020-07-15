@@ -46,7 +46,7 @@ class GPS_Decoder{
             lat += (lat_raw-lat*100)/60;
             lon += (lon_raw-lon*100)/60;
             
-	    vector<float> xy(2);
+	    vector<double> xy(2);
 	    LatLonToUTMXY(lat, lon, 52, xy.at(0), xy.at(1));
 	    
 	    rt.x = xy.at(0);
