@@ -7,13 +7,35 @@ cv::Mat birdeye(cv::Mat img)
 	int w = img.cols;
 	int h = img.rows;
 
+	//std::cout<<img.cols<<std::endl;
+	//std::cout<<img.rows<<std::endl;
+
+	//cv::namedWindow("img");
+	//cv::imshow("img",img);
+
+	cv::Mat temp_img = cv::Mat::zeros(h, w+730, CV_8UC3);
+
+	for(int i=365; i<365 + w; i++)
+	{
+		for(int j=0; j<h ;j++)
+		{
+			temp_img.at<cv::Vec3b>(j,i) = img.at<cv::Vec3b>(j,i-365);
+		}
+	}
+	
+	//cv::namedWindow("temp_img");
+	//cv::imwrite("temp_img",temp_img);
+	//cv::line(temp_img, cv::Point(477,145), cv::Point(0,480), cv::Scalar(0, 0, 255));
+	//cv::line(temp_img, cv::Point(893,145), cv::Point(1370,480), cv::Scalar(0 ,0, 255));
+	//cv::imshow("temp_img",temp_img);
+
 	int out_w = 200;
 	int out_h = 200;
 
-	cv::Point2f pt1(w, h-10);
-	cv::Point2f pt2(0, h-10);
-	cv::Point2f pt3(546, 460);
-	cv::Point2f pt4(732, 460);
+	cv::Point2f pt1(1370, 480);
+	cv::Point2f pt2(0, 480);
+	cv::Point2f pt3(487, 145);
+	cv::Point2f pt4(883, 145);
 
 	cv::Point2f src_vertices[4];
 	src_vertices[0] = pt1;
@@ -30,7 +52,7 @@ cv::Mat birdeye(cv::Mat img)
 	cv::Mat M = cv::getPerspectiveTransform(src_vertices, dst_vertices);
 	cv::Mat img_out;
 
-	warpPerspective(img, img_out, M, cv::Size(out_w,out_h));
+	warpPerspective(temp_img, img_out, M, cv::Size(out_w,out_h));
 	return img_out;
 }
 
