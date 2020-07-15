@@ -51,8 +51,8 @@ class GPS_Decoder{
 	    
 	    rt.x = xy.at(0);
 	    rt.y = xy.at(1);
-	    rt.header.stamp.sec= time;
-	    rt.header.stamp.nsec= time*(1e+9);
+	    rt.header.stamp.sec= int(time);
+	    rt.header.stamp.nsec= (time-rt.header.stamp.sec)*1e9;
 	    
 
 	    pub_.publish(rt);
