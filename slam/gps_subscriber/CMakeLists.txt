@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   nmea_msgs
   roscpp
   std_msgs
+  localization
 )
 
 generate_messages(
@@ -19,10 +20,11 @@ catkin_package(
   CATKIN_DEPENDS nmea_msgs roscpp std_msgs
 )
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(gps_subscriber_node src/gps_subscriber_node.cpp)
+add_executable(gps_subscriber_node src/gps_subscriber_node.cpp lib/UTM.cpp)
 add_dependencies(gps_subscriber_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(gps_subscriber_node
   ${catkin_LIBRARIES}
