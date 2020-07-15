@@ -10,12 +10,12 @@
   <build_depend>nmea_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_export_depend>nmea_msgs</build_export_depend>
-  <build_export_depend>roscpp</build_export_depend>
-  <build_export_depend>std_msgs</build_export_depend>
+  <build_depend>localization</build_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>nmea_msgs</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>localization</exec_depend>
   <export>
   </export>
 </package>
