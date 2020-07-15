@@ -1,0 +1,4 @@
+<launch>
+  <node name="gps_decoder" pkg="gps_subscriber" type="gps_subscriber_node"/>
+  <node name="imu_decoder" pkg="localization" type="imu_decoder"/>
+</launch>
