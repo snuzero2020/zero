@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "UTM.h"
 using namespace std;
 
 
@@ -44,8 +45,15 @@ class GPS_Decoder{
 
             lat += (lat_raw-lat*100)/60;
             lon += (lon_raw-lon*100)/60;
-            rt.x = lat;
-	    rt.y = lon;
+            
+	    vector<float> xy(2);
+	    LatLonToUTMXY(lat, lon, 52, xy.at(0), xy.at(1));
+	    
+	    rt.x = xy.at(0);
+	    rt.y = xy.at(1);
+	    rt.header.stamp.sec= time;
+	    rt.header.stamp.nsec= time*(1e+9);
+	    
 
 	    pub_.publish(rt);
         }
