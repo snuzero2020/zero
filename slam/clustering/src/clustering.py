@@ -77,19 +77,52 @@ class Clustering:
         iteration -= 1
     return inliersResult, plane_config
 
-    def filtering_points(self, points, inliers):
-        
+    def filtering_points(self, points, channels, inliers):
+        point_check= [False for in range(len(points))]
+        filtered_points = []
+        filtered_channels = []
+        for i in inliers:
+            point_check[i]=True
+            
+        for i in range(len(points)):
+            if point_check[i]:
+                continue
+            filtered_points.append(points[i])
+            filtered_channels.append(channels[i])
+
+        return filtered_points, filtered_channels
+            
     
     def projecting_points(self, points, plane_config):
 
 
     def euclidean_clustering(self, points, tree, distance_tolerance):
+        clusters = []
+        processed = [False for i in range(len(points))]
+        i = 0
+        while i < len(points):
+            storage = []
+            cluster = []
+            if not processed[i]:
+                storage.append(i)
+                while len(storage) >0:
+                    index = storage.pop()
+                    nearest_index, nearest_distance = tree.query_radius([points[i], r=distance_tolerance, return_distancce=True)
+                    cluster.append(index)
+                    i = i+1
+                    processed[index]=True
+                    for point in range(len(nearest_index[0]):
+                        if not processed[point]:
+                            storage.append(point)
+                if len(cluster)>10:
+                    clusters.append(cluster)
+        return clusters
 
 
     def callback_point_clouds(self, msg):
         cloud_points, cloud_channels = self.load_point_clouds(msg, self._remove_tolerance)
         inliers, plane_config = self.remove_plane(cloud_points, self._iteration, self._plane_tolerance)
-        filtered_points, filtered_channels = self.filtering_points(cloud_points, inliers)
+        filtered_points, filtered_channels = self.filtering_points(cloud_points, cloud_channels, inliers)
         projected_points = self.projecting_points(filtered_points, plane_config)
         tree = KDTree(projected_points)
         clusters = self.euclidean_clustering(projected_points, tree, self._clustering_tolerance)
