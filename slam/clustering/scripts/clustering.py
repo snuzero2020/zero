@@ -10,6 +10,7 @@ import sensor_msgs
 from sklearn.neighbors import KDTree
 import sensor_msgs.point_cloud2 as pc2
 from localization.msg import Points
+import time
 
 
 
@@ -110,6 +111,7 @@ class Clustering:
         
     
     def projecting_points(self, points, plane_config):
+        projected_points = []
         lidar_position = self.projection([0,0,0],plane_config)
         lidar_x = self.projection([1,0,0],plane_config)
         lidar_y = self.projection([0,1,0],plane_config)
@@ -117,7 +119,12 @@ class Clustering:
         lidar_y = lidar_y / self.point_norm(lidar_y)
         L = np.hstack((lidar_x, lidar_y)) # lidar matrix, we will calculate (LtL)^-1Lt
         L = np.matmul(np.linalg.inv(np.matmul(np.transpose(L),L)),np.transpose(L))
-        return np.matmul(L,np.transpose(np.array(points))).tolist()
+        for point in points:
+            projected_point = self.projection(point, plane_config)
+            projected_point = np.matmul(L,projected_point-lidar_position)
+            projected_points.append([projected_point[0][0], projected_point[1][0]])
+        return projected_points
+        #return np.matmul(L,np.transpose(np.array(points))).tolist()
     
     
     def euclidean_clustering(self, points, tree, distance_tolerance):
@@ -144,18 +151,19 @@ class Clustering:
     
     
     def callback_point_clouds(self, msg):
-        print(1)
+        times = []
+        times.append(time.time())
         cloud_points, cloud_channels = self.load_point_clouds(msg, self._remove_tolerance)
-        print(1)
+        times.append(time.time())
         inliers, plane_config = self.ransac_plane(cloud_points, self._iteration, self._plane_tolerance)
-        print(1)
+        times.append(time.time())
         filtered_points, filtered_channels = self.filtering_points(cloud_points, cloud_channels, inliers)
-        print(1)
+        times.append(time.time())
         projected_points = self.projecting_points(filtered_points, plane_config)
-        print(1)
+        times.append(time.time())
         tree = KDTree(np.array(projected_points))
-        print(1)
         clusters = self.euclidean_clustering(np.array(projected_points), tree, self._clustering_tolerance)
+        times.append(time.time())
         publish_clusters = []
         publish_channels = []
         publish_points = []
@@ -201,6 +209,12 @@ class Clustering:
         publish_3d_msg.channels = publish_channels
         self._pub_2d_obstacle_points.publish(publish_2d_msg)
         self._pub_3d_obstacle_points.publish(publish_3d_msg)
+        times.append(time.time())
+        for i in range(len(times)):
+            if i ==0:
+                continue
+            print(times[i]-times[i-1])
+        print(times[len(times)-1]-times[0])
 
 
 if __name__ == '__main__':
