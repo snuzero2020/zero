@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   message_generation
   cv_bridge
 )
@@ -12,8 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(cmake_modules REQUIRED)
 list(APPEND CMAK_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen REQUIRED)
-add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg Data.msg Gps.msg Imu.msg)
-generate_messages(DEPENDENCIES std_msgs)
+add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg Data.msg Gps.msg Imu.msg Points.msg)
+generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
 catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)
 
