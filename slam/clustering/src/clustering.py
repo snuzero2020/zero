@@ -31,10 +31,54 @@ class Clustering:
 
 
     def remove_plane(self, points, iteration, distance_tolerance):
+        inliersResult = {}
+        inliersResult = set()
+        plane_config = {'a':0.0, 'b':0.0, 'c':0.0, 'd':0.0}
+        while iteration:
+            inliers = {}
+            inliers = set()
+            while len(inliers) <3:
+                inliear.add(random.randint(0,len(points)-1))
+            inliers_iter = inliers.__iter__()
+            itr = next(inliers_iter)
+            x1 = points[itr][0]
+            y1 = points[itr][1]
+            z1 = points[itr][2]
+            itr = next(inliers_iter)
+            x2 = points[itr][0]
+            y2 = points[itr][1]
+            z2 = points[itr][2]
+            itr = next(inliers_iter)
+            x3 = points[itr][0]
+            y3 = points[itr][1]
+            z3 = points[itr][2]
+            # Get Normal Vector by Cross Product
+            a = ((y2-y1)*(z3-z1) - (y3-y1)*(z2-z1))
+            b = ((z2-z1)*(x3-x1) - (x2-x1)*(z3-z1))
+            c = ((x2-x1)*(y3-y1) - (x3-x1)*(y2-y1))
+            d = -(a*x1 + b*y1 + c*z1)
+            for i in range(len(points)):
+                # Not consider three points already picked
+                if i in inliers:
+                    continue
+            x4 = points[i][0]
+            y4 = points[i][1]
+            z4 = points[i][2]
+            # Distance between picked point and the plane
+            dist = math.fabs(a*x4 + b*y4 + c*z4 +d) / math.sqrt(a*a + b*b + c*c)
+            if dist <= distanceTol:
+                inliers.add(i)
+        if len(inliers) > len(inliersResult):
+            inliersResult = inliers
+            plane_config['a'] = a
+            plane_config['b'] = b
+            plane_config['c'] = c
+            plane_config['d'] = d
+        iteration -= 1
+    return inliersResult, plane_config
 
-    
     def filtering_points(self, points, inliers):
-
+        
     
     def projecting_points(self, points, plane_config):
 
@@ -46,7 +90,20 @@ class Clustering:
         cloud_points, cloud_channels = self.load_point_clouds(msg, self._remove_tolerance)
         inliers, plane_config = self.remove_plane(cloud_points, self._iteration, self._plane_tolerance)
         filtered_points, filtered_channels = self.filtering_points(cloud_points, inliers)
-        projected_points = self.
+        projected_points = self.projecting_points(filtered_points, plane_config)
+        tree = KDTree(projected_points)
+        clusters = self.euclidean_clustering(projected_points, tree, self._clustering_tolerance)
+        publish_clusters = []
+        publish_channels = []
+        publish_points = []
+        publish_projected_points = []
+        for cluster in clusters:
+            for point in cluster:
+
+        publish_2d_msg = Points()
+        publish_3d_msg = Points()
+        publish_2d_msg.is_3d = False
+        publish_3d_msg.is_2d = True
 
 
 
