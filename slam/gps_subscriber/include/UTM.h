@@ -21,10 +21,10 @@
 // Choose floating point precision:
 
 // 32-bit (for Teensy 3.5/3.6 ARM boards, etc.)
-#define FLOAT_32
+//#define FLOAT_32
 
 // 64-bit (for desktop/server use)
-//#define FLOAT_64
+#define FLOAT_64
 
 #ifdef FLOAT_64
 #define FLOAT double
