@@ -19,6 +19,19 @@ class Clustering:
         self._plane_tolerance = 0.05
         self._clustering_tolerance = 0.01
         
+    
+    def projection(point, plane_config):
+        a = plane_config['a']
+        b = plane_config['b']
+        c = plane_config['c']
+        d = plane_config['d']
+        t = (point[0]*a + point[1]*b + point[2]*c + d)/(a*a+b*b+c*c)
+        return np.array([point[0]-a*t, point[1]-b*t, point[2]-c*t]).reshape(-1,1)
+
+
+    def point_norm(point):
+        return math.sqrt(point[0]*point[0] + point[1]*point[1] + point[2]*point[2])
+
 
     def load_point_clouds(self, msg, distance_tolerance):
         cloud_points = []
@@ -30,7 +43,7 @@ class Clustering:
         return cloud_points, cloud_channels
 
 
-    def remove_plane(self, points, iteration, distance_tolerance):
+    def ransac_plane(self, points, iteration, distance_tolerance):
         inliersResult = {}
         inliersResult = set()
         plane_config = {'a':0.0, 'b':0.0, 'c':0.0, 'd':0.0}
@@ -78,9 +91,17 @@ class Clustering:
     return inliersResult, plane_config
 
     def filtering_points(self, points, inliers):
-        
+
     
     def projecting_points(self, points, plane_config):
+        lidar_position = self.projection([0,0,0],plane_config)
+        lidar_x = self.projection([1,0,0],plane_config)
+        lidar_y = self.projection([0,1,0],plane_config)
+        lidar_x = lidar_x / self.point_norm(lidar_x)
+        lidar_y = lidar_y / self.point_norm(lidar_y)
+        L = np.hstack((lidar_x, lidar_y)) # lidar matrix, we will calculate (LtL)^-1Lt
+        L = np.matmul(np.linalg.inv(np.matmul(np.transpose(L),L)),np.transpose(L))
+        return np.matmul(L,np.transpose(np.array(points)))
 
 
     def euclidean_clustering(self, points, tree, distance_tolerance):
@@ -88,7 +109,7 @@ class Clustering:
 
     def callback_point_clouds(self, msg):
         cloud_points, cloud_channels = self.load_point_clouds(msg, self._remove_tolerance)
-        inliers, plane_config = self.remove_plane(cloud_points, self._iteration, self._plane_tolerance)
+        inliers, plane_config = self.ransac_plane(cloud_points, self._iteration, self._plane_tolerance)
         filtered_points, filtered_channels = self.filtering_points(cloud_points, inliers)
         projected_points = self.projecting_points(filtered_points, plane_config)
         tree = KDTree(projected_points)
