@@ -28,23 +28,23 @@ int main(int argc, char **argv)
 	int time = clock();
 	cv::Mat img;
 
-	cv::VideoCapture cap(0);
 	/*std::cout<<cap.get(cv::CAP_PROP_FRAME_WIDTH)<<std::endl;
 	std::cout<<cap.get(cv::CAP_PROP_FRAME_HEIGHT)<<std::endl;
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 360);*/
 
+	/*cv::VideoCapture cap(0);
 	if(!cap.isOpened())
 	{
 		std::cerr << "Camera open failed!!"<<std::endl;
 		return -1;
-	}
+	}*/
 
 	while (nh.ok()) 
 	{
-		cap >> img;
+		//cap >> img;
 		time = clock();
-		//img = cv::imread("/home/snuzero/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_8.bmp");
+		img = cv::imread("/home/sunho/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_8.bmp");
 		
 		
 		if(img.empty())

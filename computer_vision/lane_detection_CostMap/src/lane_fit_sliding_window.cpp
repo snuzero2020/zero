@@ -78,7 +78,9 @@ cv::Mat get_fits_by_sliding_window(cv::Mat img, int n_window = 10)
     window_x_size = 8;
     window_y_size = img_size/n_window;
 
-    //cv::Mat left_temp_img = left_img.clone();
+    cv::Mat left_temp_img = left_img.clone();
+    cv::Mat right_temp_img = right_img.clone();
+    cv::Mat temp_img = cv::Mat::zeros(img_size, img_size, CV_8UC1);
     //cv::namedWindow("left_lane");
 	//cv::imshow("left_lane", left_temp_img);
     //cv::waitKey();
@@ -165,14 +167,14 @@ cv::Mat get_fits_by_sliding_window(cv::Mat img, int n_window = 10)
 
         //imshow("left_img",left_img);
         
-        /*if(window_x_num == 3)
+        if(window_x_num == 3)
         {
             cv::rectangle(left_temp_img, cv::Rect(window_x_min, window_y_min, window_x_size, window_y_size), 50, 2);
             cv::rectangle(left_temp_img, cv::Rect(window_x_min + window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
             cv::rectangle(left_temp_img, cv::Rect(window_x_min + 2*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
-            imshow("left_temp_img",left_temp_img);
-            left_temp_img = left_img.clone();
-            cv::waitKey();
+            //imshow("left_temp_img",left_temp_img);
+            //left_temp_img = left_img.clone();
+            //cv::waitKey();
         }
         else if(window_x_num == 5)
         {
@@ -181,10 +183,10 @@ cv::Mat get_fits_by_sliding_window(cv::Mat img, int n_window = 10)
             cv::rectangle(left_temp_img, cv::Rect(window_x_min + 2*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
             cv::rectangle(left_temp_img, cv::Rect(window_x_min + 3*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
             cv::rectangle(left_temp_img, cv::Rect(window_x_min + 4*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
-            imshow("left_temp_img",left_temp_img);
-            left_temp_img = left_img.clone();
-            cv::waitKey();
-        }*/
+            //imshow("left_temp_img",left_temp_img);
+            //left_temp_img = left_img.clone();
+            //cv::waitKey();
+        }
 
         window_x_num = 3;
     }
@@ -323,8 +325,50 @@ cv::Mat get_fits_by_sliding_window(cv::Mat img, int n_window = 10)
             }
         }
 
+         if(window_x_num == 3)
+        {
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min, window_y_min, window_x_size, window_y_size), 50, 2);
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min + window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min + 2*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
+            //imshow("right_temp_img",right_temp_img);
+            //left_temp_img = left_img.clone();
+            //cv::waitKey();
+        }
+        else if(window_x_num == 5)
+        {
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min, window_y_min, window_x_size, window_y_size), 50, 2);
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min + window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min + 2*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min + 3*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
+            cv::rectangle(right_temp_img, cv::Rect(window_x_min + 4*window_x_size, window_y_min, window_x_size, window_y_size), 50, 2);
+            //imshow("right_temp_img",right_temp_img);
+            //left_temp_img = left_img.clone();
+            //cv::waitKey();
+        }
+
         window_x_num = 3;
     }
+
+    ////////////////////
+    //std::cout<<"1"<<std::endl;
+    //cv::Mat before_mask_img = cv::Mat::zeros(img_size, img_size, CV_8UC1);
+    for(int i=0; i < half_size; i++)
+    {
+        for(int j=0; j < img_size; j++)
+        {
+            //std::cout<<i<<" "<<j<<std::endl;
+            temp_img.at<uchar>(j,i) = left_temp_img.at<uchar>(j,i);
+            temp_img.at<uchar>(j,i+half_size) = right_temp_img.at<uchar>(j,i);
+            //before_mask_img.at<uchar>(j,i) = left_temp_img.at<uchar>(j,i);
+            //before_mask_img.at<uchar>(j,i+half_size) = right_temp_img.at<uchar>(j,i);
+        }
+    }
+    //std::cout<<"2"<<std::endl;
+
+    cv::namedWindow("before_mask_img");
+    cv::imshow("before_mask_img",img);
+    cv::namedWindow("window_img");
+	cv::imshow("window_img",temp_img);
 
     //std::cout<<"3"<<std::endl;
 
@@ -332,67 +376,103 @@ cv::Mat get_fits_by_sliding_window(cv::Mat img, int n_window = 10)
     //right_lane.half_lane_print(img_size, 1); // 0: left , 1: right
     
     cv::Mat return_img = cv::Mat::zeros(img_size, img_size, CV_8UC1);
-    int fibot_left, fibot_right;
+    int pivot_left, pivot_right;
     for(int i=0; i<img_size ;i++)
     {
-        fibot_left = static_cast<int>(left_lane.coeff[0]+left_lane.coeff[1]*i+left_lane.coeff[2]*i*i);
-        fibot_right = static_cast<int>(right_lane.coeff[0]+right_lane.coeff[1]*i+right_lane.coeff[2]*i*i);
-        for(int j=0; j< fibot_left-2; j++)
+        pivot_left = static_cast<int>(left_lane.coeff[0]+left_lane.coeff[1]*i+left_lane.coeff[2]*i*i);
+        pivot_right = static_cast<int>(right_lane.coeff[0]+right_lane.coeff[1]*i+right_lane.coeff[2]*i*i);
+        if(pivot_left < pivot_right)
         {
-            return_img.at<uchar>(i,j) = 255;
-        }
-        for(int j=fibot_left-2; j<= fibot_left+2; j++)
+        for(int j=0; j< pivot_left-2; j++)
         {
-            if(left_lane.color == 0)
-            {
-                return_img.at<uchar>(i,j) = 128;
-            }
-            else
+            if(0<=i && i<img_size && 0<=j && j<img_size)
             {
                 return_img.at<uchar>(i,j) = 255;
             }
         }
-        for(int j=fibot_right-2; j<= fibot_right+2; j++)
+        for(int j=pivot_left-2; j<= pivot_left+2; j++)
+        {
+            if(left_lane.color == 0)
+            {
+                if(0<=i && i<img_size && 0<=j && j<img_size)
+                {
+                    return_img.at<uchar>(i,j) = 128;
+                }
+            }
+            else
+            {
+                if(0<=i && i<img_size && 0<=j && j<img_size)
+                {
+                    return_img.at<uchar>(i,j) = 255;
+                }
+            }
+        }
+        for(int j=pivot_right-2; j<= pivot_right+2; j++)
         {
             if(right_lane.color == 0)
             {
-                return_img.at<uchar>(i,j+half_size) = 128;
+                if(0<=i && i<img_size && 0<=(j+half_size) && (j+half_size)<img_size)
+                {
+                    return_img.at<uchar>(i,j+half_size) = 128;
+                }
             }
             else
+            {
+                if(0<=i && i<img_size && 0<=(j+half_size) && (j+half_size)<img_size)
+                {
+                    return_img.at<uchar>(i,j+half_size) = 255;
+                }
+            }
+        }
+        for(int j=pivot_right+3; j<=half_size; j++)
+        {
+            if(0<=i && i<img_size && 0<=(j+half_size) && (j+half_size)<img_size)
             {
                 return_img.at<uchar>(i,j+half_size) = 255;
             }
         }
-        for(int j=fibot_right+3; j<=half_size; j++)
-        {
-            return_img.at<uchar>(i,j+half_size) = 255;
-        }
 
-        int fibot_1, fibot_2, fibot_3, fibot_4;
-        fibot_1 = ((fibot_left)*4 + (fibot_right + half_size)*1)/5;
-        fibot_2 = ((fibot_left)*3 + (fibot_right + half_size)*2)/5;
-        fibot_3 = ((fibot_left)*2 + (fibot_right + half_size)*3)/5;
-        fibot_4 = ((fibot_left)*1 + (fibot_right + half_size)*4)/5;
+        int pivot_1, pivot_2, pivot_3, pivot_4;
+        pivot_1 = ((pivot_left)*4 + (pivot_right + half_size)*1)/5;
+        pivot_2 = ((pivot_left)*3 + (pivot_right + half_size)*2)/5;
+        pivot_3 = ((pivot_left)*2 + (pivot_right + half_size)*3)/5;
+        pivot_4 = ((pivot_left)*1 + (pivot_right + half_size)*4)/5;
 
-        for(int j = fibot_left+3; j< fibot_1; j++)
+        for(int j = pivot_left+3; j< pivot_1; j++)
         {
-            return_img.at<uchar>(i,j) = 100;
+            if(0<=i && i<img_size && 0<=j && j<img_size)
+            {
+                return_img.at<uchar>(i,j) = 100;
+            }
         }
-        for(int j = fibot_1; j< fibot_2; j++)
+        for(int j = pivot_1; j< pivot_2; j++)
         {
-            return_img.at<uchar>(i,j) = 50;
+            if(0<=i && i<img_size && 0<=j && j<img_size)
+            {
+                return_img.at<uchar>(i,j) = 50;
+            }
         }
-        for(int j = fibot_2; j< fibot_3; j++)
+        for(int j = pivot_2; j< pivot_3; j++)
         {
-            return_img.at<uchar>(i,j) = 0;
+            if(0<=i && i<img_size && 0<=j && j<img_size)
+            {
+                return_img.at<uchar>(i,j) = 0;
+            }
         }
-        for(int j = fibot_3; j< fibot_4; j++)
+        for(int j = pivot_3; j< pivot_4; j++)
         {
-            return_img.at<uchar>(i,j) = 50;
+            if(0<=i && i<img_size && 0<=j && j<img_size)
+            {
+                return_img.at<uchar>(i,j) = 50;
+            }
         }
-        for(int j = fibot_4; j< fibot_right-2+half_size; j++)
+        for(int j = pivot_4; j< pivot_right-2+half_size; j++)
         {
-            return_img.at<uchar>(i,j) = 100;
+            if(0<=i && i<img_size && 0<=j && j<img_size)
+            {
+                return_img.at<uchar>(i,j) = 100;
+            }
+        }
         }
     }
 
