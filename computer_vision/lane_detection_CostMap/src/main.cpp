@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 	{
 		//cap >> img;
 		time = clock();
-		img = cv::imread("/home/sunho/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_8.bmp");
+		img = cv::imread("/home/ayounglee/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_6.bmp");
 		
 		
 		if(img.empty())

@@ -379,8 +379,12 @@ cv::Mat get_fits_by_sliding_window(cv::Mat img, int n_window = 10)
     int pivot_left, pivot_right;
     for(int i=0; i<img_size ;i++)
     {
-        pivot_left = static_cast<int>(left_lane.coeff[0]+left_lane.coeff[1]*i+left_lane.coeff[2]*i*i);
-        pivot_right = static_cast<int>(right_lane.coeff[0]+right_lane.coeff[1]*i+right_lane.coeff[2]*i*i);
+        pivot_left = static_cast<int>(left_lane.coeff[0]+left_lane.coeff[1]*i+left_lane.coeff[2]*i*i+left_lane.coeff[3]*i*i*i);
+        pivot_right = static_cast<int>(right_lane.coeff[0]+right_lane.coeff[1]*i+right_lane.coeff[2]*i*i+right_lane.coeff[3]*i*i*i);
+        
+        // std::cout<<pivot_left<<std::endl;
+        // std::cout<<pivot_right<<std::endl;
+
         if(pivot_left < pivot_right)
         {
         for(int j=0; j< pivot_left-2; j++)

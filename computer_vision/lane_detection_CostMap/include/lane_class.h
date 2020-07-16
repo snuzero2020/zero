@@ -14,7 +14,7 @@ class Lane
         vector<int> pixel_y;
 
     public:
-        double coeff[3];
+        double coeff[4];
         int color;
         Lane();
         void set_color(int color);
