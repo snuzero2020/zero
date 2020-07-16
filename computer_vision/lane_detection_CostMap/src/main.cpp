@@ -42,9 +42,10 @@ int main(int argc, char **argv)
 
 	while (nh.ok()) 
 	{
+		cap >> img;
 		time = clock();
 		//img = cv::imread("/home/snuzero/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_8.bmp");
-		cap >> img;
+		
 		
 		if(img.empty())
 		{

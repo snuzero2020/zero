@@ -20,7 +20,7 @@ private:
 	ros::Publisher path_pub;
 public:
 	RosNode(){
-		cost_map_sub = n.subscribe("cost_map", 50000, &RosNode::costmapCallback, this);
+		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 50000, &RosNode::costmapCallback, this);
 		//cost_map_sub = n.subscribe("cost_map_with_goal_vector", 50000, &RosNode::costmapCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 	}
@@ -29,6 +29,8 @@ public:
 		
 		cout << "callback\n";
 		static RRT rrt = RRT();
+		const int invisible_pixel{static_cast<int>(1.74*200/6.0)};
+		const double default_cost{1};
 		int t = clock();
 
 		// get costmap	
@@ -42,7 +44,12 @@ public:
 //		}
 		for(int i = 0; i<h; i++){
 			for(int j = 0; j<w;j++){
-				cost_map[i][j] = (double)(map.data[i*w+j]);
+				if (j>invisible_pixel){
+					cost_map[i][j] = (double)(map.data[i*w+(j-invisible_pixel)]);
+				}
+				else
+					cost_map[i][j] = default_cost;
+				
 			}
 		}
 		cout << "90,198 cost ; " << cost_map[90][198] << endl;
