@@ -1,10 +1,12 @@
 #include "ros/ros.h"
 #include "nmea_msgs/Sentence.h"
 #include "localization/Gps.h"
+#include "opencv2/opencv.hpp" // Map Show
 #include <iostream>
 #include <string>
 #include <vector>
 #include "UTM.h"
+#include "XYToPixel.h" // Map Show
 using namespace std;
 
 
@@ -13,6 +15,7 @@ class GPS_Decoder{
     GPS_Decoder(){
 	pub_ = n_.advertise<localization::Gps>("gps", 1000);
 	sub_ = n_.subscribe("/nmea_sentence", 1, &GPS_Decoder::callback, this);
+    img = cv::imread("src/zero/slam/gps_subscriber/src/map.png", 1); // Map Show
     }
 
     void callback(const nmea_msgs::Sentence::ConstPtr& msg){
@@ -54,7 +57,7 @@ class GPS_Decoder{
                 ss >> c;
                 if(checksum != c){ROS_INFO("FailedByChecksum"); cout<<checksum<<"!="<<c<<"==0x"<<s<<endl; return;}
             }
-            double time_raw,lat_raw,lon_raw;
+            double time_raw, lat_raw, lon_raw;
             double time, lat, lon;
             time_raw = stod(tokens[1]);
             lat_raw = stod(tokens[2]);
@@ -82,6 +85,22 @@ class GPS_Decoder{
             rt.header.stamp.sec = tm.sec;
             rt.header.stamp.nsec = tm.nsec;
 
+            // ----------------------- map show ---------------
+            int pixel_x, pixel_y;
+            
+            XYToPixel(img, rt.x, rt.y, pixel_x, pixel_y, 2);
+            cv::line(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+10, pixel_y+10), cv::Scalar(0, 255, 0), 10);
+            cout << pixel_x << ", " << pixel_y << std::endl;
+            if (n == 300) {
+                cv::imwrite("src/zero/slam/gps_subscriber/src/path.png", img);
+                cout << "saved" << endl;
+            }
+
+            n++;
+            std::cout << n << std::endl;
+
+            // ----------------------- map show ----------------
+            
             pub_.publish(rt);
         }
     }
@@ -90,6 +109,8 @@ class GPS_Decoder{
     ros::NodeHandle n_;
     ros::Publisher pub_;
     ros::Subscriber sub_;
+    cv::Mat img; // Map Show
+    int n = 0; // Map Show
 };
 
 
