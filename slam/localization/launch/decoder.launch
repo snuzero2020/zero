@@ -1,5 +1,5 @@
 <launch>
-  <node name="gps_decoder" pkg="gps_subscriber" type="gps_subscriber_node"/>
+  <node name="gps_decoder" pkg="localization" type="gps_decoder.py" output="screen"/>
   <node name="imu_decoder" pkg="localization" type="imu_decoder"/>
   <node name="kalman_fusion" pkg="localization" type="kalman_fusion"/>
 </launch>

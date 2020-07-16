@@ -149,9 +149,10 @@ class Kalman_fusion{
         // w ~ N(0,Q)
         double dt = (t-this->t).toSec();
         this->t=t;
+        double dte=0.005;
         // Matrix<double,_ST,_ST> F;
         F << 1,0,dt,0,0 , 0,1,0,dt,0 , 0,0,1,0,0 , 0,0,0,1,0 , 0,0,0,0,1;
-        B << 0.5*dt*dt,0,0 , 0,0.5*dt*dt,0 , dt,0,0 , 0,dt,0 , 0,0,dt;
+        B << 0.5*(abs(dt)+dte)*(abs(dt)+dte),0,0 , 0,0.5*(abs(dt)+dte)*(abs(dt)+dte),0 , abs(dt)+dte,0,0 , 0,abs(dt)+dte,0 , 0,0,abs(dt)+dte;
         double th = st(4);
         st = F*st;
         F(0,4)= 0.5*dt*dt*(-sin(th)*u(0) -cos(th)*u(1));
@@ -212,7 +213,7 @@ class Kalman_fusion{
         Matrix<double,_ZGPS,_ZGPS> Rsample = prevASGPS + H*F.inverse()*invHS;
         RGPS *= 1-weight;
         RGPS += Rsample*weight;
-        toSPD<_ZGPS>(RGPS);
+        toSPD<_ZGPS>(RGPS,1.0);
         Matrix<double,_Q,_ST> invB = (prevB.transpose()*prevB).completeOrthogonalDecomposition().pseudoInverse()*prevB.transpose();
         Matrix<double,_Q,_Q> Qsample = invB * invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose() * invB.transpose();
         Q *= 1-weight;
@@ -233,6 +234,21 @@ class Kalman_fusion{
         }
         A = V*D*V.transpose();
     }
+    template <int dim>
+    void toSPD(Matrix<double,dim,dim>& A, double large){
+        Matrix<double,dim,dim> temp = (A+A.transpose())/2;
+        EigenSolver<Matrix<double,dim,dim>> es(temp);
+        Matrix<double,dim,dim> D = es.pseudoEigenvalueMatrix();
+        Matrix<double,dim,dim> V = es.pseudoEigenvectors();
+        for(int i=0;i<dim;i+=1){
+            if(D(i,i)<SMALL){
+                D(i,i)=SMALL;
+            }else if(D(i,i)>large){
+                D(i,i)=large;
+            }
+        }
+        A = V*D*V.transpose();
+    }
 };
 
 int main(int argc, char **argv)
@@ -242,12 +258,12 @@ int main(int argc, char **argv)
 
     Kalman_fusion<> kf;
     kf.P *= 10*10;
-    kf.Q *= 400*400;
-    kf.RIMU *= 0.005*0.005;
-    kf.RGPS *= 0.1*0.1;
+    kf.Q *= 16*16;
+    kf.RIMU *= 0.01*0.01;
+    kf.RGPS *= 0.05*0.05;
     
-    ros::Subscriber subIMU = n.subscribe("/imu",100,&Kalman_fusion<>::IMUCallback,&kf);
-    ros::Subscriber subGPS = n.subscribe("/gps",100,&Kalman_fusion<>::GPSCallback,&kf);
+    ros::Subscriber subIMU = n.subscribe("/imu",10,&Kalman_fusion<>::IMUCallback,&kf);
+    ros::Subscriber subGPS = n.subscribe("/gps",10,&Kalman_fusion<>::GPSCallback,&kf);
     ros::spin();
     return 0;
 }
