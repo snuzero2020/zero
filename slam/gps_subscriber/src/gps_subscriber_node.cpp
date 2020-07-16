@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 #include "UTM.h"
 #include "XYToPixel.h" // Map Show
 using namespace std;
@@ -32,12 +33,12 @@ class GPS_Decoder{
             s.erase(0, pos + delimiter.length());
         }
         if(tokens[0] == "$GNGGA"){
-            if(stoi(tokens[6])<1){ROS_INFO("failedByQualityIndicator"); cout<<tokens[6]<<endl; return;}
-            if(stoi(tokens[6])<2){ROS_INFO("warnByQualityIndicator"); cout<<tokens[6]<<endl;}
-            if(stoi(tokens[7])<3){ROS_INFO("failedByStatellitesN"); cout<<tokens[7]<<endl; return;}
-            if(stoi(tokens[7])<8){ROS_INFO("warnByStatellitesN"); cout<<tokens[7]<<endl;}
-            if(stod(tokens[8])>10.0){ROS_INFO("failedByHDOP"); cout<<tokens[8]<<endl; return;}
-            if(stod(tokens[8])>3.5){ROS_INFO("warnByHDOP"); cout<<tokens[8]<<endl;}
+            if(stoi(tokens[6])<1){ROS_ERROR("failedByQualityIndicator(No Satellite), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
+            if(stoi(tokens[6])<2){ROS_WARN("warnByQualityIndicator(Non-DGPS), GPS Quality Indicator: %s", tokens[6].c_str());}
+            if(stoi(tokens[7])<3){ROS_ERROR("failedByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
+            if(stoi(tokens[7])<8){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str());}
+            if(stod(tokens[8])>10.0 || stod(tokens[8])==0.0){ROS_ERROR("failedByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
+            if(stod(tokens[8])>3.5){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str());}
             {   //check checksum
                 s = msg->sentence;
                 delimiter = "$";
@@ -55,7 +56,7 @@ class GPS_Decoder{
                 stringstream ss;
                 ss << std::hex << s;
                 ss >> c;
-                if(checksum != c){ROS_INFO("FailedByChecksum"); cout<<checksum<<"!="<<c<<"==0x"<<s<<endl; return;}
+                if(checksum != c){ROS_ERROR("FailedByChecksum, %d != %d == 0x%s", checksum, c, s.c_str()); return;}
             }
             double time_raw, lat_raw, lon_raw;
             double time, lat, lon;
@@ -89,15 +90,29 @@ class GPS_Decoder{
             int pixel_x, pixel_y;
             
             XYToPixel(img, rt.x, rt.y, pixel_x, pixel_y, 2);
-            cv::line(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+10, pixel_y+10), cv::Scalar(0, 255, 0), 10);
-            cout << pixel_x << ", " << pixel_y << std::endl;
-            if (n == 300) {
-                cv::imwrite("src/zero/slam/gps_subscriber/src/path.png", img);
-                cout << "saved" << endl;
+            ROS_INFO("%dth point: (%d, %d)", n, pixel_x, pixel_y);
+
+            if (n != 1) {
+                if (sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)) < 20) {
+                    cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 255, 0), 10);
+
+                    prev_pixel_x = pixel_x;
+                    prev_pixel_y = pixel_y;
+                } else {
+                    ROS_WARN("%dth point: outlier", n);
+                    ROS_WARN("%dth point: Distance from very previous point(px): %lf", n, sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)));
+                }
+
+                if (n == 400) {
+                    cv::imwrite("src/zero/slam/gps_subscriber/src/path.png", img);
+                    ROS_INFO("Image saved");
+                }
+            } else {
+                prev_pixel_x = pixel_x;
+                prev_pixel_y = pixel_y;
             }
 
             n++;
-            std::cout << n << std::endl;
 
             // ----------------------- map show ----------------
             
@@ -110,7 +125,9 @@ class GPS_Decoder{
     ros::Publisher pub_;
     ros::Subscriber sub_;
     cv::Mat img; // Map Show
-    int n = 0; // Map Show
+    int n = 1; // Map Show
+    int prev_pixel_x = 0; // Map Show
+    int prev_pixel_y = 0; // Map Show
 };
 
 
