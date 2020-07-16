@@ -215,6 +215,7 @@ class Clustering:
                 continue
             print(times[i]-times[i-1])
         print(times[len(times)-1]-times[0])
+        print(len(projected_points))
 
 
 if __name__ == '__main__':
