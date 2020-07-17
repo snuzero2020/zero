@@ -28,7 +28,7 @@ int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int p
         XYToPixel_internal(img, x, y, pixel_x, pixel_y, 302536.722, 4124121.856, 4090, 4127, 0.1578331);
         return 0;
     } else if (place == FMTC) {
-        XYToPixel_internal(img, x, y, pixel_x, pixel_y, 298441.46, 4137766.57, 8676, 5058, 0.030066145520144317498496692);
+        XYToPixel_internal(img, x, y, pixel_x, pixel_y, 298441.46, 4137766.57, 8864, 5268 + 60, 0.02992); //0.030066145520144317498496692
         return 0;
     } else {
         return -2;

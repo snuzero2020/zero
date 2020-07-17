@@ -15,8 +15,9 @@ class GPS_Decoder{
     public:
     GPS_Decoder(){
 	pub_ = n_.advertise<localization::Gps>("gps", 1000);
-	sub_ = n_.subscribe("/nmea_sentence", 1, &GPS_Decoder::callback, this);
-    img = cv::imread("src/zero/slam/gps_subscriber/src/map.png", 1); // Map Show
+	sub_ = n_.subscribe("/nmea_sentence", 10000, &GPS_Decoder::callback, this);
+    img = cv::imread("./src/zero/slam/gps_subscriber/src/map.png", 1); // Map Show
+    ROS_INFO("Image loaded");
     }
 
     void callback(const nmea_msgs::Sentence::ConstPtr& msg){
@@ -34,12 +35,12 @@ class GPS_Decoder{
         }
         if(tokens[0] == "$GNGGA"){
             if(stoi(tokens[6])<1){ROS_ERROR("failedByQualityIndicator(No Satellite), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
-            if(stoi(tokens[6])<2){ROS_WARN("warnByQualityIndicator(Non-DGPS), GPS Quality Indicator: %s", tokens[6].c_str());}
+            if(stoi(tokens[6])<2){ROS_WARN("warnByQualityIndicator(Non-DGPS), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
             if(stoi(tokens[7])<3){ROS_ERROR("failedByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
-            if(stoi(tokens[7])<8){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str());}
+            if(stoi(tokens[7])<8){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
             if(stod(tokens[8])>10.0 || stod(tokens[8])==0.0){ROS_ERROR("failedByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
-            if(stod(tokens[8])>3.5){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str());}
-            {   //check checksum
+            if(stod(tokens[8])>3.5){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
+            {   //check checksum 
                 s = msg->sentence;
                 delimiter = "$";
                 pos = s.find(delimiter);
@@ -90,22 +91,28 @@ class GPS_Decoder{
             int pixel_x, pixel_y;
             
             XYToPixel(img, rt.x, rt.y, pixel_x, pixel_y, 2);
-            ROS_INFO("%dth point: (%d, %d)", n, pixel_x, pixel_y);
+            ROS_INFO("%dth point: (%lf, %lf) = (%d, %d)", n, rt.x, rt.y, pixel_x, pixel_y);
 
             if (n != 1) {
-                if (sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)) < 20) {
-                    cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 255, 0), 10);
+                if (sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)) < 200 | saving == true) {
+                    cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 10);
 
                     prev_pixel_x = pixel_x;
                     prev_pixel_y = pixel_y;
-                } else {
+
+                    saving = false;
+                } else if (saving == false) {
                     ROS_WARN("%dth point: outlier", n);
                     ROS_WARN("%dth point: Distance from very previous point(px): %lf", n, sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)));
                 }
 
-                if (n == 400) {
-                    cv::imwrite("src/zero/slam/gps_subscriber/src/path.png", img);
+                if (n == 12000) {
+                    stringstream path_stream;
+                    path_stream << "src/zero/slam/gps_subscriber/src/path" << (n) << ".png";
+
+                    cv::imwrite(path_stream.str(), img);
                     ROS_INFO("Image saved");
+                    saving = true;
                 }
             } else {
                 prev_pixel_x = pixel_x;
@@ -128,6 +135,7 @@ class GPS_Decoder{
     int n = 1; // Map Show
     int prev_pixel_x = 0; // Map Show
     int prev_pixel_y = 0; // Map Show
+    bool saving = false; // Map Show
 };
 
 
