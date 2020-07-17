@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(OpenCV 3 REQUIRED)
+
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
@@ -21,6 +23,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 include/${PROJECT_NAME}
 )
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_library(rrt_star src/rrt_star.cpp)
 
@@ -31,6 +34,8 @@ add_dependencies(path_planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_
 target_link_libraries(path_planner_node  ${catkin_LIBRARIES} )
 
 target_link_libraries(path_planner_node  rrt_star )
+
+target_link_libraries(path_planner_node  ${OpenCV_LIBS})
 
 set_target_properties(path_planner_node PROPERTIES COMPILE_FLAGS "-O3")
 

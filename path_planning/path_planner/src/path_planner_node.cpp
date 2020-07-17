@@ -1,5 +1,5 @@
 #include "rrt_star.h"
-
+#include <opencv2/opencv.hpp>
 #include <vector>
 #include <ctime>
 #include "ros/ros.h"
@@ -63,6 +63,18 @@ public:
 
 // !!!!!!!!!!!!!!!!!! TODO : change solve function (check line path possibility) 
 		rrt.solve(path,cost_map,x, y,500);
+
+//	cv::namedWindow("costmap_path");
+		cv::Mat image(200,200,CV_8UC3);
+/*		for(int i = 0;i<200;i++) for(int j = 0;j<200;j++){
+			image.at<cv::Vec3b>(i,j)[0] = cost_map[i][j];	
+			image.at<cv::Vec3b>(i,j)[1] = cost_map[i][j];	
+			image.at<cv::Vec3b>(i,j)[2] = cost_map[i][j];	
+*/	//	}
+		for(int i = 0;i<path.size()-1;i++)
+			 line(image, cv::Point(path[i].x,path[i].y), cv::Point(path[i+1].x, path[i+1].y), cv::Scalar(200,0,100),1,0);
+
+		cv::imshow("costmap_path",image);
 
 		// convert path
 		nav_msgs::Path local_path;

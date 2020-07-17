@@ -21,7 +21,7 @@ def init():
     gear=0
     speed=rospy.get_param('/speed', 0) #m/s
     steer=rospy.get_param('/steer', 0) #degree
-    brake=1
+    brake=0
     time = rospy.get_param('/time', 0) + 0.3 #seconds
     init = rospy.Time.now()
     while not rospy.is_shutdown():
@@ -35,12 +35,12 @@ def init():
             break
         elif key == 'a':
             steer = steer - 1
-            if steer <= -15 :
-                steer = -15
+            if steer <= -28 :
+                steer = -28
         elif key == 'd':
             steer = steer + 1
-            if steer >= 15 :
-                steer = 15
+            if steer >= 28 :
+                steer = 28
         elif key == 'w':
             speed = speed + 0.1
             if speed >= 3:
@@ -61,13 +61,14 @@ def init():
                 brake = 1
          
         rospy.loginfo(msg)
-        
+        print("steer_degree : ", steer)
+
         msg.is_auto = is_auto
         msg.estop = estop
         msg.gear = gear
         msg.brake = brake
         msg.speed = round(speed,3)
-        msg.steer = round(steer,3)
+        msg.steer = round(steer * 3.141592 / 180.0, 3)
         msg.header.stamp = rospy.Time.now()
         
         pub.publish(msg)

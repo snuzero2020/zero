@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "cost_map_generator");
 	ros::NodeHandle n;
-	ros::Publisher cost_map_pub = n.advertise<nav_msgs::OccupancyGrid>("cost_map", 50000);
+	ros::Publisher cost_map_pub = n.advertise<nav_msgs::OccupancyGrid>("cost_map_with_goal_vector", 50000);
 	ros::Rate loop_rate(10);
 	nav_msgs::OccupancyGrid cost_map;
 	cost_map.info.width = 200;

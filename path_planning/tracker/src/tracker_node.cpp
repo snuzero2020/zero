@@ -208,9 +208,9 @@ void Tracker::solve_pure_pursuit()
 	rotational_radius = 1/curvature;
 	double temp_angle =  atan2(-rotational_center.y,rotational_center.x);
 	if (temp_angle < 3.141592/2.0)
-		nonslip_steering_angle = -temp_angle;
+		nonslip_steering_angle = temp_angle;
 	else
-		nonslip_steering_angle = -(temp_angle-3.141592);
+		nonslip_steering_angle = temp_angle-3.141592;
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)
@@ -281,7 +281,7 @@ void Tracker::vehicle_output_signal(){
     msg.estop = 0;
     msg.gear = 0;
     msg.brake = 0;
-    msg.speed = 0.5;//(pid_input>0)?pid_input:0; // try offset method
+    msg.speed = 1.0;//(pid_input>0)?pid_input:0; // try offset method
     msg.steer = get_steering_angle().data;
 
     car_signal_pub.publish(msg);
