@@ -68,7 +68,7 @@ def init():
         msg.gear = gear
         msg.brake = brake
         msg.speed = round(speed,3)
-        msg.steer = round(steer * 3.141592 / 180.0, 3)
+        msg.steer = round(steer,3)
         msg.header.stamp = rospy.Time.now()
         
         pub.publish(msg)

@@ -41,7 +41,7 @@ class Tracker
 		double current_vel{0};
 		Point look_ahead_point{Point()};
 		double curvature{0};
-		double nonslip_steering_angle{0}; // right side is positive
+		double nonslip_steering_angle{0}; // right side is positive, degree
 		double rotational_radius{0};
 
 		// PID control
@@ -208,9 +208,9 @@ void Tracker::solve_pure_pursuit()
 	rotational_radius = 1/curvature;
 	double temp_angle =  atan2(-rotational_center.y,rotational_center.x);
 	if (temp_angle < 3.141592/2.0)
-		nonslip_steering_angle = temp_angle;
+		nonslip_steering_angle = temp_angle*180/3.141592;
 	else
-		nonslip_steering_angle = temp_angle-3.141592;
+		nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)
