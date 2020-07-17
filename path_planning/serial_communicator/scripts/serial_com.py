@@ -15,7 +15,7 @@ alive = 0
 enc = []
 
 sudoPassword = 'snuzero123'
-command = 'chmod 777 /dev/ttyUSB2'
+command = 'chmodq 777 /dev/ttyUSB2'
 p= os.system('echo %s|sudo -S %s' % (sudoPassword, command))
 
 
