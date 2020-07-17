@@ -5,15 +5,18 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
+  nmea_msgs
   message_generation
   cv_bridge
+  cmake_modules
 )
 
-find_package(cmake_modules REQUIRED)
 list(APPEND CMAK_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen REQUIRED)
-add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg Data.msg Gps.msg Imu.msg)
-generate_messages(DEPENDENCIES std_msgs)
+
+add_message_files(DIRECTORY msg FILES FloatStamp.msg Keyop.msg Data.msg Gps.msg Imu.msg Points.msg)
+generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
 
 catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)
 
@@ -40,3 +43,6 @@ add_dependencies(evaluator localization_generate_messages_cpp)
 add_executable(imu_decoder src/imu_decoder.cpp)
 target_link_libraries(imu_decoder ${catkin_LIBRARIES} UnixtimeToSec)
 add_dependencies(imu_decoder localization_generate_messages_cpp)
+
+catkin_install_python(PROGRAMS src/gps_decoder.py src/kalman_fusion_visualizer.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
