@@ -40,9 +40,9 @@ int main(int argc, char **argv)
 		return -1;
 	}*/
 
-	cv::VideoCapture cap1(0);
-	cv::VideoCapture cap2(2);
-	cv::VideoCapture cap3(4);
+	cv::VideoCapture cap1("/home/sunho/Pictures/vision_lane_data/lane_video/lane_detection_2/front_lane_detection_2/front_lane_detection_2.avi");
+	cv::VideoCapture cap2("/home/sunho/Pictures/vision_lane_data/lane_video/lane_detection_2/right_lane_detection_2/right_lane_detection_2.avi");
+	cv::VideoCapture cap3("/home/sunho/Pictures/vision_lane_data/lane_video/lane_detection_2/left_lane_detection_2/left_lane_detection_2.avi");
 
 	if(!cap1.isOpened())
 	{
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	cv::Mat frame1, frame2, frame3;
 
 
-	std::ifstream inFile("/home/snuzero/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/camera_calibration.txt");
+	std::ifstream inFile("/home/sunho/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/camera_calibration.txt");
 	cv::Mat mtx = cv::Mat::zeros(3,3,CV_32FC1);
 	cv::Mat dist = cv::Mat::zeros(5, 1, CV_32FC1);
 	if(inFile.is_open())
@@ -111,7 +111,6 @@ int main(int argc, char **argv)
 		cv::namedWindow("perspective_img");
 		cv::imshow("perspective_img",perspective_img);
 		
-		/*
 		//std::cout<<"1"<<std::endl;
 		cv::Mat yellow;
 		yellow = thresh_frame_in_HSV(perspective_img);
@@ -181,7 +180,6 @@ int main(int argc, char **argv)
    	    loop_rate.sleep();
 		   
 		std::cout << (clock() - time)/(double)CLOCKS_PER_SEC << std::endl;
-		*/
 		cv::waitKey(1);
     }
 	

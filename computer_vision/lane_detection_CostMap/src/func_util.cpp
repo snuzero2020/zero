@@ -39,9 +39,9 @@ cv::Mat birdeye(cv::Mat img_front, cv::Mat img_right, cv::Mat img_left)
 
 	src_vertices_front[0]=front_pt1;
 	src_vertices_front[1]=front_pt2;
-	src_vertices_front[2]=front_pt3;
+	src_vertices_front[4]=front_pt3;
 	src_vertices_front[3]=front_pt4;
-	src_vertices_front[4]=front_pt5;
+	src_vertices_front[2]=front_pt5;
 	src_vertices_front[5]=front_pt6;
 
 	src_vertices_right[0] = right_pt1;
@@ -50,9 +50,9 @@ cv::Mat birdeye(cv::Mat img_front, cv::Mat img_right, cv::Mat img_left)
 	src_vertices_right[3] = right_pt4;
 
 	src_vertices_left[0] = left_pt1;
-	src_vertices_left[0] = left_pt2;
-	src_vertices_left[0] = left_pt3;
-	src_vertices_left[0] = left_pt4;
+	src_vertices_left[1] = left_pt2;
+	src_vertices_left[2] = left_pt3;
+	src_vertices_left[3] = left_pt4;
 
 	//cv::Point2f dst_vertices_front_1[4];
 	//cv::Point2f dst_vertices_front_2[4];
@@ -72,10 +72,10 @@ cv::Mat birdeye(cv::Mat img_front, cv::Mat img_right, cv::Mat img_left)
 
 	dst_vertices_front[0] = cv::Point2f(0, 0);
 	dst_vertices_front[1] = cv::Point2f(200, 0);
-	dst_vertices_front[2] = cv::Point2f(200, 25);
+	dst_vertices_front[4] = cv::Point2f(200, 25);
 	dst_vertices_front[3] = cv::Point2f(160, 92);
-	dst_vertices_front[4] = cv::Point2f(40, 89);
-	dst_vertices_front[5] = cv::Point2f(0, 15);
+	dst_vertices_front[2] = cv::Point2f(40, 89); //40, 89
+	dst_vertices_front[5] = cv::Point2f(0, 15); //15
 
 	dst_vertices_right[0] = cv::Point2f(200,126);
 	dst_vertices_right[1] = cv::Point2f(200, 200);
@@ -102,7 +102,31 @@ cv::Mat birdeye(cv::Mat img_front, cv::Mat img_right, cv::Mat img_left)
 	warpPerspective(img_front, img_out_front, M_front, cv::Size(out_w,out_h));
 	warpPerspective(img_right, img_out_right, M_right, cv::Size(out_w,out_h));
 	warpPerspective(img_left, img_out_left, M_left, cv::Size(out_w,out_h));
-	return img_out_left;
+
+	cv::Mat out_img = cv::Mat::zeros(200, 200, CV_8UC3);
+	for(int i=0; i<200; i++)
+	{
+		for(int j=0; j<100; j++)
+		{
+			out_img.at<cv::Vec3b>(j,i) = img_out_front.at<cv::Vec3b>(j,i);
+		}
+	}
+	for(int i=0; i<100; i++)
+	{
+		for(int j=100; j<200; j++)
+		{
+			out_img.at<cv::Vec3b>(j,i) = img_out_left.at<cv::Vec3b>(j,i);
+		}
+	}
+	for(int i=100; i<200; i++)
+	{
+		for(int j=100; j<200; j++)
+		{
+			out_img.at<cv::Vec3b>(j,i) = img_out_right.at<cv::Vec3b>(j,i);
+		}
+	}
+
+	return out_img;
 	/*int out_w = 200;
 	int out_h = 200;
 
