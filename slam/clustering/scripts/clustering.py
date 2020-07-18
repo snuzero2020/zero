@@ -41,6 +41,11 @@ class Clustering:
     def load_point_clouds(self, msg, distance_tolerance):
         cloud_points = []
         cloud_channels = []
+        """
+        Each points has 5 field(x,y,z,intensity,ring).
+        We need only forward points, so remove backward(x<0) points
+        Also, we filter points by certain distance. Because too many points cause a long delay.
+        """
         for point in pc2.read_points(msg, field_names={"x","y","z","intensity","ring"}, skip_nans=True):
             if point[0] > 0 and math.sqrt(point[0]*point[0]+point[1]*point[1]+point[2]*point[2]) < distance_tolerance:
                 cloud_points.append([point[0],point[1],point[2]])
@@ -49,12 +54,18 @@ class Clustering:
     
     
     def ransac_plane(self, points, iteration, distance_tolerance):
+        """
+        In this function, we picks random 3 points from points list.
+        And calculate the plane equation with these 3 points then count the number of points which are near from this plane
+        Repeating certain iteration, return inliers and plane configuartion with maximum the number of inliers points
+        """
         inliersResult = {}
         inliersResult = set()
         plane_config = {'a':0.0, 'b':0.0, 'c':0.0, 'd':0.0}
         while iteration:
             inliers = {}
             inliers = set()
+            # Pick 3 points randomly
             while len(inliers) <3:
                 inliers.add(random.randint(0,len(points)-1))
             inliers_iter = inliers.__iter__()
