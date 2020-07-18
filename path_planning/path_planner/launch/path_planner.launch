@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="path_planner" type="cost_map_generator_node" name="cost_map_generator_node" output="screen" launch-prefix="gnome-terminal --command" />
+
+	<node pkg="path_planner" type="path_planner_node" name="path_planner_node" output="screen" launch-prefix="gnome-terminal --command" />
+
+</launch>
