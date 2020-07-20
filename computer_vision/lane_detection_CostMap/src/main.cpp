@@ -40,9 +40,9 @@ int main(int argc, char **argv)
 		return -1;
 	}*/
 
-	cv::VideoCapture cap1("/media/sunho/Backup/snuzero/vision_lane_data/lane_video/lane_detection_3/front_lane_detection_3/front_lane_detection_3.avi");
-	cv::VideoCapture cap2("/media/sunho/Backup/snuzero/vision_lane_data/lane_video/lane_detection_3/right_lane_detection_3/right_lane_detection_3.avi");
-	cv::VideoCapture cap3("/media/sunho/Backup/snuzero/vision_lane_data/lane_video/lane_detection_3/left_lane_detection_3/left_lane_detection_3.avi");
+	cv::VideoCapture cap1("/home/sunho/Pictures/vision_lane_data/lane_video/lane_detection_1/front_lane_detection_1/front_lane_detection_1.avi");
+	cv::VideoCapture cap2("/home/sunho/Pictures/vision_lane_data/lane_video/lane_detection_1/right_lane_detection_1/right_lane_detection_1.avi");
+	cv::VideoCapture cap3("/home/sunho/Pictures/vision_lane_data/lane_video/lane_detection_1/left_lane_detection_1/left_lane_detection_1.avi");
 
 	if(!cap1.isOpened())
 	{
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
        	//ros::spinOnce();
    	    loop_rate.sleep();
 		   
-		//std::cout << (clock() - time)/(double)CLOCKS_PER_SEC << std::endl;
+		std::cout << (clock() - time)/(double)CLOCKS_PER_SEC << std::endl;
 		
 		cv::waitKey(1);
     }
