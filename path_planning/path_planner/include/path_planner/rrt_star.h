@@ -49,8 +49,8 @@ class Tree {
         ~Tree() {
             std::vector<Node>().swap(nodes); // memory free
         }
-		const int arrsize() {return node_cnt;}
-		Node& operator[](int idx) {return nodes[idx];}
+	const int arrsize() {return node_cnt;}
+	Node& operator[](int idx) {return nodes[idx];}
         Node* insert(Node node) {
             if (node_cnt == size) {
                 size <<= 1;
@@ -72,6 +72,7 @@ class RRT {
         const double radius = 30; // radius to find near nodes
         const double stepsize = 1; // step size to check obstacle and steer (cost(), steer())
         const double threshold = 100; // threshold to check obstacle
+	const double threshold2 = 50; // threshold used in straightCheck
 
         RRT() {}
         ~RRT() {}
@@ -103,6 +104,9 @@ class RRT {
 
         // path발견시 부모를 따라가면서 parent, cost update
         void pathOptimization(Node* q_cur, Tree& tree);
+
+	// check straight path from start to dest
+	bool straightCheck(Cor start, Cor dest);
 
         void solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, int _iternum);
 

@@ -151,6 +151,7 @@ class getControlData(): #input:speed(m/s), steer(degree) -> output: speed(km/h *
         # rad to degree
         print("data_.steer : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(data_.steer)
+	steer_degree = data_.steer
         print("steer_Degree : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(steer_degree)
         if steer_degree >=0:

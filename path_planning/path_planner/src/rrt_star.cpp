@@ -47,7 +47,7 @@ double RRT::cost(Cor start, Cor dest)
 		marcher.x += dx;
 		marcher.y += dy;
     }
-	return ds * ret / step_times + 1e-6;
+	return ds * ret / step_times;
 }
 
 // pick random point in map
@@ -247,17 +247,45 @@ void RRT::pathOptimization(Node* q_cur, Tree& tree)
 	return;
 }
 
+bool RRT::straightCheck(Cor start, Cor dest){
+	Cor marcher{start};
+	int step_times = 0;
+    	double ds{ start.dist(dest) };
+	double dx{ (dest.x - start.x) * stepsize / ds }, dy{ (dest.y - start.y) * stepsize / ds };
+	while (1)
+	{
+	        // march!!
+		if (static_cast<int>(marcher.x) < 0 || static_cast<int>(marcher.x) >= map_length || static_cast<int>(marcher.y) < 0 || static_cast<int>(marcher.y) >= map_length) {
+			break;
+		}
+		if(threshold2 <= cost_map[static_cast<int>(marcher.x)][static_cast<int>(marcher.y)]) return false;
+		step_times++;
+        	if (step_times * stepsize > ds) break;
+		marcher.x += dx;
+		marcher.y += dy;
+	}
+	return true;	
+}
+
 void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, int _iternum) {
 	Node* middle_start = new Node(), * middle_goal = new Node();
 	bool find_path = false;
 	// initialize
 	cost_map = _cost_map;
+
+	// straight check
+	if(straightCheck(start, goal)){
+		path.push_back(start);
+		path.push_back(goal);
+		return;
+	}
+
 	if (_iternum != -1) iternum = _iternum;
 	Tree start_tree = Tree(size); 
 	start_tree.insert(Node(start));
 	Tree goal_tree = Tree(size); goal_tree.insert(Node(goal));
 	// iteration start
-	int t = clock();
+	int t = time(0);
 	srand(t); ROS_INFO("srand %d",t);
 	for (int i = 0; !find_path || i < iternum; i++) {
 		Cor q_rand = random_point();
@@ -326,6 +354,8 @@ debug();
 				middle_goal = q_newnode_ptr_goal;
 			}
 		}
+
+		if (i == iternum - 1 && !find_path) i--;
 	}
 
 /*

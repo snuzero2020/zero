@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  core_msgs
 )
 
 find_package(OpenCV 3 REQUIRED)
@@ -30,6 +31,8 @@ add_library(rrt_star src/rrt_star.cpp)
 add_executable(path_planner_node src/path_planner_node.cpp)
 
 add_dependencies(path_planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(path_planner_node core_msgs_generate_messages_cpp)
 
 target_link_libraries(path_planner_node  ${catkin_LIBRARIES} )
 
@@ -56,4 +59,3 @@ add_dependencies(cost_map_generator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${c
 target_link_libraries(cost_map_generator_node  ${catkin_LIBRARIES} )
 
 set_target_properties(cost_map_generator_node PROPERTIES COMPILE_FLAGS "-O3")
-
