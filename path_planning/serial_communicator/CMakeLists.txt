@@ -24,6 +24,7 @@ include_directories(
 
 add_executable(input_signal scripts/input_signal.cpp)
 target_link_libraries(input_signal ${catkin_LIBRARIES})
+add_dependencies(input_signal core_msgs_generate_messages_cpp)
 #add_dependencies(serial_communicator_manual serial_communicator_generate_messages_cpp)
 
 target_link_libraries(input_signal ${async_comm_LIBRARIES})

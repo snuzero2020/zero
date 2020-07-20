@@ -18,8 +18,6 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_library(custom lib/UTM.cpp lib/XYToPixel.cpp src/map_cutter.cpp)
-
-add_executable(map_cutter src/main.cpp src/map_cutter.cpp)
+add_executable(map_cutter src/main.cpp src/map_cutter.cpp lib/UTM.cpp lib/XYToPixel.cpp)
 add_dependencies(map_cutter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(map_cutter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} custom)
+target_link_libraries(map_cutter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})

@@ -22,6 +22,7 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME}_node src/tracker_node.cpp)
+add_dependencies(${PROJECT_NAME}_node core_msgs_generate_messages_cpp)
 add_executable(publisher_node src/publisher_node.cpp)
 
 ## Specify libraries to link a library or executable target against
