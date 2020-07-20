@@ -7,8 +7,13 @@ from pyproj import Proj, transform
 #from functools import reduce ## for python3 only
 
 class GPS_Decoder:
+    proj_WGS84 = Proj(init = 'epsg:4326')
+    proj_5186 = Proj(init = 'epsg:5186') # for FMTC
+    proj_UTMK = Proj(init = 'epsg:5178') # for K-city
+    proj_UTM52N = Proj(init = 'epsg:32652')
+        
     def __init__(self):
-        self.pub_ = rospy.Publisher("/gps", Gps, queue_size=100)
+        self.pub_ = rospy.Publisher("/gps", Gps, queue_size=10)
         self.sub_ = rospy.Subscriber("/nmea_sentence",Sentence, self.callback)
 
     def callback(self, msg):
@@ -42,22 +47,19 @@ class GPS_Decoder:
                 rospy.logerr("FailedByChecksum, %d != %d == 0x%s", cs0, cs1, checksum[1])
                 return
 
-            hour = int(tokens[1][0:2])
-            minu = int(tokens[1][2:4])
-            sec = float(tokens[1][4:])
-            time = hour*3600 + minu*60 + sec
+            # hour = int(tokens[1][0:2])
+            # minu = int(tokens[1][2:4])
+            # sec = float(tokens[1][4:])
+            # time = hour*3600 + minu*60 + sec
             lat = int(tokens[2][0:2]) + float(tokens[2][2:])/60.0
             lon = int(tokens[4][0:3]) + float(tokens[4][3:])/60.0
             
-            proj_WGS84 = Proj(init = 'epsg:4326')
-            proj_5187 = Proj(init = 'epsg:5187') # for FMTC
-            proj_UTMK = Proj(init = 'epsg:5178') # for K-city
-            proj_UTM52N = Proj(init = 'epsg:32652')
-            x,y = transform(proj_WGS84,proj_5187,lon,lat)
-            rt.x = x
-            rt.y = y
+            rt.header = msg.header
+            rt.x, rt.y = transform(self.proj_WGS84,self.proj_5186,lon,lat)
             #rt.header.stamp = rospy.Time(time)
-            rt.header.stamp = rospy.get_rostime()
+            #rt.header.stamp = rospy.get_rostime()
+            rt.err_identifier = float(tokens[6])
+            rt.err_hdop = float(tokens[8])
             self.pub_.publish(rt)
         
     

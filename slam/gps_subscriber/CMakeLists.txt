@@ -28,11 +28,8 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_library(custom lib/UTM.cpp lib/XYToPixel.cpp)
-
-add_executable(gps_subscriber_node src/gps_subscriber_node.cpp)
+add_executable(gps_subscriber_node src/gps_subscriber_node.cpp lib/UTM.cpp lib/XYToPixel.cpp)
 add_dependencies(gps_subscriber_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(gps_subscriber_node
   ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
-  custom
 )
