@@ -44,5 +44,5 @@ add_executable(imu_decoder src/imu_decoder.cpp)
 target_link_libraries(imu_decoder ${catkin_LIBRARIES} UnixtimeToSec)
 add_dependencies(imu_decoder localization_generate_messages_cpp)
 
-catkin_install_python(PROGRAMS src/gps_decoder.py src/kalman_fusion_visualizer.py
+catkin_install_python(PROGRAMS src/gps_decoder.py src/kalman_fusion_visualizer.py src/gps_marker.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

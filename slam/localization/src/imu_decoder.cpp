@@ -14,7 +14,7 @@
 class IMU_Decoder{
     public:
     IMU_Decoder(){
-        pub_ = data_.advertise<localization::Imu>("imu", 1000);
+        pub_ = data_.advertise<localization::Imu>("imu", 10);
         sub_data_ = data_.subscribe("/imu/data", 1, &IMU_Decoder::callback_data, this);
         sub_mag_ = mag_.subscribe("/imu/mag", 1, &IMU_Decoder::callback_mag, this);
     }
@@ -24,13 +24,15 @@ class IMU_Decoder{
 
         rt.header = msg->header;
         //rt.header.stamp.sec = UnixtimeToSec(msg->header.stamp.sec);
-	ros::Time tm = ros::Time::now();
-        rt.header.stamp.sec = tm.sec;
-        rt.header.stamp.nsec = tm.nsec;
+	    //ros::Time tm = ros::Time::now();
+        //rt.header.stamp.sec = tm.sec;
+        //rt.header.stamp.nsec = tm.nsec;
         rt.local_ax = msg->linear_acceleration.x;
         rt.local_ay = msg->linear_acceleration.y;
         rt.omega = msg->angular_velocity.z;
         rt.theta = theta_;
+        //rt.err_a = std::abs(msg->linear_acceleration.z - 9.79945);
+        //rt.err_omega = sqrt( msg->angular_velocity.x*msg->angular_velocity.x + msg->angular_velocity.y*msg->angular_velocity.y );
         pub_.publish(rt);
     }
 

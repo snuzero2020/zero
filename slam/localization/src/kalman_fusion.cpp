@@ -30,16 +30,6 @@ class Kalman_fusion{
     Matrix<double,_ZGPS,_ZGPS> RGPS;                          
     ros::NodeHandle n_;
     ros::Publisher pub_d;
-    ros::Publisher pub_e;
-    ros::Publisher pub_c;
-    int prevType = -1;   // 0 for IMU, 1 for GPS
-    Matrix<double,_ZIMU,_ZIMU> prevASIMU;
-    Matrix<double,_ZGPS,_ZGPS> prevASGPS;
-    Matrix<double,_ZIMU,1> prevyIMU;
-    Matrix<double,_ZGPS,1> prevyGPS;
-    Matrix<double,_ST,_ST> F;
-    Matrix<double,_ST,_Q> B;
-    Matrix<double,_ST,_Q> prevB;
     int countIMU = -1;
     int countGPS = -1;
 
@@ -51,8 +41,6 @@ class Kalman_fusion{
         RIMU.setIdentity();
         RGPS.setIdentity();
         pub_d = n_.advertise<localization::Data>("filtered_data", 10);
-        pub_e = n_.advertise<std_msgs::Float64MultiArray>("estimated_err", 10);
-        pub_c = n_.advertise<std_msgs::Float64MultiArray>("estimated_cov", 10);
     }
 
     void IMUCallback(const localization::Imu& msg){
@@ -75,19 +63,9 @@ class Kalman_fusion{
         Matrix<double,_ZIMU,1> y = z-H*st;
         y(0)=remainder(y(0),2*PI);
 
-        if(prevType>-1){
-            Matrix<double,_ST,_ZIMU> invH = P*H.transpose()*(H*P*H.transpose()).inverse();
-            if(prevType ==0){
-                updateQRIMU( invH*y*prevyIMU.transpose() );  
-            }else{
-                updateQRGPS( invH*y*prevyGPS.transpose() );
-            }
-        }
-
         Matrix<double,_ZIMU,_ZIMU> S = H*P*H.transpose()+RIMU;
         Matrix<double,_ST,_ZIMU> K = P*H.transpose()*S.inverse();
         P = (P.Identity()-K*H)*P;
-        toSPD<_ST>(P);
         st = st + K*y;
         st(4)=remainder(st(4),2*PI);
         u(0)=msg.local_ax;
@@ -95,11 +73,7 @@ class Kalman_fusion{
         u(2)=msg.omega;
         publish(msg.header.stamp);
         
-        prevType = 0;
-        prevASIMU = (S.Identity()-H*K)*y*y.transpose();
-        prevyIMU = y;
         countIMU+=1;
-        prevB=B;
     }
 
     void GPSCallback(const localization::Gps& msg){
@@ -119,28 +93,14 @@ class Kalman_fusion{
         z << msg.x,msg.y;
         Matrix<double,_ZGPS,1> y = z-H*st;
 
-        if(prevType>-1){
-            Matrix<double,_ST,_ZGPS> invH = P*H.transpose()*(H*P*H.transpose()).inverse();
-            if(prevType ==0){
-                updateQRIMU( invH*y*prevyIMU.transpose() );  
-            }else{
-                updateQRGPS( invH*y*prevyGPS.transpose() );
-            }
-        }
-
         Matrix<double,_ZGPS,_ZGPS> S = H*P*H.transpose()+RGPS;
         Matrix<double,_ST,_ZGPS> K = P*H.transpose()*S.inverse();
         P = (P.Identity()-K*H)*P;
-        toSPD<_ST>(P);
         st = st + K*y;
         st(4)=remainder(st(4),2*PI);
         publish(msg.header.stamp);
 
-        prevType = 1;
-        prevASGPS = (S.Identity()-H*K)*y*y.transpose();
-        prevyGPS = y;
         countGPS+=1;
-        prevB=B;
     }
 
     void predict(ros::Time t){
@@ -150,8 +110,9 @@ class Kalman_fusion{
         double dt = (t-this->t).toSec();
         this->t=t;
         double dte=0.005;
-        // Matrix<double,_ST,_ST> F;
+        Matrix<double,_ST,_ST> F;
         F << 1,0,dt,0,0 , 0,1,0,dt,0 , 0,0,1,0,0 , 0,0,0,1,0 , 0,0,0,0,1;
+        Matrix<double,_ST,_Q> B;
         B << 0.5*(abs(dt)+dte)*(abs(dt)+dte),0,0 , 0,0.5*(abs(dt)+dte)*(abs(dt)+dte),0 , abs(dt)+dte,0,0 , 0,abs(dt)+dte,0 , 0,0,abs(dt)+dte;
         double th = st(4);
         st = F*st;
@@ -181,73 +142,6 @@ class Kalman_fusion{
         rt.vx = st(2);
         rt.vy = st(3);
         pub_d.publish(rt);
-        
-        std_msgs::Float64MultiArray rte;
-        rte.data = {sqrt(P(0,0)),sqrt(P(1,1)),sqrt(P(2,2)),sqrt(P(3,3)),sqrt(P(4,4))};
-        pub_e.publish(rte);
-
-        std_msgs::Float64MultiArray rtc;
-        rtc.data = {sqrt(Q.trace()/_Q), sqrt(RIMU.trace()/_ZIMU), sqrt(RGPS.trace()/_ZGPS)};
-        pub_c.publish(rtc);
-    }
-
-    void updateQRIMU( Matrix<double,_ST,_ZIMU> invHS ){
-        double weight = 1.0/std::min(countIMU+64,1024);
-        Matrix<double,_ZIMU,_ST> H;
-        H << 0,0,0,0,1;
-        Matrix<double,_ZIMU,_ZIMU> Rsample = prevASIMU + H*F.inverse()*invHS;
-        RIMU *= 1-weight;
-        RIMU += Rsample*weight;
-        toSPD<_ZIMU>(RIMU);
-        Matrix<double,_Q,_ST> invB = (prevB.transpose()*prevB).completeOrthogonalDecomposition().pseudoInverse()*prevB.transpose();
-        Matrix<double,_Q,_Q> Qsample = invB * invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose() * invB.transpose();
-        Q *= 1-weight;
-        Q += Qsample*weight;
-        toSPD<_Q>(Q);
-    }
-
-    void updateQRGPS( Matrix<double,_ST,_ZGPS> invHS ){
-        double weight = 1.0/std::min(countGPS+64,1024);
-        Matrix<double,_ZGPS,_ST> H;
-        H << 1,0,0,0,0 , 0,1,0,0,0;
-        Matrix<double,_ZGPS,_ZGPS> Rsample = prevASGPS + H*F.inverse()*invHS;
-        RGPS *= 1-weight;
-        RGPS += Rsample*weight;
-        toSPD<_ZGPS>(RGPS,1.0);
-        Matrix<double,_Q,_ST> invB = (prevB.transpose()*prevB).completeOrthogonalDecomposition().pseudoInverse()*prevB.transpose();
-        Matrix<double,_Q,_Q> Qsample = invB * invHS*(H*P*H.transpose()).inverse()*H*P*F.transpose() * invB.transpose();
-        Q *= 1-weight;
-        Q += Qsample*weight;
-        toSPD<_Q>(Q);
-    }
-
-    template <int dim>
-    void toSPD(Matrix<double,dim,dim>& A){
-        Matrix<double,dim,dim> temp = (A+A.transpose())/2;
-        EigenSolver<Matrix<double,dim,dim>> es(temp);
-        Matrix<double,dim,dim> D = es.pseudoEigenvalueMatrix();
-        Matrix<double,dim,dim> V = es.pseudoEigenvectors();
-        for(int i=0;i<dim;i+=1){
-            if(D(i,i)<SMALL){
-                D(i,i)=SMALL;
-            }
-        }
-        A = V*D*V.transpose();
-    }
-    template <int dim>
-    void toSPD(Matrix<double,dim,dim>& A, double large){
-        Matrix<double,dim,dim> temp = (A+A.transpose())/2;
-        EigenSolver<Matrix<double,dim,dim>> es(temp);
-        Matrix<double,dim,dim> D = es.pseudoEigenvalueMatrix();
-        Matrix<double,dim,dim> V = es.pseudoEigenvectors();
-        for(int i=0;i<dim;i+=1){
-            if(D(i,i)<SMALL){
-                D(i,i)=SMALL;
-            }else if(D(i,i)>large){
-                D(i,i)=large;
-            }
-        }
-        A = V*D*V.transpose();
     }
 };
 
@@ -258,9 +152,9 @@ int main(int argc, char **argv)
 
     Kalman_fusion<> kf;
     kf.P *= 10*10;
-    kf.Q *= 16*16;
-    kf.RIMU *= 0.01*0.01;
-    kf.RGPS *= 0.05*0.05;
+    kf.Q *= 1*1;
+    kf.RIMU *= 0.1*0.1;
+    kf.RGPS *= 0.5*0.5;
     
     ros::Subscriber subIMU = n.subscribe("/imu",10,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",10,&Kalman_fusion<>::GPSCallback,&kf);
