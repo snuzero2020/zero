@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/parallels/catkin_ws/src/zero/slam/clustering/devel/setup.sh

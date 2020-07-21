@@ -4,6 +4,7 @@
 #include <random>
 #include <math.h>
 #include <MatrixAlgebra.h>
+#include <KDTree.hpp>
 
 bool Contains(const std::vector<int> &list, int x)
 {
@@ -114,8 +115,42 @@ std::vector<std::vector<std::double>> projecting_points(std::vector<std::vector<
     lidar_x /= point_norm(lidar_x);
     lidar_y /= point_norm(lidar_y);
     
-    L=
     
+}
+
+std:;vector<std::vector<std::int>> eucledean_clustering(std::vector<std::vector<double>> points, 'trees datatype', std::double distance_tolerance){
+    std::vector<std::int> clusters;
+    std::vector<std::bool> processed;
+    std::vector<std::int> storage;
+
+    for(int i=0; i < points.size(); i++) processed[i] = False;
+
+    for(int i=0; i<points.size(); i++){
+
+    }
+}
+
+int callback_point_clouds(std::vector<std::vector<std::double>> points, std::vector<std::int> channels){
+    int iteration{100};
+    double distance_tolerance{0.05};
+
+    std::vector<std::int> inliersResult;
+    map<std::char, std::double> plane_config;
+
+    ransac_plane(points, iteration, distance_tolerance);
+
+    std::vector<std::vector<std::double>> filtered_points;
+    std::vector<std::int> filtered_channels;
+
+    filtering_points(points, channels, inliersResult);
+
+    std::vector<std::vector<std::double>> projected_points;
+
+    projecting_points(filtered_points, plane_config);
+
+    //have to insert making a KDTree
+    eucledean_clustering()
+
 }
 
 std::vector<std::vector<std::int>> eucledean_clustering(std::vector<std::vector<std::double>> points,
