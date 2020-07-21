@@ -36,7 +36,7 @@ class Publisher
 		Publisher() 
 			:curr_local_path(Path()), curr_odom(Odometry())
 			{
-				local_path_pub = nh.advertise<Path>("local_path",100);
+				//local_path_pub = nh.advertise<Path>("local_path",100);
 				odometry_pub = nh.advertise<Odometry>("odometory",100);
 				recommend_vel_pub = nh.advertise<Float32>("recommend_vel",100);
 			}
@@ -58,23 +58,23 @@ int main(int argc, char *argv[])
 	ros::Rate loop_rate(10);
 	cout << "aloha3" << endl;
 
-	PoseStamped pose;
-//	for (int i{5}; i<100; i+=5)
-//	{
-//		pose.header.seq = i/5;
-//		pose.pose.position.x = i;
-//		pose.pose.position.y = 200*sin(i/double(200)*3.141592);
-//		publisher.curr_local_path.poses.push_back(pose);
-//	}
-	pose.header.seq = 1;
-	pose.pose.position.x = 50;
-	pose.pose.position.y = 150;
-	publisher.curr_local_path.poses.push_back(pose);
-	
-
-	pose.header.seq = 0;
-	publisher.curr_local_path.poses.push_back(pose);
-
+//	PoseStamped pose;
+////	for (int i{5}; i<100; i+=5)
+////	{
+////		pose.header.seq = i/5;
+////		pose.pose.position.x = i;
+////		pose.pose.position.y = 200*sin(i/double(200)*3.141592);
+////		publisher.curr_local_path.poses.push_back(pose);
+////	}
+//	pose.header.seq = 1;
+//	pose.pose.position.x = 50;
+//	pose.pose.position.y = 150;
+//	publisher.curr_local_path.poses.push_back(pose);
+//	
+//
+//	pose.header.seq = 0;
+//	publisher.curr_local_path.poses.push_back(pose);
+//
 	int count{0};
 	while (ros::ok())
 	{
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 		}
 		publisher.curr_odom.twist.twist.linear.x = vel_x;
 		publisher.curr_odom.twist.twist.linear.y = vel_y;
-		publisher.local_path_pub.publish(publisher.curr_local_path);
+		//publisher.local_path_pub.publish(publisher.curr_local_path);
 		publisher.odometry_pub.publish(publisher.curr_odom);
 
 		publisher.recommend_vel.data = 0.5;

@@ -202,8 +202,8 @@ void Tracker::set_look_ahead_point()
 void Tracker::solve_pure_pursuit()
 {
 	Point rotational_center{Point()};
-	rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.7*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
-	rotational_center.y = -1.7*100/3.0;
+	rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
+	rotational_center.y = -1.05*100/3.0;
 	curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
 	rotational_radius = 1/curvature;
 	double temp_angle =  atan2(-rotational_center.y,rotational_center.x);

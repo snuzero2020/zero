@@ -15,7 +15,7 @@ alive = 0
 enc = []
 
 sudoPassword = 'snuzero123'
-command = 'chmod 777 /dev/ttyUSB2'
+command = 'chmod 777 /dev/ttyUSB0'
 p= os.system('echo %s|sudo -S %s' % (sudoPassword, command))
 
 
@@ -30,7 +30,7 @@ def init():
     msg = VehicleState() #define msg - current platform state
 
     while not rospy.is_shutdown():
-        with serial.Serial(port='/dev/ttyUSB2',
+        with serial.Serial(port='/dev/ttyUSB0',
                            baudrate=115200,
                            parity=serial.PARITY_NONE,
                            stopbits=serial.STOPBITS_ONE,
@@ -132,7 +132,7 @@ def isValidValue(speed, steer): #speed : m/s, steer : degree
 
 class getControlData(): #input:speed(m/s), steer(degree) -> output: speed(km/h * 10), steer(degree*71, steer1:first byte, steer2:second byte)
     def __init__(self):
-        self.is_auto = 0
+        self.is_auto = 1
         self.estop = 0
         self.gear = 0
         self.speed = 0
@@ -143,8 +143,9 @@ class getControlData(): #input:speed(m/s), steer(degree) -> output: speed(km/h *
 
     def callback(self,data_): #serial data update (upper->platform)
 
-
+        print("callback")
         self.is_auto = data_.is_auto
+        
         self.estop = data_.estop
         self.gear = data_.gear
         self.speed = int(float(data_.speed) * 3600 / 1000 * 10) # (m/s -> km/h * 10)
