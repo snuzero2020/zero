@@ -35,8 +35,8 @@ class Tracker
 
 		// configuration constants
 		double look_ahead_oval_ratio{2}; // ratio of look ahead area which is oval shape
-		double upper_radius{160};
-		double lower_radius{80};
+		double upper_radius;
+		double lower_radius;
 
 		double current_vel{0};
 		Point look_ahead_point{Point()};
@@ -48,9 +48,9 @@ class Tracker
 		double recommend_vel{-1}; // determine by mission master and location
         double desired_vel{0}; // get from current_vel and recommend_vel
 
-		double P_gain{0.2};
-        double I_gain{0.04};
-        double D_gain{0};
+		double P_gain;
+        double I_gain;
+        double D_gain;
         double error{0};
         double integral_error{0};
         double differential_error{0};
@@ -78,6 +78,11 @@ class Tracker
 				local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
 				odometry_sub = nh.subscribe("odometory",100,&Tracker::odometory_callback,this);
 				recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
+				nh.getParam("/P_gain", P_gain);
+				nh.getParam("/I_gain", I_gain);
+				nh.getParam("/D_gain", D_gain);
+				nh.getParam("/upper_radius", upper_radius);
+				nh.getParam("/lower_radius", lower_radius);
 			}
 
 		// setter function
@@ -110,6 +115,8 @@ class Tracker
         void calculate_input_signal();
         void vehicle_output_signal();
 
+		//test
+		//void print_p(){std::cout<<P_gain<<std::endl;};
 };
 
 void Tracker::local_path_callback(const Path::ConstPtr msg)
@@ -173,6 +180,7 @@ void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
 // output : look_ahead_point
 void Tracker::set_look_ahead_point()
 {
+	cout << "set_look_ahead_point start\n";
 	current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
 	double major_axis_radius{determind_major_axis_radius()};
 	int idx{0};
@@ -299,14 +307,14 @@ int main(int argc, char *argv[])
 	Tracker tracker{Tracker()};
 	ros::Rate loop_rate(10);
 
-	ros::spin();
+	//ros::spin();
 
-//	while (ros::ok())
-//	{
-//		ros::spinOnce();
-//		loop_rate.sleep();
-//		count++;
-//	}
+	while (ros::ok())
+	{
+		ros::spinOnce();
+		loop_rate.sleep();
+		//tracker.print_p();
+	}
 
 	return 0;
 }

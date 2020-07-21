@@ -5,4 +5,5 @@
 
 	<include file="$(find path_planner)/launch/path_planner.launch" />
 
+	<rosparam file="/home/seongwon/catkin_ws/src/zero/path_planning/zeroprac.yaml" />
 </launch>

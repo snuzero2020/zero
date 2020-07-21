@@ -11,5 +11,9 @@
    <node pkg="serial_communicator" type="serial_com.py" 
               name="serial_com" output="screen">
    </node>
-</launch>
 
+   <!-- Run master_sync -->
+   <node pkg="serial_communicator" type="control_manual.py" 
+              name="keyboard_input" output="screen">
+   </node>
+</launch>

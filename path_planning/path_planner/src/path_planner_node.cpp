@@ -13,6 +13,7 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include "core_msgs/Control.h"
 #include <opencv2/opencv.hpp>
+#include <iostream>
 
 extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int x, int y, double angle);
 
@@ -27,6 +28,11 @@ private:
 	int task, light, motion;
 	nav_msgs::Path goals;
 public:
+	double start_point_x_value;
+	double start_point_y_value;
+	double goal_point_x_value;
+	double goal_point_y_value;
+	double stepsize_pp_value;
 	RosNode(){
 		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 5, &RosNode::costmapCallback, this);
 		mission_state_sub = n.subscribe("mission_state", 50, &RosNode::missionstateCallback, this);
@@ -34,6 +40,11 @@ public:
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 		estop_pub = n.advertise<core_msgs::Control>("car_signal", 10);
 		task = light = motion = -1;
+		n.getParam("/start_point_x", start_point_x_value);
+		n.getParam("/start_point_y", start_point_y_value);
+		n.getParam("/goal_point_x", goal_point_x_value);
+		n.getParam("/goal_point_y", goal_point_y_value);
+		n.getParam("/stepsize_pp", stepsize_pp_value);
 	}
 
 	void missionstateCallback(const std_msgs::UInt32 & msg){
@@ -88,7 +99,18 @@ public:
 //
 		// for track driving mission
 		cout<<"callback\n";
-		RRT rrt = RRT();
+		int iternum;
+		double radius;
+		double stepsize;
+		double threshold;
+		double threshold2;
+		n.getParam("/iternum", iternum);
+		n.getParam("/radius", radius);
+		n.getParam("/stepsize_rrt", stepsize);
+		n.getParam("/threshold", threshold);
+		n.getParam("/threshold2", threshold2);		
+		RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
+		//rrt.print_RRT();
                 int t = clock();
 		cout << "map time stamp : " << map.header.stamp.sec << endl;
                 // get costmap  
@@ -108,7 +130,7 @@ public:
                 y.x = map.data[w*h]*2;
                 y.y = map.data[w*h + 1]*2;
                 std::cout << y.x << "," << y.y << std::endl;
-		rrt.solve(path,cost_map,x, y,500);
+		rrt.solve(path,cost_map,x, y, iternum);
 
 		cv::namedWindow("costmap_path");
 		cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);

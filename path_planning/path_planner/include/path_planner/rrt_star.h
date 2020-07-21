@@ -68,15 +68,23 @@ class RRT {
         std::vector<std::vector<double>> cost_map;
         int size = 1<<13; // intialize tree size
         const int map_length = 200; // map length
-        int iternum = 1000; // iteration number
-        const double radius = 30; // radius to find near nodes
-        const double stepsize = 1; // step size to check obstacle and steer (cost(), steer())
-        const double threshold = 100; // threshold to check obstacle
-	const double threshold2 = 50; // threshold used in straightCheck
+        int iternum; // iteration number
+        double radius; // radius to find near nodes
+        double stepsize; // step size to check obstacle and steer (cost(), steer())
+        double threshold; // threshold to check obstacle
+	double threshold2 = 50; // threshold used in straightCheck
 
-        RRT() {}
+        RRT(int _iternum, double _radius, double _stepsize, double _threshold, double _threshold2) {
+            iternum = _iternum; radius = _radius; stepsize = _stepsize; threshold = _threshold; threshold2 = _threshold2;
+        }
         ~RRT() {}
-
+        //test
+	    // void print_RRT(){
+		//     cout << "iternum: " << iternum << endl;
+		//     cout << "radius: " << radius << endl;
+		//     cout << "stepsize: " << stepsize << endl;
+		//     cout << "threshold: " << threshold << endl;
+	    // };
 		// cost between two points
 		double cost(Cor start, Cor dest);
 
