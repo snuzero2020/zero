@@ -22,9 +22,6 @@ int main(int argc, char **argv)
 	ros::Publisher costmap_with_goal_vector_pub = nh.advertise<nav_msgs::OccupancyGrid>("cost_map_with_goal_vector",100);
     ros::Rate loop_rate(10);
     
-	nav_msgs::OccupancyGrid cost_map;
-	cost_map = nav_msgs::OccupancyGrid();
-
 	int time = clock();
 	//v::Mat img;
 
@@ -40,9 +37,13 @@ int main(int argc, char **argv)
 		return -1;
 	}*/
 
-	cv::VideoCapture cap1("/home/snuzero1/Videos/front_lane_detection_2.avi");
-	cv::VideoCapture cap2("/home/snuzero1/Videos/right_lane_detection_2.avi");
-	cv::VideoCapture cap3("/home/snuzero1/Videos/left_lane_detection_2.avi");
+	//cv::VideoCapture cap1("/home/snuzero1/Videos/front_lane_detection_2.avi");
+	//cv::VideoCapture cap2("/home/snuzero1/Videos/right_lane_detection_2.avi");
+	//cv::VideoCapture cap3("/home/snuzero1/Videos/left_lane_detection_2.avi");
+
+	cv::VideoCapture cap1(0);
+	cv::VideoCapture cap2(2);
+	cv::VideoCapture cap3(4);
 
 	if(!cap1.isOpened())
 	{
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
 	cv::Mat frame1, frame2, frame3;
 
 
-	std::ifstream inFile("/home/snuzero1/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/camera_calibration.txt");
+	std::ifstream inFile("/home/snuzero/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/camera_calibration.txt");
 	cv::Mat mtx = cv::Mat::zeros(3,3,CV_32FC1);
 	cv::Mat dist = cv::Mat::zeros(5, 1, CV_32FC1);
 	if(inFile.is_open())
@@ -147,6 +148,9 @@ int main(int argc, char **argv)
     	goal_point = get_goal_point(fitting_mask, lane_mask.cols);
     	std::cout<<goal_point<<std::endl;
 
+		nav_msgs::OccupancyGrid cost_map;
+		cost_map = nav_msgs::OccupancyGrid();
+
 		//std::cout<<"1"<<std::endl;
 		cost_map.info.width = fitting_mask.size().width;
 		cost_map.info.height = fitting_mask.size().height;
@@ -159,10 +163,6 @@ int main(int argc, char **argv)
 			}
 		}
 
-		//std_msgs::Int8 x;
-		//std_msgs::Int8 y;
-		//std_msgs::Int8 theta;
-
 		//x.data = goal_point.y;
 		//y.data = 199 - goal_point.x;
 		//theta.data = 0;
@@ -173,12 +173,13 @@ int main(int argc, char **argv)
 
 		cost_map.data.push_back(x);
 		cost_map.data.push_back(y);
-    	cost_map.data.push_back(theta);
+    		cost_map.data.push_back(theta);
 		//ros::Rate loop_rate(5);
-
-        costmap_with_goal_vector_pub.publish(cost_map);
-       	//ros::spinOnce();
-   	    loop_rate.sleep();
+		
+		cost_map.header.stamp.sec = clock();
+        	costmap_with_goal_vector_pub.publish(cost_map);
+       		//ros::spinOnce();
+   	    	loop_rate.sleep();
 		   
 		std::cout << (clock() - time)/(double)CLOCKS_PER_SEC << std::endl;
 		

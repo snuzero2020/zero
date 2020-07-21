@@ -258,6 +258,7 @@ bool RRT::straightCheck(Cor start, Cor dest){
 		if (static_cast<int>(marcher.x) < 0 || static_cast<int>(marcher.x) >= map_length || static_cast<int>(marcher.y) < 0 || static_cast<int>(marcher.y) >= map_length) {
 			break;
 		}
+cout<<"marcher : "<<marcher.x<<" "<<marcher.y<<"\n cost : "<<cost_map[static_cast<int>(marcher.x)][static_cast<int>(marcher.y)] << endl;
 		if(threshold2 <= cost_map[static_cast<int>(marcher.x)][static_cast<int>(marcher.y)]) return false;
 		step_times++;
         	if (step_times * stepsize > ds) break;

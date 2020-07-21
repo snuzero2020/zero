@@ -90,14 +90,14 @@ public:
 		cout<<"callback\n";
 		RRT rrt = RRT();
                 int t = clock();
-
+		cout << "map time stamp : " << map.header.stamp.sec << endl;
                 // get costmap  
                 vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
                 int h = map.info.height;
                 int w = map.info.width;
                 for(int i = 0; i<h; i++){
                         for(int j = 0; j<w;j++){
-                                cost_map[i][199-j] = (double)(map.data[j*w+i] * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
+                                cost_map[i][199-j] = ((double)map.data[j*w+i] * 4 * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
                         }
                 }
                 cout << "90,198 cost ; " << cost_map[90][198] << endl;
@@ -113,12 +113,12 @@ public:
 		cv::namedWindow("costmap_path");
 		cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);
 		for(int i = 0;i<rrt.map_length;i++) for(int j = 0;j<rrt.map_length;j++){
-			image.at<cv::Vec3b>(i,j)[0] = cost_map[i][j];	
-			image.at<cv::Vec3b>(i,j)[1] = cost_map[i][j];	
-			image.at<cv::Vec3b>(i,j)[2] = cost_map[i][j];	
+			image.at<cv::Vec3b>(i,j)[0] = cost_map[199-j][199-i];	
+			image.at<cv::Vec3b>(i,j)[1] = cost_map[199-j][199-i];	
+			image.at<cv::Vec3b>(i,j)[2] = cost_map[199-j][199-i];	
 		}
 		for(int i = 0;i<path.size()-1;i++)
-			 line(image, cv::Point(path[i].x,199-path[i].y), cv::Point(path[i+1].x,199- path[i+1].y), cv::Scalar(200,0,100),1,0);
+			 line(image, cv::Point(path[i].x,199-path[i].y), cv::Point(path[i+1].x,199- path[i+1].y), cv::Scalar(100,200,50),1,0);
 
 		cv::imshow("costmap_path",image);
 		cv::waitKey(1);
