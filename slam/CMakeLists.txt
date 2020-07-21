@@ -20,7 +20,7 @@ find_package(Eigen REQUIRED)
 add_message_files(
   DIRECTORY msg 
   FILES 
-  Data.msg Gps.msg Imu.msg Points.msg
+  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
 
@@ -49,7 +49,7 @@ add_dependencies(map_cutter slam_generate_messages_cpp)
 #add_executable for clustering
 
 catkin_install_python(PROGRAMS 
-  src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py
+  src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
   src/clustering/clustering.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
