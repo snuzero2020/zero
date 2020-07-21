@@ -11,6 +11,7 @@ from sklearn.neighbors import KDTree
 import sensor_msgs.point_cloud2 as pc2
 from localization.msg import Points
 import time
+import matplotlib.pyplot as plt
 
 
 
@@ -19,11 +20,11 @@ class Clustering:
         self._pub_2d_obstacle_points = rospy.Publisher("/2d_obstacle_points", Points, queue_size=1)
         self._pub_3d_obstacle_points = rospy.Publisher("/3d_obstacle_points", Points, queue_size=1)
         self._sub = rospy.Subscriber("/velodyne_points", sensor_msgs.msg.PointCloud2, self.callback_point_clouds)
-        self._iteration = 100
-        self._remove_tolerance = 10.0
+        self._iteration = 200
+        self._remove_tolerance = 5.0
         self._plane_tolerance = 0.05
-        self._clustering_tolerance = 0.01
-        
+        self._clustering_tolerance = 0.1
+        self._count = 0
     
     def projection(self, point, plane_config):
         a = plane_config['a']
@@ -90,13 +91,13 @@ class Clustering:
                 # Not consider three points already picked
                 if i in inliers:
                     continue
-            x4 = points[i][0]
-            y4 = points[i][1]
-            z4 = points[i][2]
-            # Distance between picked point and the plane
-            dist = math.fabs(a*x4 + b*y4 + c*z4 +d) / math.sqrt(a*a + b*b + c*c)
-            if dist <= distance_tolerance:
-                inliers.add(i)
+                x4 = points[i][0]
+                y4 = points[i][1]
+                z4 = points[i][2]
+                # Distance between picked point and the plane
+                dist = math.fabs(a*x4 + b*y4 + c*z4 +d) / math.sqrt(a*a + b*b + c*c)
+                if dist <= distance_tolerance:
+                    inliers.add(i)
             if len(inliers) > len(inliersResult):
                 inliersResult = inliers
                 plane_config['a'] = a
@@ -125,7 +126,10 @@ class Clustering:
         projected_points = []
         lidar_position = self.projection([0,0,0],plane_config)
         lidar_x = self.projection([1,0,0],plane_config)
-        lidar_y = self.projection([0,1,0],plane_config)
+        lidar_y = np.cross([plane_config['a'],plane_config['b'],plane_config['c']],[lidar_x[0][0],lidar_x[1][0],lidar_x[2][0]]) 
+        #lidar_y = self.projection([0,1,0],plane_config)
+        lidar_y = lidar_y.reshape(-1,1)
+        print(np.shape(lidar_y))
         lidar_x = lidar_x / self.point_norm(lidar_x)
         lidar_y = lidar_y / self.point_norm(lidar_y)
         L = np.hstack((lidar_x, lidar_y)) # lidar matrix, we will calculate (LtL)^-1Lt
@@ -165,16 +169,19 @@ class Clustering:
         times = []
         times.append(time.time())
         cloud_points, cloud_channels = self.load_point_clouds(msg, self._remove_tolerance)
+        print(len(cloud_points))
         times.append(time.time())
         inliers, plane_config = self.ransac_plane(cloud_points, self._iteration, self._plane_tolerance)
         times.append(time.time())
         filtered_points, filtered_channels = self.filtering_points(cloud_points, cloud_channels, inliers)
-        times.append(time.time())
         projected_points = self.projecting_points(filtered_points, plane_config)
+        print(len(projected_points))
         times.append(time.time())
         tree = KDTree(np.array(projected_points))
+        times.append(time.time())
         clusters = self.euclidean_clustering(np.array(projected_points), tree, self._clustering_tolerance)
         times.append(time.time())
+        print(len(clusters))
         publish_clusters = []
         publish_channels = []
         publish_points = []
@@ -191,6 +198,8 @@ class Clustering:
         publish_2d_msg.is_3d = False
         publish_3d_msg.is_3d = True
         
+        X=[]
+        Y=[]
         cluster_idx = 0
         count = 0
         for cluster in clusters:
@@ -226,7 +235,14 @@ class Clustering:
                 continue
             print(times[i]-times[i-1])
         print(times[len(times)-1]-times[0])
-        print(len(projected_points))
+        for i in range(len(projected_points)):
+            X.append(projected_points[i][0])
+            Y.append(projected_points[i][1])
+        plt.scatter(X,Y, s=0.5)
+        plt.xlim([0,5])
+        plt.ylim([-3,3])
+        plt.pause(0.5)
+        plt.close()
 
 
 if __name__ == '__main__':
