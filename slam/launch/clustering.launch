@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="slam" name="clustering" type="clustering.py" />
+</launch>

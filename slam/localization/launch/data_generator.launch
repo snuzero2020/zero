@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<launch>
-<node pkg="localization" name="data" type="simulation" />
-<node pkg="localization" name="gps" type="gps"/>
-<node pkg="localization" name="imu" type="imu"/>
-<node pkg="localization" name="kalman" type="kalman_fusion"/>
-<node pkg="localization" name="evaluator" type="evaluator"/>
-</launch>
