@@ -1,8 +1,8 @@
 #include "ros/ros.h"
 #include <iostream>
-#include <localization/Imu.h>
-#include <localization/Gps.h>
-#include <localization/Data.h>
+#include <slam/Imu.h>
+#include <slam/Gps.h>
+#include <slam/Data.h>
 #include <std_msgs/Float64MultiArray.h>
 #include "Eigen/Eigen"
 
@@ -40,10 +40,10 @@ class Kalman_fusion{
         Q.setIdentity();
         RIMU.setIdentity();
         RGPS.setIdentity();
-        pub_d = n_.advertise<localization::Data>("filtered_data", 10);
+        pub_d = n_.advertise<slam::Data>("filtered_data", 10);
     }
 
-    void IMUCallback(const localization::Imu& msg){
+    void IMUCallback(const slam::Imu& msg){
         if(countIMU == -1 || countGPS == -1){
             st(4) = remainder(msg.theta,2*PI);
             u(0) = msg.local_ax;
@@ -76,7 +76,7 @@ class Kalman_fusion{
         countIMU+=1;
     }
 
-    void GPSCallback(const localization::Gps& msg){
+    void GPSCallback(const slam::Gps& msg){
         if(countIMU == -1 || countGPS == -1){
             st(0) = msg.x;
             st(1) = msg.y;
@@ -130,7 +130,7 @@ class Kalman_fusion{
     }
 
     void publish(ros::Time t){
-        localization::Data rt;
+        slam::Data rt;
         rt.header.stamp = t;
         rt.x = st(0);
         rt.y = st(1);
@@ -156,8 +156,8 @@ int main(int argc, char **argv)
     kf.RIMU *= 0.1*0.1;
     kf.RGPS *= 0.5*0.5;
     
-    ros::Subscriber subIMU = n.subscribe("/imu",10,&Kalman_fusion<>::IMUCallback,&kf);
-    ros::Subscriber subGPS = n.subscribe("/gps",10,&Kalman_fusion<>::GPSCallback,&kf);
+    ros::Subscriber subIMU = n.subscribe("/imu",1,&Kalman_fusion<>::IMUCallback,&kf);
+    ros::Subscriber subGPS = n.subscribe("/gps",1,&Kalman_fusion<>::GPSCallback,&kf);
     ros::spin();
     return 0;
 }

@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "ros/time.h"
-#include "localization/Imu.h"
+#include "slam/Imu.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "geometry_msgs/Vector3Stamped.h"
@@ -14,13 +14,13 @@
 class IMU_Decoder{
     public:
     IMU_Decoder(){
-        pub_ = data_.advertise<localization::Imu>("imu", 10);
+        pub_ = data_.advertise<slam::Imu>("imu", 10);
         sub_data_ = data_.subscribe("/imu/data", 1, &IMU_Decoder::callback_data, this);
         sub_mag_ = mag_.subscribe("/imu/mag", 1, &IMU_Decoder::callback_mag, this);
     }
     
     void callback_data(const sensor_msgs::Imu::ConstPtr& msg){
-        localization::Imu rt;
+        slam::Imu rt;
 
         rt.header = msg->header;
         //rt.header.stamp.sec = UnixtimeToSec(msg->header.stamp.sec);
