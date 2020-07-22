@@ -13,6 +13,9 @@ enum taskState{
 	INTERSECTION_STRAIGHT,
 	INTERSECTION_LEFT,
 	INTERSECTION_RIGHT,
+	INTERSECTION_STRAIGHT_UNSIGNED,
+    INTERSECTION_LEFT_UNSIGNED,
+    INTERSECTION_RIGHT_UNSIGNED,
 	OBSTACLE_STATIC,
 	OBSTACLE_SUDDEN,
 	CROSSWALK,
@@ -20,22 +23,38 @@ enum taskState{
 };
 
 enum lightState{
-	LIGHT_GREEN,
-	LIGHT_LEFT,
-	LIGHT_YELLOW,
-	LIGHT_RED
+	GREEN_LIGHT,
+	LEFT_LIGHT,
+	YELLOW_LIGHT,
+	RED_LIGHT
 };
 
 enum motionState{
 	FORWARD_MOTION,
 	FORWARD_MOTION_SLOW,
-	HALT,
+	HALT_MOTION,
 	LEFT_MOTION,
-	RIGHT_MOTION
+	RIGHT_MOTION,
+	PARKING_MOTION
 };
 
+enum parkingState{
+	SEARCHING_PARKING_SPOT,
+    PARKING_SPOT_0,
+    PARKING_SPOT_1,
+    PARKING_SPOT_2,
+    PARKING_SPOT_3,
+    PARKING_SPOT_4,
+    PARKING_SPOT_5
+}
+
+
 Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int x, int y, double angle){
-	bool flag[5];
+	///////////////////////////////////////////////
+	static bool parking_complished = false;
+	static bool unparking_complished = false;
+	///////////////////////////////////////////////
+	bool flag[12];
 	for(int i = 0;i<5;i++) flag[i] = false;
 	switch(motion){
 		case FORWARD_MOTION :
@@ -44,7 +63,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			flag[1] = true;
 			flag[4] = true;
 			break;
-		case HALT :
+		case HALT_MOTION :
 			flag[0] = true;
 			flag[1] = true;
 			break;
@@ -58,11 +77,42 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			flag[1] = true;
 			flag[3] = true;
 			break;
+		//////////////////////////////
+		case PARKING_MOTION :
+			switch(parking_space){
+				case SEARCHING_PARKING_SPOT :
+					flag[0] = true;
+					flag[1] = true;
+					break;
+				case PARKING_SPOT_0 :
+					flag[5] = true;
+					break;
+				case PARKING_SPOT_1 :
+					flag[6] = true;
+					break;
+				case PARKING_SPOT_2 :
+					flag[7] = true;
+					break;
+				case PARKING_SPOT_3 :
+					flag[8] = true;
+					break;
+				case PARKING_SPOT_4 :
+					flag[9] = true;
+					break;
+				case PARKING_SPOT_5 :
+					flag[10] = true;
+					break;
+			}
+			break;
+		//////////////////////////////
 	}
 
 	double look_ahead_radius;
 	if(motion == FORWARD_MOTION_SLOW) look_ahead_radius = 50;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 100;
+	///////////////////////////////////////
+	else if(motion == PARKING_MOTION) look_ahead_radius = 30;
+	///////////////////////////////////////
 	else look_ahead_radius = 200;
 
 
@@ -86,7 +136,19 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		// check if on path
 		double dx = poseStamped.pose.orientation.x;
 		double dy = poseStamped.pose.orientation.y;
-		if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
+		/////////////////////////////////////////////////
+		if(motion != PARKING_MOTION){
+			if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
+		}
+		else
+		{
+			if(!parking_complished){
+				if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
+			}
+			else
+				if((dx - x) * cos(angle) + (dy-y) * sin(angle) >= 0) continue;
+		}
+		/////////////////////////////////////////////////
 
 		// check obstacle
 		if(costmap[(int)dx][(int)dy] >= OBSTACLE) continue;
@@ -99,6 +161,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			key = abs(dist - look_ahead_radius);
 			value = i;
 		}
+
 		// sub path
 		else{
 			if(abs(dist - look_ahead_radius) > key_sub) continue;
@@ -116,20 +179,47 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	if(task == OBSTACLE_STATIC){
 		if(value_sub == -1) {
-			return Cor(100,1);		
+			return Cor(100,0);		
 		}
 		double gx = goals[value_sub].pose.orientation.x;
 		double gy = goals[value_sub].pose.orientation.y;
 		return Cor(gx,gy);
 	}
 	else if(task == OBSTACLE_SUDDEN){
-		return Cor(100,1);
+		return Cor(100,0);
 	}
+	/////////////////////////////////////////
+	// when parking complished or unparking complished stop!
+	else if(motion==PARKING_MOTION){
+		if(parking_complished==false){
+			parking_complished = true;
+			return Cor(100,0);
+		}
+		else{
+			unparking_complished = true;
+			return Cor(100,0);
+		}
+	}
+	/////////////////////////////////////////
+	// when there is no goal available stop! ////////////////////////should be checked!!
 	else{
 		// stop!!!!
-		return Cor(-1, -1);
+		return Cor(100,0);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
