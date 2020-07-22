@@ -48,12 +48,6 @@ add_executable(gps_marker src/mapping/gps_marker.cpp lib/XYToPixel.cpp)
 target_link_libraries(gps_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_marker slam_generate_messages_cpp)
 
-#add_executable for localmap publishing
-add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp src/mapping/map_cutter.cpp)
-target_link_libraries(Localmap_Publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(Localmap_Publisher slam_generate_messages_cpp)
-
-#add_executable for gps subscriber node
 add_executable(gps_subscriber_node src/mapping/gps_subscriber_node.cpp lib/UTM.cpp lib/XYToPixel.cpp)
 target_link_libraries(gps_subscriber_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_subscriber_node slam_generate_messages_cpp)
@@ -62,7 +56,20 @@ add_executable(map_cutter src/mapping/main.cpp src/mapping/map_cutter.cpp lib/UT
 target_link_libraries(map_cutter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(map_cutter slam_generate_messages_cpp)
 
+add_executable(map_cost_dilater src/mapping/map_cost_dilater.cpp)
+target_link_libraries(map_cost_dilater ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 #add_executable for clustering
+
+#add_executable for localmap publishing
+add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp src/mapping/map_cutter.cpp)
+target_link_libraries(Localmap_Publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(Localmap_Publisher slam_generate_messages_cpp)
+
+#add_executable for BGRmap_to_costmap
+add_executable(BGRmap_to_costmap src/BGRmap_to_costmap/main.cpp src/BGRmap_to_costmap/BGRmapToCostmap.cpp)
+target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(BGRmap_to_costmap)
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
@@ -70,8 +77,6 @@ catkin_install_python(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-#add_executable for BGRmap_to_costmap
 
-add_executable(BGRmap_to_costmap src/BGRmap_to_costmap/main.cpp src/BGRmap_to_costmap/BGRmapToCostmap.cpp)
-target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#add_dependencies(BGRmap_to_costmap)
+
+
