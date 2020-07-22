@@ -17,6 +17,8 @@ list(APPEND CMAK_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen REQUIRED)
 #
 
+find_package(OpenCV REQUIRED)
+
 add_message_files(
   DIRECTORY msg 
   FILES 
@@ -61,3 +63,9 @@ catkin_install_python(PROGRAMS
   src/clustering/clustering.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+#add_executable for BGRmap_to_costmap
+
+add_executable(BGRmap_to_costmap src/BGRmap_to_costmap/main.cpp src/BGRmap_to_costmap/BGRmapToCostmap.cpp)
+target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(BGRmap_to_costmap)
