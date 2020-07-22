@@ -8,7 +8,7 @@
 #define CENTERLINE 100  //cost on centerline
 #define LINE 40         //cost on ordinary line
 #define PUREDILATE 7    //pixel size to pre-dilate
-#define MAXPIX 59       //pixel size to spread cost
+#define MAXPIX 67       //pixel size to spread cost
 #define COLORTHRESHOLD 180
 #define UNIT 255        //ushort value
 
