@@ -20,14 +20,21 @@ class Localmap_Publisher{
 		}
 
 		void callback(const slam::Data data){
-			cv::Mat gmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png", IMREAD_UNCHANGED);
-			cut_map(gmap, data.x, data.y, data.theta);
+			cv::Mat gmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png", CV_LOAD_IMAGE_COLOR);
+			
+			cv::namedWindow("showing image", CV_WINDOW_NORMAL);
 			cv::imshow("cutted map", gmap);
+			cv::waitKey(0);
+			printf("showing image\n");
+			cut_map(gmap, data.x, data.y, data.theta);
+			printf("map cutted~!\n");
 			cv_bridge::CvImage img_bridge;
 			sensor_msgs::Image img_msg;
 			std_msgs::Header header;
 			img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, gmap);
+			printf("image converting\n");
 			img_bridge.toImageMsg(img_msg);
+			printf("image converted!\n");
 			publisher.publish(img_msg);
 		}
 };
