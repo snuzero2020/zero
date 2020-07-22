@@ -21,8 +21,8 @@
 using namespace std;
 using namespace cv;
 
-Mat BGRmapToCostmap::BGRmap = Mat::zeros(1, 1, CV_8U);
-Mat BGRmapToCostmap::costmap = Mat::zeros(1, 1, CV_8U);
+Mat BGRmapToCostmap::BGRmap = Mat::zeros(1, 1, CV_8UC3);
+Mat BGRmapToCostmap::costmap = Mat::ones(1, 1, CV_8U);
 
 int BGRmapToCostmap::cols = 0;
 int BGRmapToCostmap::rows = 0;
@@ -43,12 +43,12 @@ int BGRmapToCostmap::elipsed_sec = 0;
 int BGRmapToCostmap::elipsed_msec = 0;
 
 int BGRmapToCostmap::rest_min = 0;
-int BGRmapToCostmap::rest_sec = 0;
+float BGRmapToCostmap::rest_sec = 0;
 int BGRmapToCostmap::rest_hour = 0;
 
 vector<int> BGRmapToCostmap::thread_ids(1);
 
-int BGRmapToCostmap::rest_time = 0;
+double BGRmapToCostmap::rest_time = 0;
 
 int BGRmapToCostmap::bbox_up = 0;
 int BGRmapToCostmap::bbox_down = 0;
@@ -80,8 +80,10 @@ Mat BGRmapToCostmap::getCostmap() {
     return costmap;
 }
 
-void BGRmapToCostmap::transform(function<double(uchar, uchar, uchar)>& weight, function<double(double)>& formula, int p_scope, double p_threshold, int cores) {
+void BGRmapToCostmap::transform(function<double(uchar, uchar, uchar)>& p_weight, function<double(double)>& p_formula, int p_scope, double p_threshold, int cores) {
     threshold = p_threshold;
+    weight = p_weight;
+    formula = p_formula;
     
     if (threshold < 0) {
         ROS_ERROR("BGRmapToCostmap: the threshold is under 0");
@@ -90,7 +92,7 @@ void BGRmapToCostmap::transform(function<double(uchar, uchar, uchar)>& weight, f
     
     if (p_scope < 0) { // the auto-set scope
         for (int n = 0;; n++) {
-            if (formula(n) < threshold) {
+            if (formula(n) * 100 < threshold) {
                 scope = n;
                 break;
             }
@@ -171,12 +173,25 @@ double BGRmapToCostmap::getDistance(Point point1, Point point2) {
     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2));
 }
 
+int BGRmapToCostmap::getDistanceInt(Point point1, Point point2) {
+    return static_cast<int>(sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2)));
+}
+
 void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
     int proceed_rows = 0;
 
     for (int i = row_start; i < row_end; i++) {
         for (int j = 0; j < cols; j++) {
             double cost_seed = weight(BGRmap_data[3 * (i * cols + j)], BGRmap_data[3 * (i * cols + j) + 1], BGRmap_data[3 * (i * cols + j) + 2]);
+
+            /*if (id == 11 ) {
+                cout << +BGRmap_data[3 * (i * cols + j)] << endl;
+                cout << +BGRmap_data[3 * (i * cols + j) + 1] << endl;
+                cout << +BGRmap_data[3 * (i * cols + j) + 2] << endl;
+                cout << weight(0,0,0) << endl;
+                cout << cost_seed << "\n" << endl;
+            }*/
+            
 
             if (cost_seed < threshold) {
                 continue;
@@ -218,7 +233,8 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
                     Point seed_point(j, i);
                     Point working_point(work_j, work_i);
 
-                    double distance = getDistance(seed_point, working_point);
+                    int distance = getDistanceInt(seed_point, working_point);
+                    //double distance = getDistance(seed_point, working_point);
 
                     // add a cost
 
@@ -238,40 +254,38 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
             proceed_rows += thread_ids[n];
         }
 
-        //if (id == thread_ids.size() - 1) 
-        {
-            elipsed_msec = chrono_msec.count();
+        elipsed_msec = chrono_msec.count();
 
-            rest_time = static_cast<int>(((rows - proceed_rows) / (proceed_rows + 1)) * elipsed_msec / 1000);
-            rest_hour = static_cast<int>(rest_time / 3600);
-            rest_min = static_cast<int>((rest_time - (rest_hour * 3600)) / 60);
-            rest_sec = (rest_time - (rest_hour * 3600) - (rest_min * 60));
+        rest_time = ((rows - proceed_rows) / (proceed_rows + 1.0)) * elipsed_msec / 1000.0;
+        rest_hour = static_cast<int>(rest_time / 3600);
+        rest_min = static_cast<int>((rest_time - (rest_hour * 3600)) / 60);
+        rest_sec = rest_time - (rest_hour * 3600) - (rest_min * 60);
 
-            for (int i = 0; i < 21; i++) {
-                cout << "\n" << endl;
-            }
-
-            string rest_min_str;
-
-            if (rest_min < 10) {
-                
-                rest_min_str += ("0" + to_string(rest_min));
-            } else {
-                rest_min_str = to_string(rest_min);
-            }
-            
-            string rest_sec_str;
-
-            if (rest_sec < 10) {
-                
-                rest_sec_str += ("0" + to_string(rest_sec));
-            } else {
-                rest_sec_str = to_string(rest_sec);
-            }
-
-            ROS_INFO("%lf%% completed (%d/%d)", static_cast<double>(proceed_rows) / static_cast<double>(rows) * 100, proceed_rows, rows);
-            ROS_INFO("complete after %d:%s:%s", rest_hour, rest_min_str.c_str(), rest_sec_str.c_str());
+        for (int i = 0; i < 21; i++) {
+            cout << "\n" << endl;
         }
+
+        string rest_min_str;
+
+        if (rest_min < 10) {
+            
+            rest_min_str += ("0" + to_string(rest_min));
+        } else {
+            rest_min_str = to_string(rest_min);
+        }
+        
+        string rest_sec_str;
+
+        if (rest_sec < 10) {
+            
+            rest_sec_str += ("0" + to_string(rest_sec));
+        } else {
+            rest_sec_str = to_string(rest_sec);
+        }
+
+        ROS_INFO("%lf%% completed (%d/%d)", static_cast<double>(proceed_rows) / static_cast<double>(rows) * 100, proceed_rows, rows);
+        ROS_INFO("complete after %d:%s:%s", rest_hour, rest_min_str.c_str(), rest_sec_str.c_str());
+        
     }
 
     // if a cost is over 100, the cost must cut to 100

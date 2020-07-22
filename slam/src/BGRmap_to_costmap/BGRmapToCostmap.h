@@ -44,14 +44,15 @@ class BGRmapToCostmap {
         static int elipsed_msec;
 
         static int rest_min;
-        static int rest_sec;
+        static float rest_sec;
         static int rest_hour;
-        static int rest_time;
+        static double rest_time;
 
         static int status;
         static int bbox_up, bbox_down, bbox_left, bbox_right;
 
         static double getDistance(Point point1, Point point2);
+        static int getDistanceInt(Point point1, Point point2);
         static void calculateCost(int row_start, int row_end, int id);
 
     public:
