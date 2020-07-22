@@ -238,7 +238,8 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
             proceed_rows += thread_ids[n];
         }
 
-        if (id == thread_ids.size() - 1) {
+        //if (id == thread_ids.size() - 1) 
+        {
             elipsed_msec = chrono_msec.count();
 
             rest_time = static_cast<int>(((rows - proceed_rows) / (proceed_rows + 1)) * elipsed_msec / 1000);
