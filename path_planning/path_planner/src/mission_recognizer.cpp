@@ -34,6 +34,17 @@ enum motionState{
 	PARKING_MOTION
 };
 
+enum parkingState{
+    SEARCHING_PARKING_SPOT,
+    PARKING_SPOT_0,
+    PARKING_SPOT_1,
+    PARKING_SPOT_2,
+    PARKING_SPOT_3,
+    PARKING_SPOT_4,
+    PARKING_SPOT_5
+}
+
+
 class RosNode{
 private:
 	ros::NodeHandle n;

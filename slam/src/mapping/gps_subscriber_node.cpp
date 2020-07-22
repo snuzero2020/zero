@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "nmea_msgs/Sentence.h"
-#include "localization/Gps.h"
+#include "slam/Gps.h"
 #include "opencv2/opencv.hpp" // Map Show
 #include <iostream>
 #include <string>
@@ -15,7 +15,7 @@ using namespace std;
 class GPS_Decoder{
     public:
     GPS_Decoder(){
-	pub_ = n_.advertise<localization::Gps>("gps", 1000);
+	pub_ = n_.advertise<slam::Gps>("gps", 1000);
 	sub_ = n_.subscribe("/nmea_sentence", 10000, &GPS_Decoder::callback, this);
     stringstream path_stream;
     path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
@@ -24,7 +24,7 @@ class GPS_Decoder{
     }
 
     void callback(const nmea_msgs::Sentence::ConstPtr& msg){
-	localization::Gps rt;
+	slam::Gps rt;
 	string s = msg->sentence;
         string delimiter = ",";
         vector<string> tokens;

@@ -3,7 +3,7 @@
 
 import rospy
 from nmea_msgs.msg import Sentence
-from localization.msg import Gps
+from slam.msg import Gps
 from pyproj import Proj, transform
 #from functools import reduce ## for python3 only
 

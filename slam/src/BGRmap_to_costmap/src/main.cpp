@@ -6,7 +6,7 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 
-#include "../include/BGRmapToCostmap.h"
+#include "BGRmapToCostmap.h"
 
 #include <cmath>
 
@@ -17,7 +17,7 @@ using namespace std;
 using namespace cv;
 
 int main() {
-    Mat map(imread("/home/dongha/catkin_ws/src/zero/slam/BGRmap_to_costmap/FMTC.png", IMREAD_COLOR));
+    Mat map(imread("src/zero/slam/src/BGRmap_to_costmap/FMTC.png", IMREAD_COLOR));
 
     if (map.empty()) {
         ROS_ERROR("The loaded map is empty");
@@ -31,12 +31,12 @@ int main() {
     });
 
     function<double(double)> formula([](double distance) {
-        if (distance == 0) {return 1.0;}
+        if (distance < 1) {return 1.0;}
         else {return (1.0 / pow(distance, 2.0));} // 1/r^2
     });
 
-    translator.transform(weight, formula, 10, 1e-2, 8);
+    translator.transform(weight, formula, 10, 1, 8);
 
     Mat costmap = translator.getCostmap();
-    imwrite("/home/dongha/catkin_ws/src/zero/slam/BGRmap_to_costmap/FMTC_cost.png", costmap);
+    imwrite("src/zero/slam/src/BGRmap_to_costmap/FMTC_cost.png", costmap);
 }
