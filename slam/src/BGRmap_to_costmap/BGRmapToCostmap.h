@@ -44,7 +44,7 @@ class BGRmapToCostmap {
         static int elipsed_msec;
 
         static int rest_min;
-        static float rest_sec;
+        static int rest_sec;
         static int rest_hour;
         static double rest_time;
 
@@ -60,7 +60,7 @@ class BGRmapToCostmap {
         void setBGRmap(Mat p_BGRmap);
         Mat getCostmap();
 
-        void transform(function<double(uchar, uchar, uchar)>& weight, function<double(double)>& formula, int p_scope, double p_threshold, int core);    
+        void transform(function<double(uchar, uchar, uchar)>& weight, function<int(int)>& formula, int p_scope, double p_threshold, int core);    
 };
 
 #endif

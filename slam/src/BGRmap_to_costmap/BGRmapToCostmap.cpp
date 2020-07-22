@@ -43,7 +43,7 @@ int BGRmapToCostmap::elipsed_sec = 0;
 int BGRmapToCostmap::elipsed_msec = 0;
 
 int BGRmapToCostmap::rest_min = 0;
-float BGRmapToCostmap::rest_sec = 0;
+int BGRmapToCostmap::rest_sec = 0;
 int BGRmapToCostmap::rest_hour = 0;
 
 vector<int> BGRmapToCostmap::thread_ids(1);
@@ -80,7 +80,7 @@ Mat BGRmapToCostmap::getCostmap() {
     return costmap;
 }
 
-void BGRmapToCostmap::transform(function<double(uchar, uchar, uchar)>& p_weight, function<double(double)>& p_formula, int p_scope, double p_threshold, int cores) {
+void BGRmapToCostmap::transform(function<double(uchar, uchar, uchar)>& p_weight, function<int(int)>& p_formula, int p_scope, double p_threshold, int cores) {
     threshold = p_threshold;
     weight = p_weight;
     formula = p_formula;
@@ -259,7 +259,7 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
         rest_time = ((rows - proceed_rows) / (proceed_rows + 1.0)) * elipsed_msec / 1000.0;
         rest_hour = static_cast<int>(rest_time / 3600);
         rest_min = static_cast<int>((rest_time - (rest_hour * 3600)) / 60);
-        rest_sec = rest_time - (rest_hour * 3600) - (rest_min * 60);
+        rest_sec = static_cast<int>(rest_time - (rest_hour * 3600) - (rest_min * 60));
 
         for (int i = 0; i < 21; i++) {
             cout << "\n" << endl;
