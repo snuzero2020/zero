@@ -28,6 +28,8 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_library(rrt_star src/rrt_star.cpp)
 
+add_library(goal_decision src/goal_decision.cpp)
+
 add_executable(path_planner_node src/path_planner_node.cpp)
 
 add_dependencies(path_planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -37,6 +39,8 @@ add_dependencies(path_planner_node core_msgs_generate_messages_cpp)
 target_link_libraries(path_planner_node  ${catkin_LIBRARIES} )
 
 target_link_libraries(path_planner_node  rrt_star )
+
+target_link_libraries(path_planner_node  goal_decision )
 
 target_link_libraries(path_planner_node  ${OpenCV_LIBS})
 

@@ -15,7 +15,8 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int x, int y, double angle);
+//extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed);
+extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed);
 
 class RosNode{
 private:
@@ -24,7 +25,8 @@ private:
 	ros::Subscriber mission_state_sub;	
 	ros::Subscriber goals_sub;
 	ros::Publisher path_pub;
-	ros::Publisher estop_pub;
+	ros::Publisher gear_state_pub;
+
 	int task, light, motion, parking_space;
 	nav_msgs::Path goals;
 public:
@@ -38,7 +40,8 @@ public:
 		mission_state_sub = n.subscribe("mission_state", 50, &RosNode::missionstateCallback, this);
 		goals_sub = n.subscribe("goals", 50000, &RosNode::goalsCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
-		estop_pub = n.advertise<core_msgs::Control>("car_signal", 10);
+		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
+
 		task = light = motion = -1;
 		n.getParam("/start_point_x", start_point_x_value);
 		n.getParam("/start_point_y", start_point_y_value);
@@ -61,109 +64,193 @@ public:
 	}
 
 	void costmapCallback(const nav_msgs::OccupancyGrid & map){
+		static int time_parking_complished{0};
+		static int gear_state{0};
 
-////////////////with goal decision and mission recognizor
-//		ROS_INFO("callback");
-//		//if(goals.poses.empty()) return;
-//		//if(task == -1) return;
-//		static RRT rrt = RRT();
-//		int t = clock();
-//
-//		// get costmap	
-//		vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
-//		int h = map.info.height;
-//		int w = map.info.width;
-//		for(int i = 0; i<h; i++){
-//			for(int j = 0; j<w;j++){
-//				cost_map[i][j] = (double)(map.data[i*w+j]);
-//			}
-//		}
-//
-//		// rrt star algorithm
-//		vector<Cor> path;
-//		Cor x(100,0);
-//		Cor y(100,199);
-//		//Cor y = decision(goals.poses, cost_map, task, light, motion, 100, 0, 0);
-//		
-//		// stop!!!!!
-//		if(y.x == 100 && y.y == 0){
-//			core_msgs::Control msg;
-//			msg.is_auto = 1;
-//			msg.estop = 0;
-//			msg.gear = 0;
-//			msg.brake = 50;
-//			msg.speed = 0;
-//			msg.steer = 0;
-//			estop_pub.publish(msg);
-//			return;
-//		}
-//
-		// for track driving mission
 		cout<<"callback\n";
-		int iternum;
-		double radius;
-		double stepsize;
-		double threshold;
-		double threshold2;
-		n.getParam("/iternum", iternum);
-		n.getParam("/radius", radius);
-		n.getParam("/stepsize_rrt", stepsize);
-		n.getParam("/threshold", threshold);
-		n.getParam("/threshold2", threshold2);		
-		RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
-		//rrt.print_RRT();
-                int t = clock();
-		cout << "map time stamp : " << map.header.stamp.sec << endl;
-                // get costmap  
-                vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
-                int h = map.info.height;
-                int w = map.info.width;
-                for(int i = 0; i<h; i++){
-                        for(int j = 0; j<w;j++){
-                                cost_map[199-i][199-j] = ((double)map.data[j*w+i] * 4 * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
-                        }
-                }
-                cout << "90,198 cost ; " << cost_map[90][198] << endl;
+		bool isTrackDriving;
+		n.getParam("/isTrackDriving", isTrackDriving);
+		if(isTrackDriving){
+			int iternum;
+			double radius;
+			double stepsize;
+			double threshold;
+			double threshold2;
+			n.getParam("/iternum", iternum);
+			n.getParam("/radius", radius);
+			n.getParam("/stepsize_rrt", stepsize);
+			n.getParam("/threshold", threshold);
+			n.getParam("/threshold2", threshold2);		
+			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
+			//rrt.print_RRT();
+			int t = clock();
+			cout << "map time stamp : " << map.header.stamp.sec << endl;
+			// get costmap  
+			vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
+			int h = map.info.height;
+			int w = map.info.width;
+			for(int i = 0; i<h; i++){
+				for(int j = 0; j<w;j++){
+					cost_map[199-i][199-j] = ((double)map.data[j*w+i] * 4 * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
+				}
+			}
+			cout << "90,198 cost ; " << cost_map[90][198] << endl;
 
-                // rrt star algorithm
-                vector<Cor> path;
-                Cor x(100,0), y(100,199);
-                y.x = map.data[w*h]*2;
-                y.y = map.data[w*h + 1]*2;
-                std::cout << y.x << "," << y.y << std::endl;
-		rrt.solve(path,cost_map,x, y, iternum);
+			// rrt star algorithm
+			vector<Cor> path;
+			Cor x(100,0), y(100,199);
+			y.x = map.data[w*h]*2;
+			y.y = map.data[w*h + 1]*2;
+			std::cout << y.x << "," << y.y << std::endl;
+			rrt.solve(path,cost_map,x, y);
 
-		cv::namedWindow("costmap_path");
-		cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);
-		for(int i = 0;i<rrt.map_length;i++) for(int j = 0;j<rrt.map_length;j++){
-			image.at<cv::Vec3b>(i,j)[0] = cost_map[j][199-i];	
-			image.at<cv::Vec3b>(i,j)[1] = cost_map[j][199-i];	
-			image.at<cv::Vec3b>(i,j)[2] = cost_map[j][199-i];	
-		}
-		for(int i = 0;i<path.size()-1;i++)
-			 line(image, cv::Point(path[i].x,199-path[i].y), cv::Point(path[i+1].x,199- path[i+1].y), cv::Scalar(100,200,50),1,0);
+			cv::namedWindow("costmap_path");
+			cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);
+			for(int i = 0;i<rrt.map_length;i++) for(int j = 0;j<rrt.map_length;j++){
+				image.at<cv::Vec3b>(i,j)[0] = cost_map[j][199-i];	
+				image.at<cv::Vec3b>(i,j)[1] = cost_map[j][199-i];	
+				image.at<cv::Vec3b>(i,j)[2] = cost_map[j][199-i];	
+			}
+			for(int i = 0;i<path.size()-1;i++)
+				line(image, cv::Point(path[i].x,199-path[i].y), cv::Point(path[i+1].x,199- path[i+1].y), cv::Scalar(100,200,50),1,0);
 
-		cv::imshow("costmap_path",image);
-		cv::waitKey(1);
+			cv::imshow("costmap_path",image);
+			cv::waitKey(1);
 
-		// convert path
-		nav_msgs::Path local_path;
-	
-		geometry_msgs::PoseStamped poseStamped;
-		int cnt = 0;
-		for(Cor cor : path){
-			poseStamped.header.seq = ++cnt;
-			poseStamped.pose.position.x = cor.x;
-			poseStamped.pose.position.y = cor.y;
+			// convert path
+			nav_msgs::Path local_path;
+
+			geometry_msgs::PoseStamped poseStamped;
+			int cnt = 0;
+			for(Cor cor : path){
+				poseStamped.header.seq = ++cnt;
+				poseStamped.pose.position.x = cor.x-100;
+				poseStamped.pose.position.y = cor.y;
+				local_path.poses.push_back(poseStamped);
+			}
+			poseStamped.header.seq = 0;
 			local_path.poses.push_back(poseStamped);
+
+			// publish
+			path_pub.publish(local_path);
+
+			ROS_INFO("pub, duration : %ld",clock()-t);
 		}
-		poseStamped.header.seq = 0;
-		local_path.poses.push_back(poseStamped);
+		else {
+			if(goals.poses.empty()) return;
+			if(task == -1) return;
+			
+			int iternum;
+			double radius;
+			double stepsize;
+			double threshold;
+			double threshold2;
+			n.getParam("/iternum", iternum);
+			n.getParam("/radius", radius);
+			n.getParam("/stepsize_rrt", stepsize);
+			n.getParam("/threshold", threshold);
+			n.getParam("/threshold2", threshold2);		
+			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
+			int t = clock();
 
-		// publish
-		path_pub.publish(local_path);
+			// get costmap	
+			vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
+			int h = map.info.height;
+			int w = map.info.width;
+			for(int i = 0; i<h; i++){
+				for(int j = 0; j<w;j++){
+					cost_map[i][j] = (double)(map.data[i*w+j]);
+				}
+			}
+			//for(int i = 0; i<h; i++){
+			//	for(int j = 0; j<w;j++){
+			//		cost_map[199-i][199-j] = ((double)map.data[j*w+i] * 4 * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
+			//	}
+			//}
 
-		ROS_INFO("pub, duration : %ld",clock()-t);
+			// rrt star algorithm
+			vector<Cor> path;
+			Cor x(w/2,0);
+			
+			// 1. initial gear_state is forward(0)
+			// 2. when parking_complished if true, time_parking_complished is recorded.
+			// 3. when 20s is passed, gear_state is changed to rear(1) and time_parking_complished is reset to 0.
+			// 4. finally, when unparking_complished is true, gaer_state is changed to front(0).
+			bool parking_complished_changed = false, unparking_complished_changed = false;
+			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed);
+			
+			if(parking_complished_changed){
+				time_parking_complished = clock();
+			}
+			else if( time_parking_complished != 0 && (clock() - time_parking_complished)/CLOCKS_PER_SEC > 20 ) {
+				gear_state = 1;
+				time_parking_complished = 0;
+			}
+			else if(unparking_complished_changed){
+				gear_state = 0;
+			}
+
+			// parking...  pub to slam team
+			std_msgs::UInt32 msg;
+			msg.data = gear_state;
+			gear_state_pub.publish(msg);
+
+
+			// stop!!!!!
+			if(y.x == 0 && y.y == 0){
+				nav_msgs::Path local_path;	
+				path_pub.publish(local_path);
+				return;
+			}
+
+			y.x+=w/2;
+			
+			rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
+			if(path.empty()){
+				nav_msgs::Path local_path;	
+				path_pub.publish(local_path);
+				return;
+			}
+
+			cv::namedWindow("costmap_path");
+			cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);
+			for(int i = 0;i<rrt.map_length;i++) for(int j = 0;j<rrt.map_length;j++){
+				image.at<cv::Vec3b>(i,j)[0] = cost_map[j][199-i];	
+				image.at<cv::Vec3b>(i,j)[1] = cost_map[j][199-i];	
+				image.at<cv::Vec3b>(i,j)[2] = cost_map[j][199-i];	
+			}
+			for(int i = 0;i<path.size()-1;i++)
+				line(image, cv::Point(path[i].x,199-path[i].y), cv::Point(path[i+1].x,199- path[i+1].y), cv::Scalar(100,200,50),1,0);
+
+			cv::imshow("costmap_path",image);
+			cv::waitKey(1);
+
+			// convert path
+			nav_msgs::Path local_path;
+
+			geometry_msgs::PoseStamped poseStamped;
+			int cnt = 0;
+			for(Cor cor : path){
+				poseStamped.header.seq = ++cnt;
+				poseStamped.pose.position.x = cor.x-w/2;
+				poseStamped.pose.position.y = cor.y;
+				local_path.poses.push_back(poseStamped);
+			}
+			poseStamped.header.seq = 0;
+			local_path.poses.push_back(poseStamped);
+
+			local_path.header.seq = 0;
+			if (motion == HALT_MOTION)
+				local_path.header.seq |= 0x1;
+			if (gear_state == 1)
+				local_path.header.seq |= 0x10;
+
+			// publish
+			path_pub.publish(local_path);
+
+			ROS_INFO("pub, duration : %ld",clock()-t);
+
+		}
 	}
 };
 

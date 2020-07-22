@@ -147,8 +147,21 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 	curr_odom.pose = msg->pose;
 	curr_odom.twist = msg->twist;
 
-	if (curr_local_path.poses.size()==0)
+	// if there's no path generated, estop.
+	if (curr_local_path.poses.size()==0){
+		core_msgs::Control msg;
+
+		msg.is_auto = 1;
+		msg.estop = 0;
+		msg.gear = 0;
+		msg.brake = 50;
+		msg.speed = 0;
+		msg.steer = 0;
+
+		car_signal_pub.publish(msg);
+
 		return;
+	}
 	if (recommend_vel<-0.2)
 		return;
 
@@ -156,8 +169,6 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 
 	cout << "before determind steering angle\n";	
 	determind_steering_angle();
-	cout << "after determind steering angle\n";	
-	steering_angle_pub.publish(get_steering_angle());
 	cout << "before calculate input signal\n";	
 	calculate_input_signal();
 	cout << "before vehicle output signal\n";	
@@ -189,15 +200,19 @@ void Tracker::set_look_ahead_point()
 	{
 		if (curr_local_path.poses[idx].header.seq == 0)
 		{
-			major_axis_radius -= 50;
+			if (major_axis_radius < 5){
+				major_axis_radius = 1;
+			}
+			else
+				major_axis_radius /= 1.5;
 			idx = 0;
 			continue;
 		}
-		check_outside = (curr_local_path.poses[idx].pose.position.x-100)*(curr_local_path.poses[idx].pose.position.x-100)/((major_axis_radius/look_ahead_oval_ratio)* (major_axis_radius/look_ahead_oval_ratio))
+		check_outside = (curr_local_path.poses[idx].pose.position.x)*(curr_local_path.poses[idx].pose.position.x)/((major_axis_radius/look_ahead_oval_ratio)* (major_axis_radius/look_ahead_oval_ratio))
 			+ (curr_local_path.poses[idx].pose.position.y)*(curr_local_path.poses[idx].pose.position.y)/((major_axis_radius)*(major_axis_radius));
 		if (check_outside>1)
 		{
-			look_ahead_point.x = curr_local_path.poses[idx].pose.position.x-100;
+			look_ahead_point.x = curr_local_path.poses[idx].pose.position.x;
 			look_ahead_point.y = curr_local_path.poses[idx].pose.position.y;
 			break;
 		}

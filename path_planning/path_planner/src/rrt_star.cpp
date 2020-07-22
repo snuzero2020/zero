@@ -268,7 +268,7 @@ bool RRT::straightCheck(Cor start, Cor dest){
 	return true;	
 }
 
-void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, int _iternum) {
+void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden) {
 	Node* middle_start = new Node(), * middle_goal = new Node();
 	bool find_path = false;
 	// initialize
@@ -281,14 +281,16 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 		return;
 	}
 
-	if (_iternum != -1) iternum = _iternum;
+	if(isObstacleSudden)
+		return;
+
 	Tree start_tree = Tree(size); 
 	start_tree.insert(Node(start));
 	Tree goal_tree = Tree(size); goal_tree.insert(Node(goal));
 	// iteration start
 	int t = time(0);
 	srand(t); ROS_INFO("srand %d",t);
-	for (int i = 0; !find_path || i < iternum; i++) {
+	for (int i = 0; (!find_path || i < iternum) && i < 5000 ; i++) {
 		Cor q_rand = random_point();
 		bool check_start = false, check_goal = false;
 
@@ -355,8 +357,6 @@ debug();
 				middle_goal = q_newnode_ptr_goal;
 			}
 		}
-
-		if (i == iternum - 1 && !find_path) i--;
 	}
 
 /*
@@ -381,6 +381,10 @@ debug();
 		imshow("rrt tree", image);
 	}
 */
+	
+	// cant find path
+	if(!find_path) return;
+	
 	// make path
 
 	// from start to middle

@@ -7,58 +7,61 @@
 #include "geometry_msgs/PoseStamped.h"
 
 const static int OBSTACLE = 100;
-
-enum taskState{
-	DRIVING_SECTION,
-	INTERSECTION_STRAIGHT,
-	INTERSECTION_LEFT,
-	INTERSECTION_RIGHT,
-	INTERSECTION_STRAIGHT_UNSIGNED,
-    INTERSECTION_LEFT_UNSIGNED,
-    INTERSECTION_RIGHT_UNSIGNED,
-	OBSTACLE_STATIC,
-	OBSTACLE_SUDDEN,
-	CROSSWALK,
-	PARKING
-};
-
-enum lightState{
-	GREEN_LIGHT,
-	LEFT_LIGHT,
-	YELLOW_LIGHT,
-	RED_LIGHT
-};
-
-enum motionState{
-	FORWARD_MOTION,
-	FORWARD_MOTION_SLOW,
-	HALT_MOTION,
-	LEFT_MOTION,
-	RIGHT_MOTION,
-	PARKING_MOTION
-};
-
-enum parkingState{
-	SEARCHING_PARKING_SPOT,
-    PARKING_SPOT_0,
-    PARKING_SPOT_1,
-    PARKING_SPOT_2,
-    PARKING_SPOT_3,
-    PARKING_SPOT_4,
-    PARKING_SPOT_5
-}
-
-
-Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int x, int y, double angle){
+//
+//enum taskState{
+//	DRIVING_SECTION,
+//	INTERSECTION_STRAIGHT,
+//	INTERSECTION_LEFT,
+//	INTERSECTION_RIGHT,
+//	INTERSECTION_STRAIGHT_UNSIGNED,
+//    INTERSECTION_LEFT_UNSIGNED,
+//    INTERSECTION_RIGHT_UNSIGNED,
+//	OBSTACLE_STATIC,
+//	OBSTACLE_SUDDEN,
+//	CROSSWALK,
+//	PARKING
+//};
+//
+//enum lightState{
+//	GREEN_LIGHT,
+//	LEFT_LIGHT,
+//	YELLOW_LIGHT,
+//	RED_LIGHT
+//};
+//
+//enum motionState{
+//	FORWARD_MOTION,
+//	FORWARD_SLOW_MOTION,
+//	HALT_MOTION,
+//	LEFT_MOTION,
+//	RIGHT_MOTION,
+//	PARKING_MOTION
+//};
+//
+//enum parkingState{
+//	SEARCHING_PARKING_SPOT,
+//    PARKING_SPOT_0,
+//    PARKING_SPOT_1,
+//    PARKING_SPOT_2,
+//    PARKING_SPOT_3,
+//    PARKING_SPOT_4,
+//    PARKING_SPOT_5
+//}
+//
+//
+Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed){
 	///////////////////////////////////////////////
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
 	///////////////////////////////////////////////
+	const double angle{0};
+	const int x{0};
+	const int y{0};
 	bool flag[12];
 	for(int i = 0;i<5;i++) flag[i] = false;
 	switch(motion){
 		case FORWARD_MOTION :
-		case FORWARD_MOTION_SLOW :
+		case FORWARD_SLOW_MOTION :
 			flag[0] = true;
 			flag[1] = true;
 			flag[4] = true;
@@ -108,7 +111,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	}
 
 	double look_ahead_radius;
-	if(motion == FORWARD_MOTION_SLOW) look_ahead_radius = 50;
+	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 100;
+	else if(motion == FORWARD_SLOW_MOTION) look_ahead_radius = 50;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 100;
 	///////////////////////////////////////
 	else if(motion == PARKING_MOTION) look_ahead_radius = 30;
@@ -131,24 +135,32 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
 		
 		// check if same dir
-		if(ang_diff > M_PI/2) continue;
+		if(motion != PARKING_MOTION){
+			if(ang_diff > M_PI/2) continue;
+		}
+		else if(!parking_complished){
+			if(ang_diff > M_PI/2) continue;
+		}
+		else{
+			if(ang_diff < M_PI/2) continue;
+		}
 		
 		// check if on path
 		double dx = poseStamped.pose.orientation.x;
 		double dy = poseStamped.pose.orientation.y;
-		/////////////////////////////////////////////////
-		if(motion != PARKING_MOTION){
-			if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
-		}
-		else
-		{
-			if(!parking_complished){
-				if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
-			}
-			else
-				if((dx - x) * cos(angle) + (dy-y) * sin(angle) >= 0) continue;
-		}
-		/////////////////////////////////////////////////
+//		/////////////////////////////////////////////////
+//		if(motion != PARKING_MOTION){
+//			if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
+//		}
+//		else
+//		{
+//			if(!parking_complished){
+//				if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
+//			}
+//			else
+//				if((dx - x) * cos(angle+M_PI) + (dy-y) * sin(angle+M_PI) <= 0) continue;
+//		}
+//		/////////////////////////////////////////////////
 
 		// check obstacle
 		if(costmap[(int)dx][(int)dy] >= OBSTACLE) continue;
@@ -179,32 +191,34 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	if(task == OBSTACLE_STATIC){
 		if(value_sub == -1) {
-			return Cor(100,0);		
+			return Cor(0,1);		
 		}
 		double gx = goals[value_sub].pose.orientation.x;
 		double gy = goals[value_sub].pose.orientation.y;
 		return Cor(gx,gy);
 	}
 	else if(task == OBSTACLE_SUDDEN){
-		return Cor(100,0);
+		return Cor(0,0); 
 	}
 	/////////////////////////////////////////
 	// when parking complished or unparking complished stop!
 	else if(motion==PARKING_MOTION){
 		if(parking_complished==false){
 			parking_complished = true;
-			return Cor(100,0);
+			parking_complished_changed = true;
+			return Cor(0,0);
 		}
 		else{
 			unparking_complished = true;
-			return Cor(100,0);
+			unparking_complished_changed = true;
+			return Cor(0,0);
 		}
 	}
 	/////////////////////////////////////////
 	// when there is no goal available stop! ////////////////////////should be checked!!
 	else{
 		// stop!!!!
-		return Cor(100,0);
+		return Cor(0,0);
 	}
 }
 
