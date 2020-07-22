@@ -48,6 +48,12 @@ add_executable(gps_marker src/mapping/gps_marker.cpp lib/XYToPixel.cpp)
 target_link_libraries(gps_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_marker slam_generate_messages_cpp)
 
+#add_executable for localmap publishing
+add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp src/mapping/map_cutter.cpp)
+target_link_libraries(Localmap_Publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(Localmap_Publisher slam_generate_messages_cpp)
+
+#add_executable for gps subscriber node
 add_executable(gps_subscriber_node src/mapping/gps_subscriber_node.cpp lib/UTM.cpp lib/XYToPixel.cpp)
 target_link_libraries(gps_subscriber_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_subscriber_node slam_generate_messages_cpp)

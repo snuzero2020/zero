@@ -17,24 +17,18 @@ Mat cut_image(Mat img, Range col, Range row) {
     return img_cut;
 }
 
-int cut_map(Mat& map, float lat, float lon, float heading) {
+int cut_map(Mat& map, double x, double y, double heading) {
     if (map.empty()) {
             cout << fixed << "cut_map: Global map is empty!" << endl;
             return -1;
     }
 
-    cout << "cut_map: Size of global map: " << map.cols << " X " << map.rows << endl;
-
-    cout << "cut_map: Car's position(WGS84): " << lat << ", " << lon << endl;
     //retrive a position of car
-
-    vector<double> position_latlon;
-    position_latlon.push_back(lat);
-    position_latlon.push_back(lon);
 
     vector<double> position_xy(2);
 
-    LatLonToUTMXY(position_latlon.at(0) , position_latlon.at(1), 52, position_xy.at(0), position_xy.at(1)); 
+    position_xy[0] = x;
+    position_xy[1] = y;
 
     cout << "cut_map: Car's position(UTM52): " << position_xy.at(0) << ", " << position_xy.at(1) << endl;
     vector<int> position_pixel(2, -1);

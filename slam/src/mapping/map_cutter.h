@@ -2,4 +2,4 @@
 
 using namespace cv;
 
-int cut_map(Mat& img, float lat, float lon, float heading);
+int cut_map(Mat& img, double x, double y, double heading);
