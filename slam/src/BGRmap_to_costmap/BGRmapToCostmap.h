@@ -46,12 +46,13 @@ class BGRmapToCostmap {
         static int rest_min;
         static int rest_sec;
         static int rest_hour;
-        static int rest_time;
+        static double rest_time;
 
         static int status;
         static int bbox_up, bbox_down, bbox_left, bbox_right;
 
         static double getDistance(Point point1, Point point2);
+        static int getDistanceInt(Point point1, Point point2);
         static void calculateCost(int row_start, int row_end, int id);
 
     public:
@@ -59,7 +60,7 @@ class BGRmapToCostmap {
         void setBGRmap(Mat p_BGRmap);
         Mat getCostmap();
 
-        void transform(function<double(uchar, uchar, uchar)>& weight, function<double(double)>& formula, int p_scope, double p_threshold, int core);    
+        void transform(function<double(uchar, uchar, uchar)>& weight, function<int(int)>& formula, int p_scope, double p_threshold, int core);    
 };
 
 #endif
