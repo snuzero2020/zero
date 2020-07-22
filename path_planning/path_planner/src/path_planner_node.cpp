@@ -25,7 +25,7 @@ private:
 	ros::Subscriber goals_sub;
 	ros::Publisher path_pub;
 	ros::Publisher estop_pub;
-	int task, light, motion;
+	int task, light, motion, parking_space;
 	nav_msgs::Path goals;
 public:
 	double start_point_x_value;
@@ -53,6 +53,7 @@ public:
 		motion = data & mask;
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
+		parking_space = (data>>12) & mask;
 	}
 
 	void goalsCallback(const nav_msgs::Path & msg){
@@ -85,7 +86,7 @@ public:
 //		//Cor y = decision(goals.poses, cost_map, task, light, motion, 100, 0, 0);
 //		
 //		// stop!!!!!
-//		if(y.x < 0){
+//		if(y.x == 100 && y.y == 0){
 //			core_msgs::Control msg;
 //			msg.is_auto = 1;
 //			msg.estop = 0;
