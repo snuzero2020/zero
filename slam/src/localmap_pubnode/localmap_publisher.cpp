@@ -20,8 +20,9 @@ class Localmap_Publisher{
 		}
 
 		void callback(const slam::Data data){
-			cv::Mat gmap = cv::imread("map.png");
+			cv::Mat gmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png", IMREAD_UNCHANGED);
 			cut_map(gmap, data.x, data.y, data.theta);
+			cv::imshow("cutted map", gmap);
 			cv_bridge::CvImage img_bridge;
 			sensor_msgs::Image img_msg;
 			std_msgs::Header header;
@@ -33,6 +34,6 @@ class Localmap_Publisher{
 
 int main(int argc, char** argv){
 	ros::init(argc, argv, "Localmap_Publisher");
-	Localmap_Publisher locmap_pub;
+	Localmap_Publisher Localmap_Publisher;
 	ros::spin();
 }

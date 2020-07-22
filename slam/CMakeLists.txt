@@ -31,7 +31,7 @@ catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)
 include_directories(include ${catkin_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS})
 
 #add_executable for sensing
-add_executable(gps_decoder src/sensing/imu_decoder.cpp lib/UTM.cpp)
+add_executable(gps_decoder src/sensing/gps_decoder.cpp lib/UTM.cpp)
 target_link_libraries(gps_decoder ${catkin_LIBRARIES})
 add_dependencies(gps_decoder slam_generate_messages_cpp)
 
