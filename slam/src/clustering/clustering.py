@@ -7,7 +7,6 @@ import math
 import std_msgs.msg
 import geometry_msgs.msg
 import sensor_msgs
-from sklearn.neighbors import KDTree
 import sensor_msgs.point_cloud2 as pc2
 from slam.msg import Lidar
 from slam.msg import Cluster
@@ -138,7 +137,7 @@ class Clustering:
         return projected_points
         #return np.matmul(L,np.transpose(np.array(points))).tolist()
     
-    
+    """
     def euclidean_clustering(self, points, tree, distance_tolerance):
         clusters = []
         processed = [False for i in range(len(points))]
@@ -160,21 +159,22 @@ class Clustering:
                 if len(cluster)>5:
                     clusters.append(cluster)
         return clusters
-    
+    """
     
     def callback_points(self, msg):
         self._count = self._count +1
         # load pointclouds data
+        print("1")
         times = []
         times.append(time.time())
         cloud_points = msg.points
         cloud_channels = msg.channels
-        
+        print("2")
         candidate_points = self.select_candidate(msg.points)
         print("# of candidate points : {}",format(len(candidate_points)))
 
         inliers, plane_config = self.ransac_plane(cloud_points, candidate_points, self._iteration, self._plane_tolerance)
-        
+        print("3")
         
         filtered_points, filtered_channels = self.filtering_points(cloud_points, cloud_channels, inliers)
         print("# of filtered_points :{}",format(len(filtered_points)))
@@ -202,6 +202,13 @@ class Clustering:
         
         publish_2d_msg.is_3d = False
         publish_3d_msg.is_3d = True
+        
+        for point in projected_points:
+            p = geometry_msgs.msg.Point()
+            p.x = point[0]
+            p.y = point[1]
+            publish_projected_points.append(p)
+        
         """
         cluster_idx = 0
         count = 0
@@ -224,15 +231,13 @@ class Clustering:
                 X.append(projected_points[idx][0])
                 Y.append(projected_points[idx][1])
         """
-        count = 0
+        count = len(filtered_points)
         publish_2d_msg.count = count
         publish_3d_msg.count = count
         publish_2d_msg.points = publish_projected_points
-        publish_3d_msg.points = publish_points
-        publish_2d_msg.clusters = publish_clusters
-        publish_3d_msg.clusters = publish_clusters
-        publish_2d_msg.channels = publish_channels
-        publish_3d_msg.channels = publish_channels
+        publish_3d_msg.points = filtered_points
+        publish_2d_msg.channels = filtered_channels
+        publish_3d_msg.channels = filtered_channels
         self._pub_2d_obstacle_points.publish(publish_2d_msg)
         self._pub_3d_obstacle_points.publish(publish_3d_msg)
         

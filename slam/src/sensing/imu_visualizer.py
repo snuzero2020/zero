@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sensor_msgs.msg import Imu
 
 
-class Imu_Visualizer:
+class ImuVisualizer:
     def __init__(self):
         self._sub = rospy.Subscriber("/imu/data", Imu, self.callback)
         self._index=0
@@ -47,5 +47,5 @@ class Imu_Visualizer:
 
 if __name__=='__main__':
     rospy.init_node("imu_visualization")
-    imu_visualizer = Imu_Visualizer()
+    imu_visualizer = ImuVisualizer()
     rospy.spin()
