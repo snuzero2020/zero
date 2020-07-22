@@ -35,7 +35,7 @@ int main() {
         else {return (1.0 / pow(distance, 2.0));} // 1/r^2
     });
 
-    translator.transform(weight, formula, 10, 1, 8);
+    translator.transform(weight, formula, -1, 1, 8);
 
     Mat costmap = translator.getCostmap();
     imwrite("src/zero/slam/src/BGRmap_to_costmap/FMTC_cost.png", costmap);

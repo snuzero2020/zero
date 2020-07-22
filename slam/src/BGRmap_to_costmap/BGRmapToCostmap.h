@@ -2,7 +2,6 @@
 #define BGRMAPTOCOSTMAP_H
 
 #include <iostream>
-#include <vector>
 #include "ros/ros.h"
 
 // OpenCV 3 header files
@@ -38,6 +37,8 @@ class BGRmapToCostmap {
 
         static std::chrono::system_clock::time_point timeStart;
 
+        static vector<int> thread_ids;
+
         static int elipsed_min;
         static int elipsed_sec;
         static int elipsed_msec;
@@ -47,8 +48,7 @@ class BGRmapToCostmap {
         static int rest_hour;
         static int rest_time;
 
-        static vector<int> thread_ids;
-
+        static int status;
         static int bbox_up, bbox_down, bbox_left, bbox_right;
 
         static double getDistance(Point point1, Point point2);

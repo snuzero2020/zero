@@ -9,7 +9,7 @@
 #include "opencv2/imgproc.hpp"
 
 #include <cmath>
-#include "../include/BGRmapToCostmap.h"
+#include "BGRmapToCostmap.h"
 
 #include <chrono>
 
@@ -31,8 +31,8 @@ int BGRmapToCostmap::pixels = 0;
 int BGRmapToCostmap::scope = 0;
 int BGRmapToCostmap::threshold = 0;
 
-uchar* BGRmapToCostmap::BGRmap_data = 0;
-uchar* BGRmapToCostmap::costmap_data = 0;
+uchar* BGRmapToCostmap::BGRmap_data = BGRmap.data;
+uchar* BGRmapToCostmap::costmap_data = costmap.data;
 
 function<double(uchar, uchar, uchar)> BGRmapToCostmap::weight = [](uchar a, uchar b, uchar c){return 1.0;};
 function<double(double)> BGRmapToCostmap::formula = [](double a){return 1.0;};
@@ -136,11 +136,11 @@ void BGRmapToCostmap::transform(function<double(uchar, uchar, uchar)>& weight, f
 
     std::chrono::milliseconds elipsed_time_sum  = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - timeStart);
 
-    int elipsed_time_sum_int = elipsed_time_sum.count();
+    double elipsed_time_sum_double = elipsed_time_sum.count() / 1000;
 
-    int elipsed_hour = static_cast<int>(elipsed_time_sum_int / 3600);
-    int elipsed_min = static_cast<int>((elipsed_time_sum_int - (elipsed_time_sum_int * 3600)) / 60);
-    int elipsed_sec = (elipsed_time_sum_int - (rest_hour * 3600) - (rest_min * 60));
+    int elipsed_hour = static_cast<int>(elipsed_time_sum_double / 3600);
+    int elipsed_min = static_cast<int>((elipsed_time_sum_double - (elipsed_time_sum_double * 3600)) / 60);
+    int elipsed_sec = (elipsed_time_sum_double - (elipsed_hour * 3600) - (elipsed_min * 60));
 
     for (int i = 0; i < 21; i++) {
         cout << "\n" << endl;
@@ -178,7 +178,7 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
         for (int j = 0; j < cols; j++) {
             double cost_seed = weight(BGRmap_data[3 * (i * cols + j)], BGRmap_data[3 * (i * cols + j) + 1], BGRmap_data[3 * (i * cols + j) + 2]);
 
-            if (cost_seed == 0) {
+            if (cost_seed < threshold) {
                 continue;
             }
             
@@ -212,8 +212,6 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
             }
 
             // set the area affected by the cost seed
-            Range bbox_row(bbox_left, bbox_right + 1);
-            Range bbox_col(bbox_up, bbox_down + 1);
 
             for (int work_i = bbox_up; work_i <= bbox_down; work_i++) {
                 for (int work_j = bbox_left; work_j <= bbox_right; work_j++) {
@@ -240,7 +238,8 @@ void BGRmapToCostmap::calculateCost(int row_start, int row_end, int id) {
             proceed_rows += thread_ids[n];
         }
 
-        if (id == thread_ids.size() - 1) {
+        //if (id == thread_ids.size() - 1) 
+        {
             elipsed_msec = chrono_msec.count();
 
             rest_time = static_cast<int>(((rows - proceed_rows) / (proceed_rows + 1)) * elipsed_msec / 1000);
