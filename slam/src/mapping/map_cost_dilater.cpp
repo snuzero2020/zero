@@ -12,9 +12,10 @@
 #define COLORTHRESHOLD 180
 #define UNIT 255        //ushort value
 
-//This function determines how cost will determines
+//This function determines how cost will spread
 inline double dilate_ratio(double r){
     return (MAXPIX-r)/(MAXPIX-PUREDILATE);
+    //return 10/(r+10-PUREDILATE);
 }
 
 using namespace std;
@@ -34,10 +35,10 @@ int main(int argc, char** argv) {
     ushort* data_gray = (ushort*)img_gray.data;
     for(int i=0; i<rows; i++){
         for(int j=0; j<cols; j++){
-            if(data_input[4*(i*cols+j)+3] > COLORTHRESHOLD){
-                if(data_input[4*(i*cols+j)+1] < COLORTHRESHOLD){
+            if(data_input[4*(i*cols+j)+3] > COLORTHRESHOLD){    //not transparent
+                if(data_input[4*(i*cols+j)+1] < COLORTHRESHOLD){    //not blue : black(outer line), red(center line)
                     data_gray[i*cols+j] = CENTERLINE;
-                }else if(data_input[4*(i*cols+j)+2] < COLORTHRESHOLD){
+                }else if(data_input[4*(i*cols+j)+2] < COLORTHRESHOLD){  //not red : green(ordinary line)
                     data_gray[i*cols+j] = LINE;
                 }
             }
@@ -91,7 +92,7 @@ int main(int argc, char** argv) {
                     if(cost ==0){
                         continue;
                     }
-                    ushort* ptr = &(data_dilated[(ii+i-MAXPIX)*cols +jj+j-MAXPIX]);
+                    ushort* ptr = data_dilated + (ii+i-MAXPIX)*cols + jj+j-MAXPIX;
                     if(*ptr < cost){
                         *ptr = cost;
                     }
