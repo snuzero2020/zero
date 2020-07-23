@@ -1,67 +1,104 @@
+#include "map_cutter.h"
+
 #include <iostream>
 #include "opencv2/opencv.hpp"
-#include <list>
 #include "ros/ros.h"
+#include <string>
+#include <vector>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#include "XYToPixel.h"
 #include "UTM.h"
+
+#define FMTC 1
+#define KCity 2
 
 using namespace std;
 using namespace cv;
 
 
-Mat cut_image(Mat img, Range col, Range row) {
-    Mat img_cut = img(col, row);
-    return img_cut;
+MapCutter::MapCutter() {
+    MapCutter(KCity);
+    ROS_WARN("MapCutter: No received place, assume the place is 'K-City'");
 }
 
-int cut_map(Mat& map, double x, double y, double heading) {
-    if (map.empty()) {
-            cout << fixed << "cut_map: Global map is empty!" << endl;
-            return -1;
+MapCutter::MapCutter(int place) {
+    if (place != FMTC || place != KCity) {
+        this->place = KCity;
+
+        ROS_WARN("MapCutter: Wrong received place, assume the place is 'K-City'");
     }
 
-    //retrive a position of car
+    if (place == FMTC) {
+        this->place = place;
 
-    vector<double> position_xy(2);
+        number_of_maps = 1;
+        map_list.push_back(imread("map_FMTC_1.png"));
+        ROS_INFO("MapCutter: The place is 'FMTC'");
+    }
 
-    position_xy[0] = x;
-    position_xy[1] = y;
+    string path;
 
-    cout << "cut_map: Car's position(UTM52): " << position_xy.at(0) << ", " << position_xy.at(1) << endl;
-    vector<int> position_pixel(2, -1);
+    if (place == KCity) {
+        this->place = place;
 
-    //transform the coordinate into pixel
+        number_of_maps = 12;
 
-    position_pixel.at(0) = static_cast<int>((position_xy.at(0) - 302536.722) / 0.1578331) + 4090;
-    position_pixel.at(1) = static_cast<int>(-(position_xy.at(1) - 4124121.856) / 0.1578331) + 4127;
+        for (int n = 0; n < number_of_maps; n++) {
+            path = "map_KCity_" + to_string(n + 1) + ".png";
+            map_list.push_back(imread(path));
+            ROS_INFO("MapCutter: The place is 'K-City'");
+        }
+    }
+}
 
-    //limit the position of the car
+int MapCutter::cutViaPxCenter(Mat& original_map, Mat& modified_map, int pixel_x, int pixel_y) {
+    Range range_x(pixel_x - 333, pixel_x + 333);
+    Range range_y(pixel_y - 333, pixel_y + 333);
+    modified_map = original_map(range_x, range_y); // 333 [px] = 10 [m] / 0.03 [m/px]
 
-    if (position_pixel.at(0) < 200 + 2801) {position_pixel.at(0) = 200 + 2801;}
-    if (position_pixel.at(0) > map.cols - 200 - 2801) {position_pixel.at(0) = map.cols - 200 - 2801;} //302540.424,4123769.418, 302495.080,4124467.705
-    if (position_pixel.at(1) < 200 + 474) {position_pixel.at(1) = 200 + 474;}
-    if (position_pixel.at(1) > map.rows - 200 - 474) {position_pixel.at(1) = map.rows - 200 - 474;}
+    ROS_INFO("MapCutter: success cutting a received map");
+    return 0;
 
-    cout << "cut_map: Car's position(px): " << position_pixel.at(0) << ", " << position_pixel.at(1) << endl;
+}
+
+Mat MapCutter::smartCut(double lat, double lon, double heading) {
+    Mat modified_map;
+
+    if (place == FMTC) {
+        cut(map_list[0], modified_map, lat, lon, heading);  
+    }
+
+    return modified_map;
+}
+
+int MapCutter::cut(Mat& original_map, Mat& modified_map, double lat, double lon, double heading) {
+    LatLonToUTMXY(lat, lon, 52, position_xy[0], position_xy[1]);
+    XYToPixel(original_map, position_xy[0], position_xy[1], position_px[0], position_px[1], place);
+
+    // pre-cutting
+    Mat cut_map;
+    cutViaPxCenter(original_map, cut_map, position_px[0], position_px[1]);
 
     //rotate the image
+    Mat rotated_map;
 
-    Mat map_rotated;
+    Mat matRotation = getRotationMatrix2D(Point(position_px[0], position_px[1])), heading / M_PI * 180, 1);
+    warpAffine(cut_map, rotated_map, matRotation, cut_map.size());
 
-    Mat matRotation = getRotationMatrix2D(Point(position_pixel.at(0), position_pixel.at(1)), heading / M_PI * 180, 1);
-    warpAffine(map, map_rotated, matRotation, map.size());
+    // main cutting
+    Range range1(position_px[0] - 333, position_px[0] + 333);
+    Range range2(position_px[1] - 666, position_px[1]);
 
-    Range range1(position_pixel.at(0) - 200, position_pixel.at(0) + 200);
-    Range range2(position_pixel.at(1) - 200, position_pixel.at(1) + 200);
-    cout << "cut_map: Range generated" << endl;
-
-    if (position_pixel.at(0) < 0 || position_pixel.at(0) > map_rotated.cols || position_pixel.at(1) < 0 || position_pixel.at(1) > map_rotated.rows) {
-        cout << "cut_map: Error occured!" << endl;
+    if (position_px[0] < 0 || position_px[0] > rotated_map.cols || position_px[1] < 0 || position_px[1] > rotated_map.rows) {
+        ROS_ERROR("MapCutter: Cannot fit lat/lon to rotated img!");
         return -1;
     }
 
-    map = cut_image(map_rotated, range2, range1);
+    modified_map = rotated_map(range1, range2);
+
+    return 0;
 }
+
