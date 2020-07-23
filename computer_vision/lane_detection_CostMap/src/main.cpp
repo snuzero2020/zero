@@ -22,11 +22,8 @@ int main(int argc, char **argv)
 	ros::Publisher costmap_with_goal_vector_pub = nh.advertise<nav_msgs::OccupancyGrid>("cost_map_with_goal_vector",100);
     ros::Rate loop_rate(10);
     
-	nav_msgs::OccupancyGrid cost_map;
-	cost_map = nav_msgs::OccupancyGrid();
-
 	int time = clock();
-	cv::Mat img;
+	//v::Mat img;
 
 	/*std::cout<<cap.get(cv::CAP_PROP_FRAME_WIDTH)<<std::endl;
 	std::cout<<cap.get(cv::CAP_PROP_FRAME_HEIGHT)<<std::endl;
@@ -40,25 +37,81 @@ int main(int argc, char **argv)
 		return -1;
 	}*/
 
+	//cv::VideoCapture cap1("/home/snuzero1/Videos/front_lane_detection_2.avi");
+	//cv::VideoCapture cap2("/home/snuzero1/Videos/right_lane_detection_2.avi");
+	//cv::VideoCapture cap3("/home/snuzero1/Videos/left_lane_detection_2.avi");
+
+	cv::VideoCapture cap1(0);
+	cv::VideoCapture cap2(2);
+	cv::VideoCapture cap3(4);
+
+	if(!cap1.isOpened())
+	{
+		std::cerr << "Camera 1 open failed!!"<<std::endl;
+		return -1;
+	}
+	if(!cap2.isOpened())
+	{
+		std::cerr << "Camera 2 open failed!!"<<std::endl;
+		return -1;
+	}
+	if(!cap3.isOpened())
+	{
+		std::cerr << "Camera 3 open failed!!"<<std::endl;
+		return -1;
+	}
+
+	cv::Mat frame1, frame2, frame3;
+
+
+	std::ifstream inFile("/home/snuzero/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/camera_calibration.txt");
+	cv::Mat mtx = cv::Mat::zeros(3,3,CV_32FC1);
+	cv::Mat dist = cv::Mat::zeros(5, 1, CV_32FC1);
+	if(inFile.is_open())
+	{
+		for(int i=0; i<3; i++)
+		{
+			for(int j=0; j<3; j++)
+			{
+				inFile >> mtx.at<float>(i,j);
+			}
+		}
+		for(int i=0; i<5; i++)
+		{
+			inFile >> dist.at<float>(i);
+		}
+	}
+	else
+	{
+		std::cout<<"No calibration txt file"<<std::endl;
+		return -1;
+	}
+
+	//////////////////////////////////////////////////////////////////
+	
 	while (nh.ok()) 
 	{
 		//cap >> img;
 		time = clock();
-		img = cv::imread("/home/ayounglee/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_6.bmp");
+		//img = cv::imread("/home/ayounglee/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/test_images/test_6.bmp");
 		
-		
-		if(img.empty())
-		{
-			std::cerr << "Image load failed!" << std::endl;
-			return -1;
-		}
+		cap1 >> frame1;
+		cap2 >> frame2;
+		cap3 >> frame3;
+
+		cv::Mat img_cal_1, img_cal_2, img_cal_3;
+
+		cv::undistort(frame1, img_cal_1, mtx, dist, mtx);
+		cv::undistort(frame2, img_cal_2, mtx, dist, mtx);
+		cv::undistort(frame3, img_cal_3, mtx, dist, mtx);
 
 		//std::cout<<"1"<<std::endl;
 		cv::Mat perspective_img;
-		perspective_img = birdeye(img);
+		perspective_img = birdeye(img_cal_1, img_cal_2, img_cal_3);
 
-		//cv::namedWindow("perspective_img");
-		//cv::imshow("perspective_img",perspective_img);
+		cv::namedWindow("perspective_img");
+		cv::imshow("perspective_img",perspective_img);
+		
 		
 		//std::cout<<"1"<<std::endl;
 		cv::Mat yellow;
@@ -95,6 +148,9 @@ int main(int argc, char **argv)
     	goal_point = get_goal_point(fitting_mask, lane_mask.cols);
     	std::cout<<goal_point<<std::endl;
 
+		nav_msgs::OccupancyGrid cost_map;
+		cost_map = nav_msgs::OccupancyGrid();
+
 		//std::cout<<"1"<<std::endl;
 		cost_map.info.width = fitting_mask.size().width;
 		cost_map.info.height = fitting_mask.size().height;
@@ -107,10 +163,6 @@ int main(int argc, char **argv)
 			}
 		}
 
-		//std_msgs::Int8 x;
-		//std_msgs::Int8 y;
-		//std_msgs::Int8 theta;
-
 		//x.data = goal_point.y;
 		//y.data = 199 - goal_point.x;
 		//theta.data = 0;
@@ -121,17 +173,18 @@ int main(int argc, char **argv)
 
 		cost_map.data.push_back(x);
 		cost_map.data.push_back(y);
-    	cost_map.data.push_back(theta);
+    		cost_map.data.push_back(theta);
 		//ros::Rate loop_rate(5);
-
-        costmap_with_goal_vector_pub.publish(cost_map);
-       	//ros::spinOnce();
-   	    loop_rate.sleep();
+		
+		cost_map.header.stamp.sec = clock();
+        	costmap_with_goal_vector_pub.publish(cost_map);
+       		//ros::spinOnce();
+   	    	loop_rate.sleep();
 		   
 		std::cout << (clock() - time)/(double)CLOCKS_PER_SEC << std::endl;
+		
 		cv::waitKey(1);
     }
-
 	
 	return 0;
 }

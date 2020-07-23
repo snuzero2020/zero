@@ -99,7 +99,9 @@ def MsgUpdate(msg,ser): #message about current sate (serial data : platform->upp
     msg.gear = gear
     msg.brake = brake
     msg.speed = round(speed,3)
-    msg.steer = round(steer,3)
+    msg.steer = -round(steer,3)
+    print("current : ", msg.steer, '\n')
+    #msg.steer = round(steer+1.5,3)
     msg.encoder = encoder
     msg.alive = alive
     msg.header.stamp = rospy.Time.now()
@@ -114,11 +116,11 @@ def sendSerial(ser,data): #upper->platform
     steer2=data.steer2
     brake=data.brake
     global alive
-    rospy.loginfo("speed " + str(speed))
-    rospy.loginfo("steer1 " + str(steer1))
-    rospy.loginfo("steer2 " + str(steer2))
-    rospy.loginfo("brake " + str(brake))
-    rospy.loginfo("alive " + str(alive))
+    #rospy.loginfo("speed " + str(speed))
+    #rospy.loginfo("steer1 " + str(steer1))
+    #rospy.loginfo("steer2 " + str(steer2))
+    #rospy.loginfo("brake " + str(brake))
+    #rospy.loginfo("alive " + str(alive))
     data_array = bytearray([83, 84, 88, is_auto, estop, gear, 0, speed, steer1, steer2, brake, alive, 13, 10])
     ser.write(data_array)
 
@@ -130,7 +132,7 @@ def isValidValue(speed, steer): #speed : m/s, steer : degree
 
 class getControlData(): #input:speed(m/s), steer(degree) -> output: speed(km/h * 10), steer(degree*71, steer1:first byte, steer2:second byte)
     def __init__(self):
-        self.is_auto = 0
+        self.is_auto = 1
         self.estop = 0
         self.gear = 0
         self.speed = 0
@@ -141,17 +143,24 @@ class getControlData(): #input:speed(m/s), steer(degree) -> output: speed(km/h *
 
     def callback(self,data_): #serial data update (upper->platform)
 
-
+        print("callback")
         self.is_auto = data_.is_auto
+        
         self.estop = data_.estop
         self.gear = data_.gear
         self.speed = int(float(data_.speed) * 3600 / 1000 * 10) # (m/s -> km/h * 10)
-        if data_.steer >=0:
-            steer = int(float(data_.steer)*71)
+        # rad to degree
+        print("data_.steer : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(data_.steer)
+	steer_degree = data_.steer
+        print("steer_Degree : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(steer_degree)
+        if steer_degree >=0:
+            steer = int(float(steer_degree)*71)
             steer_low = steer%256
             steer_high = (steer-steer_low)/256
         else:
-            steer = pow(2,15) + int(data_.steer*71)
+            steer = pow(2,15) + int(steer_degree*71)
             steer_low = steer%256
             steer_high = (steer-steer_low)/256 + pow(2,7)
 	if (steer_high >= 256):

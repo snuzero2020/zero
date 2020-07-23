@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+   <!-- Run master_discovery -->
+   <node pkg="serial_communicator" type="input_signal"    
+               name="input_signal" 
+               output="screen">
+   </node>
+
+​   <!-- Run master_sync -->
+   <node pkg="serial_communicator" type="serial_com.py" 
+              name="serial_com" output="screen">
+   </node>
+</launch>
+

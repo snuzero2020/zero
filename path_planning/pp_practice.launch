@@ -1,0 +1,5 @@
+<launch>
+	<include file="$(find serial_communicator)/serial_communicator_test.launch" />
+
+	<rosparam file="/home/seongwon/catkin_ws/src/zero/path_planning/zeroprac.yaml" />
+</launch>

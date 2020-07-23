@@ -1,0 +1,9 @@
+<launch>
+	<include file="$(find serial_communicator)/serial_communicator.launch" />
+
+	<include file="$(find tracker)/launch/tracker.launch" />
+
+	<include file="$(find path_planner)/launch/path_planner.launch" />
+
+	<rosparam file="/home/giholee97/catkin_ws/src/zero/path_planning/zeroprac.yaml" />
+</launch>

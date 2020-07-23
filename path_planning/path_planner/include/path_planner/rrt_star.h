@@ -9,6 +9,48 @@
 
 using namespace std;
 
+
+enum taskState{
+    DRIVING_SECTION,
+    INTERSECTION_STRAIGHT,
+    INTERSECTION_LEFT,
+    INTERSECTION_RIGHT,
+    INTERSECTION_STRAIGHT_UNSIGNED,
+    INTERSECTION_LEFT_UNSIGNED,
+    INTERSECTION_RIGHT_UNSIGNED,
+    OBSTACLE_STATIC,
+    OBSTACLE_SUDDEN,
+    CROSSWALK,
+    PARKING
+};
+
+enum lightState{
+    GREEN_LIGHT,
+    LEFT_LIGHT,
+    YELLOW_LIGHT,
+    RED_LIGHT
+};
+
+enum motionState{
+    FORWARD_MOTION,
+    FORWARD_SLOW_MOTION,
+    HALT_MOTION,
+    LEFT_MOTION,
+    RIGHT_MOTION,
+    PARKING_MOTION
+};
+
+enum parkingState{
+    SEARCHING_PARKING_SPOT,
+    PARKING_SPOT_0,
+    PARKING_SPOT_1,
+    PARKING_SPOT_2,
+    PARKING_SPOT_3,
+    PARKING_SPOT_4,
+    PARKING_SPOT_5
+};
+
+
 class Cor {
     public:
         double x, y;
@@ -49,8 +91,8 @@ class Tree {
         ~Tree() {
             std::vector<Node>().swap(nodes); // memory free
         }
-		const int arrsize() {return node_cnt;}
-		Node& operator[](int idx) {return nodes[idx];}
+	const int arrsize() {return node_cnt;}
+	Node& operator[](int idx) {return nodes[idx];}
         Node* insert(Node node) {
             if (node_cnt == size) {
                 size <<= 1;
@@ -68,14 +110,23 @@ class RRT {
         std::vector<std::vector<double>> cost_map;
         int size = 1<<13; // intialize tree size
         const int map_length = 200; // map length
-        int iternum = 1000; // iteration number
-        const double radius = 30; // radius to find near nodes
-        const double stepsize = 1; // step size to check obstacle and steer (cost(), steer())
-        const double threshold = 100; // threshold to check obstacle
+        int iternum; // iteration number
+        double radius; // radius to find near nodes
+        double stepsize; // step size to check obstacle and steer (cost(), steer())
+        double threshold; // threshold to check obstacle
+	double threshold2 = 50; // threshold used in straightCheck
 
-        RRT() {}
+        RRT(int _iternum, double _radius, double _stepsize, double _threshold, double _threshold2) {
+            iternum = _iternum; radius = _radius; stepsize = _stepsize; threshold = _threshold; threshold2 = _threshold2;
+        }
         ~RRT() {}
-
+        //test
+	    // void print_RRT(){
+		//     cout << "iternum: " << iternum << endl;
+		//     cout << "radius: " << radius << endl;
+		//     cout << "stepsize: " << stepsize << endl;
+		//     cout << "threshold: " << threshold << endl;
+	    // };
 		// cost between two points
 		double cost(Cor start, Cor dest);
 
@@ -104,7 +155,10 @@ class RRT {
         // path발견시 부모를 따라가면서 parent, cost update
         void pathOptimization(Node* q_cur, Tree& tree);
 
-        void solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, int _iternum);
+	// check straight path from start to dest
+	bool straightCheck(Cor start, Cor dest);
+
+        void solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden=false);
 
 
 		bool isobstacle(Cor a, Cor b);

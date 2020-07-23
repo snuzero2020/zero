@@ -1,3 +1,4 @@
+
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Time.h"
@@ -25,7 +26,8 @@ class Signal {
             brake = msg.brake;
             gear = msg.gear;
             speed = msg.speed;
-            steer = msg.steer + 1.5;
+            steer = msg.steer-3.1; //3.1 is offset angle of steering.
+            //steer = msg.steer;
         }
 };
 

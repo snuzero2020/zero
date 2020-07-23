@@ -4,7 +4,7 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 
-cv::Mat birdeye(cv::Mat img);
+cv::Mat birdeye(cv::Mat img_front, cv::Mat img_right, cv::Mat img_left);
 cv::Mat thresh_frame_sobel(cv::Mat src);
 cv::Mat get_binary_from_equalized_grayscale(cv::Mat src);
 cv::Mat get_lane_mask(cv::Mat yellow, cv::Mat grad, cv::Mat gray);
