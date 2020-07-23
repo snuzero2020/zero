@@ -62,7 +62,7 @@ target_link_libraries(map_cost_dilater ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_executable for clustering
 
 #add_executable for localmap publishing
-add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp src/mapping/MapCutter.cpp)
+add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp src/mapping/MapCutter.cpp lib/XYToPixel.cpp)
 target_link_libraries(Localmap_Publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(Localmap_Publisher slam_generate_messages_cpp)
 
