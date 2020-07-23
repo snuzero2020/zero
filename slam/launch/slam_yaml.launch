@@ -1,0 +1,8 @@
+<launch>
+#clustering
+   <include file="$(find slam)/launch/clustering.launch" />
+
+#yaml file
+   <rosparam file="$(find slam)/slam_para.yaml" />
+
+</launch>

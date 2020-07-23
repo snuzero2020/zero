@@ -1,7 +1,7 @@
 #include <iostream>
 #include "ros/ros.h"
 #include <slam/Data.h>
-#include "../mapping/map_cutter.h"
+#include "../mapping/MapCutter.hpp"
 #include "opencv2/opencv.hpp"
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/Image.h>

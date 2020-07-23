@@ -24,8 +24,8 @@ class Clustering:
         self._remove_tolerance = 5.0
         self._plane_tolerance = 0.05
         self._clustering_tolerance = 0.1
-        self._lidar_angle = 18 # unit : degree
-        self._lidar_height = 1.25 # unit : m
+        self._lidar_angle = rospy.get_param("/lidar_angle") # unit : degree
+        self._lidar_height = rospy.get_param("/lidar_height") # unit : m
         self._count = 0
     
     def projection(self, point, plane_config):
