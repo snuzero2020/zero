@@ -12,8 +12,13 @@
 #include "XYToPixel.h"
 #include "UTM.h"
 
+#ifndef PLACE
+#define PLACE
+
 #define KCity 1
 #define FMTC 2
+
+#endif
 
 using namespace std;
 using namespace cv;
@@ -24,10 +29,13 @@ vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8UC3)};
 void MapCutter::loadMap() {
     bool exist_error = false;
 
+    ROS_INFO("MapCutter: Loading FMTC and K-City maps...");
     FMTC_map = imread("src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
     if (FMTC_map.empty()) {
             ROS_ERROR("MapCutter: The FMTC map is empty");
             exist_error = true;
+    } else {
+        ROS_INFO("MapCutter: The FMTC map was loaded");
     }
 
     KCity_maps.clear();
@@ -56,9 +64,28 @@ void MapCutter::loadMap() {
                     ROS_ERROR("MapCutter: The %dth K-City map is empty", n + 1);
                     break;
             }
+        } else {
+            switch ((n + 1) % 20) {
+                case 1:
+                        ROS_INFO("MapCutter: The %dst K-City map was loaded", n + 1);
+                        break;
+
+                case 2:
+                    ROS_INFO("MapCutter: The %dnd K-City map was loaded", n + 1);
+                    break;
+
+                case 3:
+                    ROS_INFO("MapCutter: The %drd K-City map was loaded", n + 1);
+                    break;
+
+                default:
+                    ROS_INFO("MapCutter: The %dth K-City map was loaded", n + 1);
+                    break;
+            }
         }
     }
-    ROS_ERROR_COND(exist_error, "MapCutter: Check whether the image file exist, OR rosrun is executed at ~/catkin_ws");
+    ROS_ERROR_COND(exist_error, "MapCutter: Could not load the one or more maps! Check whether the image file(s) exist, OR rosrun is executed at ~/catkin_ws");
+    ROS_INFO_COND(!exist_error, "MapCutter: All needed maps(FMTC, K-City) were successfully loaded!");
 }
 
 

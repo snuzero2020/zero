@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   nmea_msgs
+  nav_msgs
   message_generation
   cv_bridge
   cmake_modules #for eigen used in sensing/kalman_fusion
@@ -71,12 +72,13 @@ add_executable(BGRmap_to_costmap src/BGRmap_to_costmap/main.cpp src/BGRmap_to_co
 target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(BGRmap_to_costmap)
 
+#add_executable for global_path
+add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYToPixel.cpp)
+target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(globpath_generator slam_generate_messages_cpp)
+
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
   src/clustering/clustering.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
-
-
-

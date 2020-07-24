@@ -15,8 +15,13 @@
 
 #include <thread>
 
-#define FMTC 1
-#define KCity 2
+#ifndef PLACE
+#define PLACE
+
+#define KCity 1
+#define FMTC 2
+
+#endif
 
 using namespace std;
 using namespace cv;

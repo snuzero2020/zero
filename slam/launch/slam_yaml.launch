@@ -1,4 +1,7 @@
 <launch>
+#sensing
+   <include file="$(find slam)/launch/decoder.launch" />
+
 #mapping
    <include file="$(find slam)/launch/mapping.launch" />
 

@@ -3,8 +3,13 @@
 #include <ros/ros.h>
 #include "opencv2/opencv.hpp"
 
+#ifndef PLACE
+#define PLACE
+
 #define KCity 1
 #define FMTC 2
+
+#endif
 
 int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, double ref_x, double ref_y, int ref_pixel_x, int ref_pixel_y, double coefficient) {
     //transform the coordinate into pixel
