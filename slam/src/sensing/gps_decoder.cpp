@@ -17,8 +17,8 @@ class GPS_Decoder{
     }	
     double QI_err;
     double QI_warn;
-    double Statellites_err;
-    double Statellites_warn;
+    double Satellites_err;
+    double Satellites_warn;
     double HDOP_err;
     double HDOP_warn;
 
@@ -33,8 +33,8 @@ class GPS_Decoder{
 
 	ros::param::get("/QI_err", QI_err);
 	ros::param::get("/QI_warn", QI_warn);
-	ros::param::get("/Statellites_err", Statellites_err);
-	ros::param::get("/Statellites_warn", Statellites_warn);
+	ros::param::get("/Satellites_err", Satellites_err);
+	ros::param::get("/Satellites_warn", Satellites_warn);
 	ros::param::get("/HDOP_err", HDOP_err);
 	ros::param::get("/HDOP_warn", HDOP_warn);
 
@@ -59,8 +59,8 @@ class GPS_Decoder{
         if(tokens[0] == "$GNGGA"){
             if(stoi(tokens[6])<QI_err){ROS_ERROR("failedByQualityIndicator(No Satellite), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
             if(stoi(tokens[6])<QI_warn){ROS_WARN("warnByQualityIndicator(Non-RTK), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
-            if(stoi(tokens[7])<Statellites_err){ROS_ERROR("failedByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
-            if(stoi(tokens[7])<Statellites_warn){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
+            if(stoi(tokens[7])<Satellites_err){ROS_ERROR("failedByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
+            if(stoi(tokens[7])<Satellites_warn){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
             if(stod(tokens[8])>HDOP_err || stod(tokens[8])==0.0){ROS_ERROR("failedByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
             if(stod(tokens[8])>HDOP_warn){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str()); return;} 
 
