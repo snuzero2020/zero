@@ -14,7 +14,14 @@ class GPS_Decoder{
     GPS_Decoder(){
         pub_ = n_.advertise<slam::Gps>("gps", 1000);
         sub_ = n_.subscribe("/nmea_sentence", 10000, &GPS_Decoder::callback, this);
-    }
+    }	
+    double QI_err;
+    double QI_warn;
+    double Statellites_err;
+    double Statellites_warn;
+    double HDOP_err;
+    double HDOP_warn;
+
 
     void callback(const nmea_msgs::Sentence::ConstPtr& msg){
 	slam::Gps rt;
@@ -24,19 +31,41 @@ class GPS_Decoder{
         string token;
         size_t pos = 0;
 
+	ros::param::get("/QI_err", QI_err);
+	ros::param::get("/QI_warn", QI_warn);
+	ros::param::get("/Statellites_err", Statellites_err);
+	ros::param::get("/Statellites_warn", Statellites_warn);
+	ros::param::get("/HDOP_err", HDOP_err);
+	ros::param::get("/HDOP_warn", HDOP_warn);
+
         while ((pos = s.find(delimiter)) != std::string::npos) {
             token = s.substr(0, pos);
             tokens.push_back(token);
             s.erase(0, pos + delimiter.length());
         }
+
+	/*junseo code
         if(tokens[0] == "$GNGGA"){
             if(stoi(tokens[6])<2){ROS_ERROR("failedByQualityIndicator(No Satellite), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
             if(stoi(tokens[6])<4){ROS_WARN("warnByQualityIndicator(Non-RTK), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
             if(stoi(tokens[7])<4){ROS_ERROR("failedByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
             if(stoi(tokens[7])<8){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
             if(stod(tokens[8])>7.5 || stod(tokens[8])==0.0){ROS_ERROR("failedByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
-            if(stod(tokens[8])>3.5){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
-            {   //check checksum 
+            if(stod(tokens[8])>3.5){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str()); return;}       
+       
+	    */
+
+	//edited by boseol
+        if(tokens[0] == "$GNGGA"){
+            if(stoi(tokens[6])<QI_err){ROS_ERROR("failedByQualityIndicator(No Satellite), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
+            if(stoi(tokens[6])<QI_warn){ROS_WARN("warnByQualityIndicator(Non-RTK), GPS Quality Indicator: %s", tokens[6].c_str()); return;}
+            if(stoi(tokens[7])<Statellites_err){ROS_ERROR("failedByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
+            if(stoi(tokens[7])<Statellites_warn){ROS_WARN("warnByStatellitesN, The number of Satellite: %s", tokens[7].c_str()); return;}
+            if(stod(tokens[8])>HDOP_err || stod(tokens[8])==0.0){ROS_ERROR("failedByHDOP, HDOP value: %s", tokens[8].c_str()); return;}
+            if(stod(tokens[8])>HDOP_warn){ROS_WARN("warnByHDOP, HDOP value: %s", tokens[8].c_str()); return;} 
+
+
+	    {   //check checksum 
                 s = msg->sentence;
                 delimiter = "$";
                 pos = s.find(delimiter);

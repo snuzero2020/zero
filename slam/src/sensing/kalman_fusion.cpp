@@ -150,11 +150,18 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "kalman_controller");
     ros::NodeHandle n;
 
+    double P_cov,Q_cov,RIMU_cov,RGPS_cov;
+
+    ros::param::get("/P_cov", P_cov);
+    ros::param::get("/Q_cov", Q_cov);
+    ros::param::get("/RIMU_cov", RIMU_cov);
+    ros::param::get("/RGPS_cov", RGPS_cov);
+
     Kalman_fusion<> kf;
-    kf.P *= 10*10;
-    kf.Q *= 1*1;
-    kf.RIMU *= 0.1*0.1;
-    kf.RGPS *= 0.5*0.5;
+    kf.P *= P_cov*P_cov;
+    kf.Q *= Q_cov*Q_cov;
+    kf.RIMU *= RIMU_cov*RIMU_cov;
+    kf.RGPS *= RGPS_cov*RGPS_cov;
     
     ros::Subscriber subIMU = n.subscribe("/imu",1,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",1,&Kalman_fusion<>::GPSCallback,&kf);
