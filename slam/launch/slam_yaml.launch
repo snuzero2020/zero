@@ -1,4 +1,7 @@
 <launch>
+#mapping
+   <include file="$(find slam)/launch/mapping.launch" />
+
 #clustering
    <include file="$(find slam)/launch/clustering.launch" />
 

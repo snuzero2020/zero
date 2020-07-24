@@ -20,10 +20,10 @@ class Clustering:
         self._pub_2d_obstacle_points = rospy.Publisher("/2d_obstacle_points", Cluster, queue_size=1)
         self._pub_3d_obstacle_points = rospy.Publisher("/3d_obstacle_points", Cluster, queue_size=1)
         self._sub = rospy.Subscriber("/points", Lidar, self.callback_points)
-        self._iteration = 30
-        self._remove_tolerance = 5.0
-        self._plane_tolerance = 0.05
-        self._clustering_tolerance = 0.1
+        self._iteration = rospy.get_param("/iteration")
+        self._remove_tolerance = rospy.get_param("/remove_tolerance")
+        self._plane_tolerance = rospy.get_param("/plane_tolerance")
+        self._clustering_tolerance = rospy.get_param("/clustering_tolerance")
         self._lidar_angle = rospy.get_param("/lidar_angle") # unit : degree
         self._lidar_height = rospy.get_param("/lidar_height") # unit : m
         self._count = 0
