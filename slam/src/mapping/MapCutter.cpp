@@ -22,9 +22,12 @@ Mat MapCutter::FMTC_map = Mat::zeros(1, 1, CV_8UC3);
 vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8UC3)};
 
 void MapCutter::loadMap() {
-    FMTC_map = imread("/home/dongha/catkin_ws/src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
+    bool exist_error = false;
+
+    FMTC_map = imread("src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
     if (FMTC_map.empty()) {
             ROS_ERROR("MapCutter: The FMTC map is empty");
+            exist_error = true;
     }
 
     KCity_maps.clear();
@@ -34,9 +37,30 @@ void MapCutter::loadMap() {
         KCity_maps.push_back(imread(path));
         
         if (KCity_maps[n].empty()) {
-            ROS_ERROR("MapCutter: The %dth K-City map is empty", n + 1);
+            exist_error = true;
+
+            switch ((n + 1) % 20) {
+                case 1:
+                    ROS_ERROR("MapCutter: The %dst K-City map is empty", n + 1);
+                    break;
+
+                case 2:
+                    ROS_ERROR("MapCutter: The %dnd K-City map is empty", n + 1);
+                    break;
+
+                case 3:
+                    ROS_ERROR("MapCutter: The %drd K-City map is empty", n + 1);
+                    break;
+
+                default:
+                    ROS_ERROR("MapCutter: The %dth K-City map is empty", n + 1);
+                    break;
+            }
         }
     }
+    if (exist_error == true) {
+        cout << "27[1;31m" <<"MapCutter: => Check whether the image file exist, OR rosrun is executed at ~/catkin_ws" << "27[0m" << endl;
+    }   
 }
 
 
