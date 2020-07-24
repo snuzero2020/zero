@@ -1,3 +1,4 @@
 <launch>
   <node pkg="slam" name="clustering" type="clustering.py" />
+  <rosparam file="$(find slam)/slam_para.yaml" />
 </launch>

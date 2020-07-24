@@ -1,4 +1,5 @@
 <launch>
   <node name="lidar_decoder" pkg="slam" type="lidar_decoder.py" />
   <node name="object_detector" pkg="slam" type="clustering.py" />
+  <rosparam file="$(find slam)/slam_para.yaml" />
 </launch>

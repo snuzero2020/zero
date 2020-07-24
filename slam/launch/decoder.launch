@@ -3,4 +3,5 @@
   <node name="imu_decoder" pkg="slam" type="imu_decoder"/>
   <node name="kalman_fusion" pkg="slam" type="kalman_fusion"/>
   <node name="kalman_fusion_visualizer" pkg="slam" type="kalman_fusion_visualizer.py" output="screen"/>
+  <rosparam file="$(find slam)/slam_para.yaml" />
 </launch>
