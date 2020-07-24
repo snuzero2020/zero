@@ -1,7 +1,12 @@
 #include "opencv2/opencv.hpp"
 
+#ifndef PLACE
+#define PLACE
+
 #define KCity 1
 #define FMTC 2
+
+#endif
 
 int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place);
 // Convert a UTM52 coordinate to a position(pixel) on the received map.

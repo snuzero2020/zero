@@ -11,9 +11,6 @@
 
 #include <chrono>
 
-#define FMTC 1
-#define KCity 2
-
 using namespace std;
 using namespace cv;
 
