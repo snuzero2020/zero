@@ -1,0 +1,8 @@
+#clustering
+iteration: 30
+remove_tolerance: 5.0
+plane_tolerance: 0.05
+clustering_tolerance: 0.1
+lidar_angle: 18
+lidar_height: 1.25
+
