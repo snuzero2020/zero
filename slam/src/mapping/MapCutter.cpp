@@ -22,7 +22,7 @@ Mat MapCutter::FMTC_map = Mat::zeros(1, 1, CV_8UC3);
 vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8UC3)};
 
 void MapCutter::loadMap() {
-    FMTC_map = imread("/home/dongha/catkin_ws/src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
+    FMTC_map = imread("src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
     if (FMTC_map.empty()) {
             ROS_ERROR("MapCutter: The FMTC map is empty");
     }
