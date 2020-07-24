@@ -150,18 +150,18 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "kalman_controller");
     ros::NodeHandle n;
 
-    double P_cov,Q_cov,RIMU_cov,RGPS_cov;
+    double initial_state_error_cov, initial_process_noise_cov, initial_imu_observation_noise_cov, initial_gps_observation_noise_cov;
 
-    ros::param::get("/P_cov", P_cov);
-    ros::param::get("/Q_cov", Q_cov);
-    ros::param::get("/RIMU_cov", RIMU_cov);
-    ros::param::get("/RGPS_cov", RGPS_cov);
+    ros::param::get("/initial_state_error_cov", initial_state_error_cov);
+    ros::param::get("/initial_process_noise_cov", initial_process_noise_cov);
+    ros::param::get("/initial_imu_observation_noise_cov", initial_imu_observation_noise_cov);
+    ros::param::get("/initial_gps_observation_noise_cov", initial_gps_observation_noise_cov);
 
     Kalman_fusion<> kf;
-    kf.P *= P_cov*P_cov;
-    kf.Q *= Q_cov*Q_cov;
-    kf.RIMU *= RIMU_cov*RIMU_cov;
-    kf.RGPS *= RGPS_cov*RGPS_cov;
+    kf.P *= initial_state_error_cov * initial_state_error_cov;
+    kf.Q *= initial_process_noise_cov * initial_process_noise_cov;
+    kf.RIMU *= initial_imu_observation_noise_cov * initial_imu_observation_noise_cov;
+    kf.RGPS *= initial_gps_observation_noise_cov * initial_gps_observation_noise_cov;
     
     ros::Subscriber subIMU = n.subscribe("/imu",1,&Kalman_fusion<>::IMUCallback,&kf);
     ros::Subscriber subGPS = n.subscribe("/gps",1,&Kalman_fusion<>::GPSCallback,&kf);

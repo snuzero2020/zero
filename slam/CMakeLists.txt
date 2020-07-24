@@ -57,8 +57,8 @@ add_executable(Map_Cutter src/mapping/main.cpp src/mapping/MapCutter.cpp lib/UTM
 target_link_libraries(Map_Cutter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(Map_Cutter slam_generate_messages_cpp)
 
-add_executable(map_cost_dilater src/mapping/map_cost_dilater.cpp)
-target_link_libraries(map_cost_dilater ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_executable(map_cost_spreader src/mapping/map_cost_spreader.cpp)
+target_link_libraries(map_cost_spreader ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #add_executable for clustering
 
