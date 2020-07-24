@@ -1,4 +1,5 @@
 <launch>
+  <node name="gps_subscriber" pkg="slam" type="gps_subscriber"/>  
   <node name="gps_subscriber_node" pkg="slam" type="gps_subscriber_node"/>
   <node name="map_cutter" pkg="slam" type="map_cutter"/>
   <node name="map_cost_dilater" pkg="slam" type="map_cost_dilater"/>

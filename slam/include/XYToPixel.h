@@ -9,7 +9,7 @@ int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int p
 // Input
 //     Mat img: The map on which the car drive.
 //     double x, double y: The car's position in UTM52 coordinate(x, y).
-//     int pixel_x, int pixel_y: The car's converted position(pixel_x, pixel_y).
+//     int& pixel_x, int& pixel_y: The car's converted position(pixel_x, pixel_y).
 //     int place:
 //         1: K-City
 //         2: FMTC
