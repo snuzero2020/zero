@@ -25,7 +25,6 @@ void MapCutter::loadMap() {
     bool exist_error = false;
 
     ROS_INFO("MapCutter: Loading FMTC and K-City maps...");
-    
     FMTC_map = imread("src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
     if (FMTC_map.empty()) {
             ROS_ERROR("MapCutter: The FMTC map is empty");

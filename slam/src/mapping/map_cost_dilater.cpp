@@ -5,12 +5,23 @@
 #include <iostream>
 #include "ros/package.h"
 
+/* junseo code
 #define CENTERLINE 100  //cost on centerline
 #define LINE 40         //cost on ordinary line
 #define PUREDILATE 7    //pixel size to pre-dilate
 #define MAXPIX 67       //pixel size to spread cost
 #define COLORTHRESHOLD 180
 #define UNIT 255        //ushort value
+*/
+
+//boseol code
+int CENTERLINE;
+int LINE;
+int PUREDILATE;
+int MAXPIX;
+int COLORTHRESHOLD;
+int UNIT;
+
 
 //This function determines how cost will spread
 inline double dilate_ratio(double r){
@@ -27,6 +38,14 @@ int main(int argc, char** argv) {
     path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
     Mat img_input = imread(path_stream.str(),IMREAD_UNCHANGED);
     ROS_INFO("Image loaded");
+
+    ros::param::get("/centerline", CENTERLINE);
+    ros::param::get("/line", LINE);
+    ros::param::get("/puredilate", PUREDILATE);
+    ros::param::get("/maxpix", MAXPIX);
+    ros::param::get("/colorthreshold", COLORTHRESHOLD);
+    ros::param::get("/unit", UNIT);
+
 
     uchar* data_input = img_input.data;
     int rows = img_input.rows;
