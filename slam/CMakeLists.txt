@@ -53,12 +53,12 @@ add_executable(gps_subscriber_node src/mapping/gps_subscriber_node.cpp lib/UTM.c
 target_link_libraries(gps_subscriber_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_subscriber_node slam_generate_messages_cpp)
 
-add_executable(map_cutter src/mapping/main.cpp src/mapping/MapCutter.cpp lib/UTM.cpp lib/XYToPixel.cpp)
-target_link_libraries(map_cutter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(map_cutter slam_generate_messages_cpp)
+add_executable(Map_Cutter src/mapping/main.cpp src/mapping/MapCutter.cpp lib/UTM.cpp lib/XYToPixel.cpp)
+target_link_libraries(Map_Cutter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(Map_Cutter slam_generate_messages_cpp)
 
-add_executable(map_cost_dilater src/mapping/map_cost_dilater.cpp)
-target_link_libraries(map_cost_dilater ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_executable(map_cost_spreader src/mapping/map_cost_spreader.cpp)
+target_link_libraries(map_cost_spreader ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #add_executable for clustering
 

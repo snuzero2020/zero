@@ -7,32 +7,28 @@ lidar_angle: 18
 lidar_height: 1.25
 
 #mapping
-#map_cost_dilater.cpp
+#map_cost_spreader.cpp
 #type = int
-centerline: 100
-line: 40
-puredilate: 7
-maxpix: 67
-colorthreshold: 180
-unit: 255
+centerline_cost: 100
+line_cost: 40
+dilate_pixel_radius: 7
+spread_pixel_radius: 67
+color_threshold: 180
 
 #sensing
 #gps_decoder.cpp
 #type = double
 QI_err: 2
 QI_warn: 4
-Statellites_err: 4
-Statellites_warn: 8
+Satellites_err: 4
+Satellites_warn: 8
 HDOP_err: 7.5
 HDOP_warn: 3.5
 
 #kalman_fusion.cpp
 #type = double
-P_cov: 10
-Q_cov: 1
-RIMU_cov: 0.1
-RGPS_cov: 0.5
-
-
-
+initial_state_error_cov : 10.0
+initial_process_noise_cov : 1.0
+initial_imu_observation_noise_cov : 0.5
+initial_gps_observation_noise_cov : 0.1
 
