@@ -14,20 +14,19 @@ class Localmap_Publisher{
 		ros::Subscriber subscriber;
 
 	public:
+		static int count;
+
 		Localmap_Publisher(){
 			publisher = nh.advertise<sensor_msgs::Image>("/cutted_map", 1000);
 			subscriber = nh.subscribe("/filtered_data", 1000, &Localmap_Publisher::callback, this);
 		}
 
 		void callback(const slam::Data data){
-			cv::Mat gmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png", CV_LOAD_IMAGE_COLOR);
-			
-			cv::namedWindow("showing image", CV_WINDOW_NORMAL);
-			cv::imshow("cutted map", gmap);
-			cv::waitKey(0);
-			printf("showing image\n");
-			cut_map(gmap, data.x, data.y, data.theta);
-			printf("map cutted~!\n");
+			//cv::Mat gmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png", cv::IMREAD_COLOR);
+
+			MapCutter map_cutter(2);
+			cv::Mat gmap = map_cutter.smartCut(data.x, data.y, data.theta);
+			printf("map cut~!\n");
 			cv_bridge::CvImage img_bridge;
 			sensor_msgs::Image img_msg;
 			std_msgs::Header header;
@@ -35,11 +34,21 @@ class Localmap_Publisher{
 			printf("image converting\n");
 			img_bridge.toImageMsg(img_msg);
 			printf("image converted!\n");
+			//imshow("Result", gmap);
+			//waitKey(0);
 			publisher.publish(img_msg);
+
+			count++;
+			cout << count << endl;
 		}
 };
 
+int Localmap_Publisher::count = 0;
+
 int main(int argc, char** argv){
+	MapCutter::loadMap();
+	//Localmap_Publisher::count = 0;
+
 	ros::init(argc, argv, "Localmap_Publisher");
 	Localmap_Publisher Localmap_Publisher;
 	ros::spin();
