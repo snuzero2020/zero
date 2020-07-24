@@ -15,20 +15,20 @@ using namespace nav_msgs;
 using namespace geometry_msgs;
 
 /*
-struct Point
-{
-	// the variables to represent relative location and direction
-	double x;
-	double y;
-	double theta; 
+   struct Point
+   {
+// the variables to represent relative location and direction
+double x;
+double y;
+double theta; 
 }
-*/
+ */
 
 class Tracker
 {
 	private:
 		ros::NodeHandle nh;
-		
+
 		Float32 steering_angle;
 		Path curr_local_path;
 		Odometry curr_odom;
@@ -46,44 +46,44 @@ class Tracker
 
 		// PID control
 		double recommend_vel{-1}; // determine by mission master and location
-        double desired_vel{0}; // get from current_vel and recommend_vel
+		double desired_vel{0}; // get from current_vel and recommend_vel
 
 		double P_gain;
-        double I_gain;
-        double D_gain;
-        double error{0};
-        double integral_error{0};
-        double differential_error{0};
-        double Prev_error{0};
-        double pid_input{0};
-        clock_t time = clock();
+		double I_gain;
+		double D_gain;
+		double error{0};
+		double integral_error{0};
+		double differential_error{0};
+		double Prev_error{0};
+		double pid_input{0};
+		clock_t time = clock();
 
 
 	public:
 
 		ros::Publisher steering_angle_pub;
-        ros::Publisher car_signal_pub;
+		ros::Publisher car_signal_pub;
 		ros::Subscriber local_path_sub;
 		ros::Subscriber odometry_sub;
-        ros::Subscriber recommend_vel_sub;
+		ros::Subscriber recommend_vel_sub;
 
 
 		// initializer
 		Tracker() 
 			:steering_angle(Float32()), curr_local_path(Path()), curr_odom(Odometry()),
-				look_ahead_oval_ratio(0)
-			{
-				steering_angle_pub = nh.advertise<Float32>("configuration",1000);
-				car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
-				local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
-				odometry_sub = nh.subscribe("odometory",100,&Tracker::odometory_callback,this);
-				recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
-				nh.getParam("/P_gain", P_gain);
-				nh.getParam("/I_gain", I_gain);
-				nh.getParam("/D_gain", D_gain);
-				nh.getParam("/upper_radius", upper_radius);
-				nh.getParam("/lower_radius", lower_radius);
-			}
+			look_ahead_oval_ratio(0)
+	{
+		steering_angle_pub = nh.advertise<Float32>("configuration",1000);
+		car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
+		local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
+		odometry_sub = nh.subscribe("odometory",100,&Tracker::odometory_callback,this);
+		recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
+		nh.getParam("/P_gain", P_gain);
+		nh.getParam("/I_gain", I_gain);
+		nh.getParam("/D_gain", D_gain);
+		nh.getParam("/upper_radius", upper_radius);
+		nh.getParam("/lower_radius", lower_radius);
+	}
 
 		// setter function
 		void set_steering_angle(const double angle) {steering_angle.data = angle;}
@@ -112,8 +112,8 @@ class Tracker
 
 		// PID control
 		double calculate_desired_vel();
-        void calculate_input_signal();
-        void vehicle_output_signal();
+		void calculate_input_signal();
+		void vehicle_output_signal();
 
 		//test
 		//void print_p(){std::cout<<P_gain<<std::endl;};
@@ -183,7 +183,7 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 
 void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
 {
-    recommend_vel = msg->data;
+	recommend_vel = msg->data;
 }
 
 
@@ -225,15 +225,39 @@ void Tracker::set_look_ahead_point()
 void Tracker::solve_pure_pursuit()
 {
 	Point rotational_center{Point()};
-	rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
-	rotational_center.y = -1.05*100/3.0;
-	curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
-	rotational_radius = 1/curvature;
-	double temp_angle =  atan2(-rotational_center.y,rotational_center.x);
-	if (temp_angle < 3.141592/2.0)
-		nonslip_steering_angle = temp_angle*180/3.141592;
-	else
-		nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
+	double temp_angle;
+	// curr_local_path.header.seq | 0x10 != 0x10 : front gear
+	// curr_local_path.header.seq | 0x10 == 0x10 : reverse gear (only for parking motion with backward motion
+	if (curr_local_path.header.seq | 0x10 != 0x10){
+		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
+		rotational_center.y = -1.05*100/3.0;
+		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
+		rotational_radius = 1/curvature;
+		temp_angle =  atan2(-rotational_center.y,rotational_center.x);
+	}
+	else{
+		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*look_ahead_point.y/double(look_ahead_point.x*2.0);
+		rotational_center.y = 0;
+		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
+		rotational_radius = 1/curvature;
+		temp_angle =  atan2(-rotational_center.y,rotational_center.x);
+	}
+	// temp_angle < 3.141592/2.0 : right turn
+	// temp_angle > 3.141592/2.0 : left turn
+	if (temp_angle < 3.141592/2.0){
+		if (curr_local_path.header.seq | 0x10 != 0x10){
+			nonslip_steering_angle = temp_angle*180/3.141592;
+		}
+		else
+			nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
+	}
+	else{
+		if (curr_local_path.header.seq | 0x10 != 0x10){
+			nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
+		}
+		else
+			nonslip_steering_angle = temp_angle*180/3.141592;
+	}
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)
@@ -271,13 +295,13 @@ double Tracker::determind_major_axis_radius()
 // input : recommend_vel, curvature
 // output : desired_vel
 double Tracker::calculate_desired_vel(){
-    return recommend_vel*(1 - 1.0 * curvature); // should be changed
+	return recommend_vel*(1 - 1.0 * curvature); // should be changed
 }
 
 // input : current_vel, recommed_vel, curvature
 // output : control Pid input
 void Tracker::calculate_input_signal(){
-    static bool first = true;
+	static bool first = true;
 	if (first == true)
 	{
 		time = clock();
@@ -285,12 +309,12 @@ void Tracker::calculate_input_signal(){
 		return;
 	}
 	error = calculate_desired_vel() - current_vel;
-    integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
-    differential_error = (error - Prev_error)/(double(clock() - time)/(double)CLOCKS_PER_SEC);
-    pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
-    Prev_error = error;
+	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
+	differential_error = (error - Prev_error)/(double(clock() - time)/(double)CLOCKS_PER_SEC);
+	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
+	Prev_error = error;
 	cout << "dt : " << (clock()-time)/(double)CLOCKS_PER_SEC << endl;
-    time = clock();
+	time = clock();
 	cout << "error : " << error << endl;
 	cout << "integral_error : " << integral_error << endl;
 	cout << "differential_error : " << differential_error << endl;
@@ -298,16 +322,23 @@ void Tracker::calculate_input_signal(){
 
 
 void Tracker::vehicle_output_signal(){
-    core_msgs::Control msg;
+	core_msgs::Control msg;
 
-    msg.is_auto = 1;
-    msg.estop = 0;
-    msg.gear = 0;
-    msg.brake = 0;
-    msg.speed = 1.0;//(pid_input>0)?pid_input:0; // try offset method
-    msg.steer = get_steering_angle().data;
+	msg.is_auto = 1;
+	msg.estop = 0;
+	// forward motion
+	if (curr_local_path.header.seq | 0x10 != 0x10){
+		msg.gear = 0;
+	}
+	// backward motion
+	else{
+		msg.gear = 2;
+	}
+	msg.brake = 0;
+	msg.speed = 1.0;//(pid_input>0)?pid_input:0; // try offset method
+	msg.steer = get_steering_angle().data;
 
-    car_signal_pub.publish(msg);
+	car_signal_pub.publish(msg);
 }
 
 
@@ -315,7 +346,7 @@ void Tracker::vehicle_output_signal(){
 int main(int argc, char *argv[])
 {
 	int count{0};
-	
+
 	ros::init(argc,argv,"path_traker");
 	ros::NodeHandle nh;
 

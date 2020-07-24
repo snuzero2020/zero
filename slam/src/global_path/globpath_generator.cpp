@@ -47,7 +47,7 @@ class Global_path_gen{
 				prev_pixel_y = inst_pixel_y;
 				check = 1;
 			}
-			if(check == 1){
+			if(check){
 				global_path.poses.push_back(inst_pose);
 				path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[0] = int(data.theta)/2;
 				cv::imwrite("/home/parallels/data/global_path/glob_path.png", path_map);

@@ -22,9 +22,15 @@ Mat MapCutter::FMTC_map = Mat::zeros(1, 1, CV_8UC3);
 vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8UC3)};
 
 void MapCutter::loadMap() {
+<<<<<<< HEAD
+=======
+    bool exist_error = false;
+
+>>>>>>> a2f5c30bae175aeeed04e0bf453a9437b57fc744
     FMTC_map = imread("src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
     if (FMTC_map.empty()) {
             ROS_ERROR("MapCutter: The FMTC map is empty");
+            exist_error = true;
     }
 
     KCity_maps.clear();
@@ -34,9 +40,28 @@ void MapCutter::loadMap() {
         KCity_maps.push_back(imread(path));
         
         if (KCity_maps[n].empty()) {
-            ROS_ERROR("MapCutter: The %dth K-City map is empty", n + 1);
+            exist_error = true;
+
+            switch ((n + 1) % 20) {
+                case 1:
+                    ROS_ERROR("MapCutter: The %dst K-City map is empty", n + 1);
+                    break;
+
+                case 2:
+                    ROS_ERROR("MapCutter: The %dnd K-City map is empty", n + 1);
+                    break;
+
+                case 3:
+                    ROS_ERROR("MapCutter: The %drd K-City map is empty", n + 1);
+                    break;
+
+                default:
+                    ROS_ERROR("MapCutter: The %dth K-City map is empty", n + 1);
+                    break;
+            }
         }
     }
+    ROS_ERROR_COND(exist_error, "MapCutter: Check whether the image file exist, OR rosrun is executed at ~/catkin_ws");
 }
 
 
@@ -70,10 +95,10 @@ MapCutter::MapCutter(int place) {
 }
 
 int MapCutter::cutViaPxCenter(Mat& original_map, Mat& modified_map, int pixel_x, int pixel_y) {
-    Range range_x(pixel_x - 337, pixel_x + 337);
-    Range range_y(pixel_y - 337, pixel_y + 337);
+    Range range_x(pixel_x - 337, pixel_x + 337 + 1);
+    Range range_y(pixel_y - 337, pixel_y + 337 + 1);
 
-    modified_map = original_map(range_x, range_y); // 333 [px] = 10 [m] / 0.03 [m/px]
+    modified_map = original_map(range_x, range_y);
 
     ROS_INFO("MapCutter: success cutting a received map");
     return 0;
