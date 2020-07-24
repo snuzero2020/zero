@@ -32,6 +32,8 @@ Convert a WGS84(EPSG::4326) coordinate to a UTM52(EPSG::32652) coordinate.
     + 0: No error.   
     + -1: One or more errors occured.   
 
+*****
+
 * UnixtimeToSec   
 Convert the received Unix time to a count starting from A.M. 12:00. to just before next day A.M. 12:00.   
 e.g. 1595580968(Unix time) → Fri Jul 24 2020 17:56:08 UTC+0900 → (17 * 3600) + (56 * 60) + 8 = 64568   
@@ -44,6 +46,8 @@ e.g. 1595580968(Unix time) → Fri Jul 24 2020 17:56:08 UTC+0900 → (17 * 3600)
 
   - Return   
     + The converted time(by sec).   
+
+*****
 
 * XYToPixel   
 Convert a UTM52 coordinate to a position(pixel) on the received map.   
