@@ -58,9 +58,7 @@ void MapCutter::loadMap() {
             }
         }
     }
-    if (exist_error == true) {
-        cout << "27[1;31m" <<"MapCutter: => Check whether the image file exist, OR rosrun is executed at ~/catkin_ws" << "27[0m" << endl;
-    }   
+    ROS_ERROR_COND(exist_error, "MapCutter: Check whether the image file exist, OR rosrun is executed at ~/catkin_ws");
 }
 
 
@@ -94,10 +92,10 @@ MapCutter::MapCutter(int place) {
 }
 
 int MapCutter::cutViaPxCenter(Mat& original_map, Mat& modified_map, int pixel_x, int pixel_y) {
-    Range range_x(pixel_x - 337, pixel_x + 337);
-    Range range_y(pixel_y - 337, pixel_y + 337);
+    Range range_x(pixel_x - 337, pixel_x + 337 + 1);
+    Range range_y(pixel_y - 337, pixel_y + 337 + 1);
 
-    modified_map = original_map(range_x, range_y); // 333 [px] = 10 [m] / 0.03 [m/px]
+    modified_map = original_map(range_x, range_y);
 
     ROS_INFO("MapCutter: success cutting a received map");
     return 0;
