@@ -12,11 +12,32 @@
 #include "XYToPixel.h"
 #include "UTM.h"
 
-#define FMTC 2
 #define KCity 1
+#define FMTC 2
 
 using namespace std;
 using namespace cv;
+
+Mat MapCutter::FMTC_map = Mat::zeros(1, 1, CV_8UC3);
+vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8UC3)};
+
+void MapCutter::loadMap() {
+    FMTC_map = imread("/home/dongha/catkin_ws/src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
+    if (FMTC_map.empty()) {
+            ROS_ERROR("MapCutter: The FMTC map is empty");
+    }
+
+    KCity_maps.clear();
+
+    for (int n = 0; n < 12; n++) {
+        string path = "map_KCity_" + to_string(n + 1) + ".png";
+        KCity_maps.push_back(imread(path));
+        
+        if (KCity_maps[n].empty()) {
+            ROS_ERROR("MapCutter: The %dth K-City map is empty", n + 1);
+        }
+    }
+}
 
 
 MapCutter::MapCutter() {
@@ -25,9 +46,6 @@ MapCutter::MapCutter() {
 }
 
 MapCutter::MapCutter(int place) {
-
-    string path;	
-
     if (place != FMTC && place != KCity) {
         this->place = KCity;
 
@@ -38,7 +56,6 @@ MapCutter::MapCutter(int place) {
         this->place = place;
 
         number_of_maps = 1;
-        map_list.push_back(imread("map.png"));
         ROS_INFO("MapCutter: The place is 'FMTC'");
     }
 
@@ -46,12 +63,6 @@ MapCutter::MapCutter(int place) {
         this->place = place;
 
         number_of_maps = 12;
-
-        for (int n = 0; n < number_of_maps; n++) {
-            path = "map_KCity_" + to_string(n + 1) + ".png";
-            map_list.push_back(imread(path));
-            ROS_INFO("MapCutter: The place is 'K-City'");
-        }
     }
 
     position_px.push_back(0);
@@ -59,9 +70,9 @@ MapCutter::MapCutter(int place) {
 }
 
 int MapCutter::cutViaPxCenter(Mat& original_map, Mat& modified_map, int pixel_x, int pixel_y) {
-    Range range_x(pixel_x - 300, pixel_x + 300);
-    Range range_y(pixel_y - 300, pixel_y + 300);
-    cout << "3" << endl;
+    Range range_x(pixel_x - 337, pixel_x + 337);
+    Range range_y(pixel_y - 337, pixel_y + 337);
+
     modified_map = original_map(range_x, range_y); // 333 [px] = 10 [m] / 0.03 [m/px]
 
     ROS_INFO("MapCutter: success cutting a received map");
@@ -73,9 +84,7 @@ Mat MapCutter::smartCut(double x, double y, double heading) {
     Mat modified_map;
 
     if (place == FMTC) {
-        cut(map_list[0], modified_map, x, y, heading);
-
-        cout << "1" << endl;
+        cut(FMTC_map, modified_map, x, y, heading);
     }
 
     return modified_map;
@@ -83,11 +92,10 @@ Mat MapCutter::smartCut(double x, double y, double heading) {
 
 int MapCutter::cut(Mat& original_map, Mat& modified_map, double x, double y, double heading) {
     XYToPixel(original_map, x, y, position_px[0], position_px[1], place);
-    cout << "2" << endl;
 
     // pre-cutting
     Mat cut_map;
-    cout << "3" << endl;
+    cout << position_px[0] << ", " << position_px[1] << endl;
 
     if (position_px[0] < 300) {position_px[0] = 300;}
     if (position_px[0] > original_map.cols - 300) {position_px[0] = original_map.cols - 300;}
@@ -95,28 +103,17 @@ int MapCutter::cut(Mat& original_map, Mat& modified_map, double x, double y, dou
     if (position_px[1] < 300) {position_px[1] = 300;}
     if (position_px[1] > original_map.cols - 300) {position_px[1] = original_map.cols - 300;}
 
-    cout << "3" << endl;
-
     cutViaPxCenter(original_map, cut_map, position_px[0], position_px[1]);
-    cout << "4" << endl;
 
     //rotate the image
     Mat rotated_map;
-    cout << "5" << endl;
 
-    Mat matRotation = getRotationMatrix2D(Point(position_px[0], position_px[1]), heading / M_PI * 180, 1);
-    cout << "6" << endl;
+    Mat matRotation = getRotationMatrix2D(Point(337, 337), heading / M_PI * 180, 1);
     warpAffine(cut_map, rotated_map, matRotation, cut_map.size());
-    cout << "7" << endl;
 
     // main cutting
-    Range range1(position_px[0] - 333, position_px[0] + 333);
-    Range range2(position_px[1] - 666, position_px[1]);
-
-    if (position_px[0] < 0 || position_px[0] > rotated_map.cols || position_px[1] < 0 || position_px[1] > rotated_map.rows) {
-        ROS_ERROR("MapCutter: Cannot fit lat/lon to rotated img!");
-        return -1;
-    }
+    Range range1(337 - 150, 337 + 150);
+    Range range2(337 - 300, 337);
 
     modified_map = rotated_map(range1, range2);
 
