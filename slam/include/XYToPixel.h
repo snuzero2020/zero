@@ -5,6 +5,7 @@
 
 #define KCity 1
 #define FMTC 2
+#define FMTC_cost 3
 
 #endif
 

@@ -23,19 +23,22 @@
 using namespace std;
 using namespace cv;
 
-Mat MapCutter::FMTC_map = Mat::zeros(1, 1, CV_8UC3);
-vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8UC3)};
+Mat MapCutter::FMTC_map = Mat::zeros(1, 1, CV_8U);
+vector<Mat> MapCutter::KCity_maps = {Mat::zeros(1, 1, CV_8U)};
 
 void MapCutter::loadMap() {
     bool exist_error = false;
 
     ROS_INFO("MapCutter: Loading FMTC and K-City maps...");
-    FMTC_map = imread("src/zero/slam/src/mapping/map.png", IMREAD_COLOR);
+
+    KCity_maps.clear();
+    
+    FMTC_map = imread("/home/dongha/catkin_ws/src/zero/slam/src/mapping/costmap.png", IMREAD_GRAYSCALE);
     if (FMTC_map.empty()) {
-            ROS_ERROR("MapCutter: The FMTC map is empty");
+            ROS_ERROR("MapCutter: The FMTC cost map is empty");
             exist_error = true;
     } else {
-        ROS_INFO("MapCutter: The FMTC map was loaded");
+        ROS_INFO("MapCutter: The FMTC cost map was loaded");
     }
 
     KCity_maps.clear();
@@ -119,12 +122,12 @@ MapCutter::MapCutter(int place) {
 }
 
 int MapCutter::cutViaPxCenter(Mat& original_map, Mat& modified_map, int pixel_x, int pixel_y) {
-    Range range_x(pixel_x - 337, pixel_x + 337 + 1);
-    Range range_y(pixel_y - 337, pixel_y + 337 + 1);
+    Range range_row(pixel_x - 337, pixel_x + 337);
+    Range range_col(pixel_y - 337, pixel_y + 337);
 
-    modified_map = original_map(range_x, range_y);
+    modified_map = original_map(range_col, range_row);
 
-    ROS_INFO("MapCutter: success cutting a received map");
+    ROS_INFO("MapCutter: cut => cutViaPxCenter");
     return 0;
 
 }
@@ -133,7 +136,10 @@ Mat MapCutter::smartCut(double x, double y, double heading) {
     Mat modified_map;
 
     if (place == FMTC) {
+        ROS_INFO("MapCutter: smartCut => cut");
         cut(FMTC_map, modified_map, x, y, heading);
+        ROS_INFO("MapCutter: cut => smartCut");
+        
     }
 
     return modified_map;
@@ -144,27 +150,28 @@ int MapCutter::cut(Mat& original_map, Mat& modified_map, double x, double y, dou
 
     // pre-cutting
     Mat cut_map;
-    cout << position_px[0] << ", " << position_px[1] << endl;
+    ROS_INFO_STREAM("MapCutter: " << position_px[0] << ", " << position_px[1]);
 
-    if (position_px[0] < 300) {position_px[0] = 300;}
-    if (position_px[0] > original_map.cols - 300) {position_px[0] = original_map.cols - 300;}
+    if (position_px[0] < 337) {position_px[0] = 337;}
+    if (position_px[0] > original_map.cols - 337) {position_px[0] = original_map.cols - 337;}
 
-    if (position_px[1] < 300) {position_px[1] = 300;}
-    if (position_px[1] > original_map.cols - 300) {position_px[1] = original_map.cols - 300;}
+    if (position_px[1] < 337) {position_px[1] = 337;}
+    if (position_px[1] > original_map.cols - 337) {position_px[1] = original_map.cols - 337;}
 
     cutViaPxCenter(original_map, cut_map, position_px[0], position_px[1]);
+    ROS_INFO("MapCutter: cutViaPxCenter => smartCut");
 
     //rotate the image
     Mat rotated_map;
 
-    Mat matRotation = getRotationMatrix2D(Point(337, 337), heading / M_PI * 180, 1);
+    Mat matRotation = getRotationMatrix2D(Point(337, 337), heading * 180 / M_PI , 1);
     warpAffine(cut_map, rotated_map, matRotation, cut_map.size());
 
     // main cutting
-    Range range1(337 - 150, 337 + 150);
-    Range range2(337 - 300, 337);
+    Range range_row(337 - 150, 337 + 150);
+    Range range_col(337 - 300, 337);
 
-    modified_map = rotated_map(range1, range2);
+    modified_map = rotated_map(range_col, range_row);
 
     return 0;
 }

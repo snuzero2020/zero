@@ -18,8 +18,8 @@ double HDOP_warn;
 class GPS_Decoder{
     public:
     GPS_Decoder(){
-        pub_ = n_.advertise<slam::Gps>("gps", 1000);
-        sub_ = n_.subscribe("/nmea_sentence", 10000, &GPS_Decoder::callback, this);
+        pub_ = n_.advertise<slam::Gps>("gps", 1);
+        sub_ = n_.subscribe("/nmea_sentence", 1, &GPS_Decoder::callback, this);
     }	
 
     void callback(const nmea_msgs::Sentence::ConstPtr& msg){

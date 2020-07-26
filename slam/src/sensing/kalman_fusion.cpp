@@ -40,7 +40,7 @@ class Kalman_fusion{
         Q.setIdentity();
         RIMU.setIdentity();
         RGPS.setIdentity();
-        pub_d = n_.advertise<slam::Data>("filtered_data", 10);
+        pub_d = n_.advertise<slam::Data>("filtered_data", 3);
     }
 
     void IMUCallback(const slam::Imu& msg){
