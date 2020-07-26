@@ -28,7 +28,7 @@ HDOP_warn: 3.5
 #kalman_fusion.cpp
 #type = double
 initial_state_error_cov : 10.0
-initial_process_noise_cov : 1.0
+initial_process_noise_cov : 4.0
 initial_imu_observation_noise_cov : 0.5
 initial_gps_observation_noise_cov : 0.1
 
