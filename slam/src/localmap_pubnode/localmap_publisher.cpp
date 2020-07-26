@@ -26,7 +26,11 @@ class Localmap_Publisher{
 
 			MapCutter map_cutter(2);
 			cv::Mat gmap = map_cutter.smartCut(data.x, data.y, data.theta);
-			printf("map cut~!\n");
+			if ((count % 300) == 0) {
+				cv::imwrite("src/zero/slam/src/mapping/cut_map.png", gmap);
+			}
+			
+			printf("map cut&saved~!\n");
 			cv_bridge::CvImage img_bridge;
 			sensor_msgs::Image img_msg;
 			std_msgs::Header header;
