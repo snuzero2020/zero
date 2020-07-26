@@ -67,6 +67,12 @@ add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp sr
 target_link_libraries(Localmap_Publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(Localmap_Publisher slam_generate_messages_cpp)
 
+#add_executable for localpath publishing
+add_executable(locpath_publisher src/locpath_pubnode/locpath_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(locpath_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(locpath_publisher slam_generate_messages_cpp)
+
+
 #add_executable for BGRmap_to_costmap
 add_executable(BGRmap_to_costmap src/BGRmap_to_costmap/main.cpp src/BGRmap_to_costmap/BGRmapToCostmap.cpp)
 target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
