@@ -33,23 +33,23 @@ class GPS_Decoder{
         ROS_INFO("%dth point: (%lf, %lf) = (%d, %d)", n, msg->x, msg->y, pixel_x, pixel_y);
 
         if (n != 1) {
-            //if (sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)) < 200 | saving == true) {
+            if (sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)) < 200 | saving == true) {
                 cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 3);
-                //cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 3, cv::Scalar(255, 0, 0), -1);
-                if( n % 40 == 0){
-                    cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_u, filtered_pixel_y+filtered_pixel_v), cv::Scalar(255, 0, 255), 5, 8, 0, 0.5);
-                    cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_thx, filtered_pixel_y+filtered_pixel_thy), cv::Scalar(255, 255, 0), 5, 8, 0, 0.5);
-                }
+                cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 3, cv::Scalar(255, 0, 0), -1);
+                // if( n % 20 == 0){
+                //     cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_u, filtered_pixel_y+filtered_pixel_v), cv::Scalar(255, 0, 255), 10, 8, 0, 0.5);
+                //     cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_thx, filtered_pixel_y+filtered_pixel_thy), cv::Scalar(255, 255, 0), 10, 8, 0, 0.5);
+                // }
                 prev_pixel_x = pixel_x;
                 prev_pixel_y = pixel_y;
 
                 saving = false;
-            // } else if (saving == false) {
-            //     ROS_WARN("%dth point: outlier", n);
-            //     ROS_WARN("%dth point: Distance from very previous point(px): %lf", n, sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)));
-            // }
+            } else if (saving == false) {
+                ROS_WARN("%dth point: outlier", n);
+                ROS_WARN("%dth point: Distance from very previous point(px): %lf", n, sqrt(pow(prev_pixel_x - pixel_x, 2) + pow(prev_pixel_x - pixel_x, 2)));
+            }
 
-            if (n == 700) {
+            if (n == 11000) {
                 stringstream path_stream;
                 path_stream << ros::package::getPath("slam") << "/src/mapping/path" << (n) << ".png";
 
