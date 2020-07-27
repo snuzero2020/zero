@@ -72,6 +72,10 @@ add_executable(locpath_publisher src/locpath_pubnode/locpath_publisher.cpp lib/X
 target_link_libraries(locpath_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(locpath_publisher slam_generate_messages_cpp)
 
+#add_executable for minimap publisher
+add_executable(minimap_publisher src/mini_map/minimap_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(minimap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(minimap_publisher slam_generate_messages_cpp)
 
 #add_executable for BGRmap_to_costmap
 add_executable(BGRmap_to_costmap src/BGRmap_to_costmap/main.cpp src/BGRmap_to_costmap/BGRmapToCostmap.cpp)
