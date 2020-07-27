@@ -30,11 +30,8 @@ private:
 	int task, light, motion, parking_space;
 	nav_msgs::Path goals;
 public:
-	double start_point_x_value;
-	double start_point_y_value;
-	double goal_point_x_value;
-	double goal_point_y_value;
 	double stepsize_pp_value;
+	bool isTrackDriving;
 	RosNode(){
 		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 5, &RosNode::costmapCallback, this);
 		mission_state_sub = n.subscribe("mission_state", 50, &RosNode::missionstateCallback, this);
@@ -43,10 +40,7 @@ public:
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
 
 		task = light = motion = -1;
-		n.getParam("/start_point_x", start_point_x_value);
-		n.getParam("/start_point_y", start_point_y_value);
-		n.getParam("/goal_point_x", goal_point_x_value);
-		n.getParam("/goal_point_y", goal_point_y_value);
+		n.getParam("/isTrackDriving", isTrackDriving);
 		n.getParam("/stepsize_pp", stepsize_pp_value);
 	}
 
@@ -68,8 +62,6 @@ public:
 		static int gear_state{0};
 
 		cout<<"callback\n";
-		bool isTrackDriving;
-		n.getParam("/isTrackDriving", isTrackDriving);
 		if(isTrackDriving){
 			int iternum;
 			double radius;

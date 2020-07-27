@@ -34,7 +34,7 @@ class Global_path_gen{
 			if(global_path.poses.empty()){
 				inst_pose.pose.position.x = inst_pixel_x;
 				inst_pose.pose.position.y = inst_pixel_y;
-				inst_pose.pose.position.z = M_2_PI - data.theta;
+				inst_pose.pose.position.z = data.theta;
 				prev_pixel_x = inst_pixel_x;
 				prev_pixel_y = inst_pixel_y;
 				std::cout << "initial pose" << std::endl;
@@ -43,7 +43,7 @@ class Global_path_gen{
 			else if(((inst_pixel_x-prev_pixel_x)*(inst_pixel_x-prev_pixel_x)+(inst_pixel_y-prev_pixel_y)*(inst_pixel_y-prev_pixel_y))>98){
 				inst_pose.pose.position.x = inst_pixel_x;
 				inst_pose.pose.position.y = inst_pixel_y;
-				inst_pose.pose.position.z = M_2_PI-data.theta;
+				inst_pose.pose.position.z = data.theta;
 				prev_pixel_x = inst_pixel_x;
 				prev_pixel_y = inst_pixel_y;
 				std::cout << "pixel fixed" << std::endl;
@@ -52,7 +52,13 @@ class Global_path_gen{
 			if(check==1){
 				global_path.poses.push_back(inst_pose);
 				
-				path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[0] = int(M_2_PI-data.theta)/2;
+				if(data.theta >= 0){	
+					path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[0] = int(data.theta*180/M_PI)/2;
+				}
+				else{
+					path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[0] = int(data.theta*180/M_PI+360)/2;
+				}
+
 				path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[1] = 0;
 
 				std::cout << "pixel filled" << std::endl;
