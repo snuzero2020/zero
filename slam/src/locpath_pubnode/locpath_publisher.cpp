@@ -30,10 +30,13 @@ class Local_path{
 		void callback(const slam::Data data){
 			geometry_msgs::PoseStamped loc_pose;
 			int curr_pixel_x{}, curr_pixel_y{};
-			double pix_heading = -data.theta;
+			double pix_heading{};
+		       	if(data.theta >= 0) pix_heading = data.theta;
+			else pix_heading = data.theta + M_2_PI;
 			double head_coor_x, head_coor_y;
 
-			if(pix_heading == 0){
+			/*
+			 if(pix_heading == 0){
 				head_coor_x = -0.5;
 				head_coor_y = 0;
 			}
@@ -49,45 +52,50 @@ class Local_path{
 				head_coor_x = 0;
 				head_coor_y = -0.5;
 			}
-			else{
-				head_coor_x = (-0.5)*cos(pix_heading);
-				head_coor_y = (0.5)*sin(pix_heading);
-			}
+			*/
+			//else{
+			head_coor_x = (0.5)*sin(pix_heading);
+			head_coor_y = (0.5)*cos(pix_heading);
+			//}
 
 			XYToPixel(glob_path, data.x, data.y, curr_pixel_x, curr_pixel_y, 2);
-			
-			for(int i=1; i<300; i++){
-				for(int j=1; j<600; j++){
-					curr_pixel_x += head_coor_x;
-					curr_pixel_y += head_coor_y;
-					cv::Point point = cv::Point(int(curr_pixel_x), int(curr_pixel_y));
-					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(point);
+			double point_pixel_x{}, point_pixel_y{};
+
+			for(int j=1; j<600; j++){
+				point_pixel_x = curr_pixel_x - j*head_coor_y;
+				point_pixel_y = curr_pixel_y + j*head_coor_x;
+				for(int i=1; i<300; i++){
+					point_pixel_x += head_coor_x;
+					point_pixel_y += head_coor_y;
+					
+					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_x), int(point_pixel_y));
 					//loc_pose.pose.position.x = 150+i/2;
 					//loc_pose.pose.position.y = 300-j/2;
 
 					if(bgr[1] == 0) {
 						loc_pose.pose.position.x = i/2;
 						loc_pose.pose.position.y = j/2;
-						if(bgr[0] == pix_heading) loc_pose.pose.position.z = 0;
-						else if(bgr[0] < pix_heading) loc_pose.pose.position.z = M_2_PI - (pix_heading-bgr[0]);
-						else loc_pose.pose.position.z = bgr[0] - pix_heading;
+						if(bgr[0] == int(pix_heading*180/M_PI)/2) loc_pose.pose.position.z = 0;
+						else if(bgr[0] < int(pix_heading*180/M_PI)/2) loc_pose.pose.position.z = 180 - (int(pix_heading*180/M_PI)/2-bgr[0]);
+						else loc_pose.pose.position.z = (-1)*(int(pix_heading*180/M_PI)/2 - bgr[0]);
 						local_path.poses.push_back(loc_pose);
 						//local_path.at<Vec3b>(150 + i/2, 300-j/2);
 					}
 				}
 			}
-			for(int i=1; i<300; i++){
-				for(int j=1; j<600; j++){
-					curr_pixel_x += -head_coor_x;
-					curr_pixel_y += head_coor_y;
-					cv::Point point = cv::Point(int(curr_pixel_x), int(curr_pixel_y));
-					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(point);
+			for(int j=1; j<600; j++){
+				point_pixel_x = curr_pixel_x - j*head_coor_y;
+				point_pixel_y = curr_pixel_y + j*head_coor_x;
+				for(int i=1; i<300; i++){
+					point_pixel_x += -head_coor_x;
+					point_pixel_y += -head_coor_y;
+					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_x), int(point_pixel_y));
 					if(bgr[1] == 0){
 						loc_pose.pose.position.x = -i/2;
 						loc_pose.pose.position.y = j/2;
-						if(bgr[0] == pix_heading) loc_pose.pose.position.z = 0;
-						else if(bgr[0] < pix_heading) loc_pose.pose.position.z = M_2_PI - (pix_heading-bgr[0]);
-						else loc_pose.pose.position.z = bgr[0] - pix_heading;
+						if(bgr[0] == int(pix_heading*180/M_PI)/2) loc_pose.pose.position.z = 0;
+						else if(bgr[0] < int(pix_heading*180/M_PI)/2) loc_pose.pose.position.z = 180 - (int(pix_heading*180/M_PI)/2-bgr[0]);
+						else loc_pose.pose.position.z = (-1)*(int(pix_heading*180/M_PI)/2 - bgr[0]);
 						local_path.poses.push_back(loc_pose);
 						//local_path.at<Vec3b>(150 - i/2, 300 - j/2);
 					}
