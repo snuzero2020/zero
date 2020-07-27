@@ -18,7 +18,7 @@ class LidarDecoder:
     def __init__(self):
         self._pub = rospy.Publisher("/points", Lidar, queue_size=1)
         self._sub = rospy.Subscriber("/velodyne_points", sensor_msgs.msg.PointCloud2, self.callback_lidar)
-        self._distance_tolerance = 7.0
+        self._distance_tolerance = 10.0
 
     def callback_lidar(self, msg):
         rt = Lidar()

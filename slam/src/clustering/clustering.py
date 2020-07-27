@@ -20,12 +20,18 @@ class Clustering:
         self._pub_2d_obstacle_points = rospy.Publisher("/2d_obstacle_points", Cluster, queue_size=1)
         self._pub_3d_obstacle_points = rospy.Publisher("/3d_obstacle_points", Cluster, queue_size=1)
         self._sub = rospy.Subscriber("/points", Lidar, self.callback_points)
-        self._iteration = rospy.get_param("/iteration")
-        self._remove_tolerance = rospy.get_param("/remove_tolerance")
-        self._plane_tolerance = rospy.get_param("/plane_tolerance")
-        self._clustering_tolerance = rospy.get_param("/clustering_tolerance")
-        self._lidar_angle = rospy.get_param("/lidar_angle") # unit : degree
-        self._lidar_height = rospy.get_param("/lidar_height") # unit : m
+        #self._iteration = rospy.get_param("/iteration")
+        #self._remove_tolerance = rospy.get_param("/remove_tolerance")
+        #self._plane_tolerance = rospy.get_param("/plane_tolerance")
+        #self._clustering_tolerance = rospy.get_param("/clustering_tolerance")
+        #self._lidar_angle = rospy.get_param("/lidar_angle") # unit : degree
+        #self._lidar_height = rospy.get_param("/lidar_height") # unit : m
+        self._iteration = 30
+        self._remove_tolerance = 5
+        self._plane_tolerance = 0.05
+        self._clustering_tolerance = 0.1
+        self._lidar_angle = 18 # unit : degree
+        self._lidar_height = 1.25 # unit : m
         self._count = 0
     
     def projection(self, point, plane_config):
@@ -234,10 +240,10 @@ class Clustering:
         count = len(filtered_points)
         publish_2d_msg.count = count
         publish_3d_msg.count = count
-        publish_2d_msg.points = publish_projected_points
-        publish_3d_msg.points = filtered_points
-        publish_2d_msg.channels = filtered_channels
-        publish_3d_msg.channels = filtered_channels
+        #publish_2d_msg.points = publish_projected_points
+        #publish_3d_msg.points = filtered_points
+        #publish_2d_msg.channels = filtered_channels
+        #publish_3d_msg.channels = filtered_channels
         self._pub_2d_obstacle_points.publish(publish_2d_msg)
         self._pub_3d_obstacle_points.publish(publish_3d_msg)
         
