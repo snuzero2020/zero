@@ -17,7 +17,7 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
     pixel_x = static_cast<int>((x - ref_x) / coefficient) + ref_pixel_x;
     pixel_y = static_cast<int>(-(y - ref_y) / coefficient) + ref_pixel_y;
 
-    std::cout << x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", " << std::endl;
+    ROS_DEBUG_STREAM(x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", ");
 
 
 
@@ -28,18 +28,18 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
     if (pixel_y < 14.5 / coefficient) {pixel_y = static_cast<int>(14.5 / coefficient) + 1;}
     if (pixel_y > img.rows - 14.5 / coefficient) {pixel_y = img.rows - static_cast<int>(14.5 / coefficient) - 1;}
 
-    std::cout << x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", " << std::endl;
+    ROS_DEBUG_STREAM(x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", ");
 
     return 0;
 }
 
 int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place) {
     if (place == KCity) {
-        ROS_INFO("XYToPixel: The place is 'K-City'");
+        ROS_DEBUG("XYToPixel: The place is 'K-City'");
         XYToPixel_internal(img, x, y, pixel_x, pixel_y, 302536.722, 4124121.856, 4090, 4127, 0.1578331);
         return 0;
     } else if (place == FMTC) {
-        ROS_INFO("XYToPixel: The place is 'FMTC'");
+        ROS_DEBUG("XYToPixel: The place is 'FMTC'");
         XYToPixel_internal(img, x, y, pixel_x, pixel_y, 298441.46, 4137766.57, 8864, 5268 + 60, 0.02992); //0.030066145520144317498496692
         return 0;
     } else {
