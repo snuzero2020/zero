@@ -27,9 +27,12 @@ class Kalman_fusion{
     Matrix<double,_ST,_ST> P;    // P is covariance of stATE
     Matrix<double,_Q,_Q> Q;
     Matrix<double,_ZIMU,_ZIMU> RIMU;
-    Matrix<double,_ZGPS,_ZGPS> RGPS;                          
+    Matrix<double,_ZGPS,_ZGPS> RGPS;
+    double time_noise_var;                          
     ros::NodeHandle n_;
     ros::Publisher pub_d;
+    ros::Subscriber sub_IMU;
+    ros::Subscriber sub_GPS;
     int countIMU = -1;
     int countGPS = -1;
 
@@ -40,7 +43,22 @@ class Kalman_fusion{
         Q.setIdentity();
         RIMU.setIdentity();
         RGPS.setIdentity();
-        pub_d = n_.advertise<slam::Data>("filtered_data", 3);
+        sub_IMU = n_.subscribe("/imu",1,&Kalman_fusion<>::IMUCallback,this);
+        sub_GPS = n_.subscribe("/gps",1,&Kalman_fusion<>::GPSCallback,this);
+        pub_d = n_.advertise<slam::Data>("filtered_data", 100);
+        double initial_state_error_var, initial_a_process_noise_var, initial_omega_process_noise_var, initial_imu_observation_noise_var, initial_gps_observation_noise_var;
+        ros::param::get("/initial_state_error_var", initial_state_error_var);
+        ros::param::get("/initial_a_process_noise_var", initial_a_process_noise_var);
+        ros::param::get("/initial_omega_process_noise_var", initial_omega_process_noise_var);
+        ros::param::get("/initial_imu_observation_noise_var", initial_imu_observation_noise_var);
+        ros::param::get("/initial_gps_observation_noise_var", initial_gps_observation_noise_var);
+        ros::param::get("/time_noise_var", time_noise_var);
+        P *= initial_state_error_var * initial_state_error_var;
+        Q(0,0) *= initial_a_process_noise_var * initial_a_process_noise_var;
+        Q(1,1) *= initial_a_process_noise_var * initial_a_process_noise_var;
+        Q(2,2) *= initial_omega_process_noise_var * initial_omega_process_noise_var;
+        RIMU *= initial_imu_observation_noise_var * initial_imu_observation_noise_var;
+        RGPS *= initial_gps_observation_noise_var * initial_gps_observation_noise_var;
     }
 
     void IMUCallback(const slam::Imu& msg){
@@ -109,11 +127,10 @@ class Kalman_fusion{
         // w ~ N(0,Q)
         double dt = (t-this->t).toSec();
         this->t=t;
-        double dte=0.005;
         Matrix<double,_ST,_ST> F;
         F << 1,0,dt,0,0 , 0,1,0,dt,0 , 0,0,1,0,0 , 0,0,0,1,0 , 0,0,0,0,1;
         Matrix<double,_ST,_Q> B;
-        B << 0.5*(abs(dt)+dte)*(abs(dt)+dte),0,0 , 0,0.5*(abs(dt)+dte)*(abs(dt)+dte),0 , abs(dt)+dte,0,0 , 0,abs(dt)+dte,0 , 0,0,abs(dt)+dte;
+        B << 0.5*(abs(dt)+time_noise_var)*(abs(dt)+time_noise_var),0,0 , 0,0.5*(abs(dt)+time_noise_var)*(abs(dt)+time_noise_var),0 , abs(dt)+time_noise_var,0,0 , 0,abs(dt)+time_noise_var,0 , 0,0,abs(dt)+time_noise_var;
         double th = st(4);
         st = F*st;
         F(0,4)= 0.5*dt*dt*(-sin(th)*u(0) -cos(th)*u(1));
@@ -148,23 +165,7 @@ class Kalman_fusion{
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "kalman_controller");
-    ros::NodeHandle n;
-
-    double initial_state_error_cov, initial_process_noise_cov, initial_imu_observation_noise_cov, initial_gps_observation_noise_cov;
-
-    ros::param::get("/initial_state_error_cov", initial_state_error_cov);
-    ros::param::get("/initial_process_noise_cov", initial_process_noise_cov);
-    ros::param::get("/initial_imu_observation_noise_cov", initial_imu_observation_noise_cov);
-    ros::param::get("/initial_gps_observation_noise_cov", initial_gps_observation_noise_cov);
-
     Kalman_fusion<> kf;
-    kf.P *= initial_state_error_cov * initial_state_error_cov;
-    kf.Q *= initial_process_noise_cov * initial_process_noise_cov;
-    kf.RIMU *= initial_imu_observation_noise_cov * initial_imu_observation_noise_cov;
-    kf.RGPS *= initial_gps_observation_noise_cov * initial_gps_observation_noise_cov;
-    
-    ros::Subscriber subIMU = n.subscribe("/imu",1,&Kalman_fusion<>::IMUCallback,&kf);
-    ros::Subscriber subGPS = n.subscribe("/gps",1,&Kalman_fusion<>::GPSCallback,&kf);
     ros::spin();
     return 0;
 }
