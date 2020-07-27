@@ -12,8 +12,5 @@ threshold2: 50.0
 radius: 30.0
 stepsize_rrt: 1.0
 # path_planner_node
-start_point_x: 100.0 
-start_point_y: 0.0
-goal_point_x: 100.0
-goal_point_y: 199.0
 stepsize_pp: 5.0
+isTrackDriving: True
