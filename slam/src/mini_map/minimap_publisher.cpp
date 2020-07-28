@@ -16,7 +16,7 @@ class map_tracer{
 
 	public:
 		//set the right path for your map
-		cv::Mat glob_map = cv::imread("/home/Parallels/catkin_ws/src/slam/src/mapping/map.png");
+		cv::Mat glob_map = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png");
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);
@@ -24,17 +24,17 @@ class map_tracer{
 		}
 
 		int prev_pixel_x{}, prev_pixel_y{};
-		int count{0}, check{0};
+		int count{0};
 
 		void callback(const slam::Data data){
 			int inst_pixel_x, inst_pixel_y;
-			int copy_pixel_x{}, copy_pixel_y{};
-                        
+                        int check{0};
+
 			XYToPixel(glob_map, data.x, data.y, inst_pixel_x, inst_pixel_y, 2);
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
 
-			if(count == 0){
+			if(count == 0 && (inst_pixel_x >= 0) && (inst_pixel_y >= 0)){
                                 prev_pixel_x = inst_pixel_x;
                                 prev_pixel_y = inst_pixel_y;
                                 std::cout << "initial pose" << std::endl;
@@ -47,20 +47,19 @@ class map_tracer{
                                 check = 1;
                         }
                         if(check==1){
-				cv::circle(glob_map, cv::Point(inst_pixel_y, inst_pixel_x), 2, cv::Scalar(255,0,0), -1);
+				cv::circle(glob_map, cv::Point(inst_pixel_x, inst_pixel_y), 2, cv::Scalar(255,0,0), -1);
 				std::cout << "pixel filled" << std::endl;
                                 count++;
                         }
-			
+		 	int copy_pixel_y{inst_pixel_y-500}, copy_pixel_x{inst_pixel_x-500};	
 			if(!x_500 && !y_500 && !x_14500 && !y_14500){
 				std::cout << "on map" << std::endl;
 				for(int i=0; i<1000; i++){
-					copy_pixel_y = inst_pixel_y - 500 + i;
+					copy_pixel_y++;
+					int copy_pixel_x{inst_pixel_x-500};
 					for(int j=0; j<1000; j++){
-						copy_pixel_x = inst_pixel_x - 500 + j;
-						mini_map.at<cv::Vec3b>(i, j)[0] = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y)[0];
-						mini_map.at<cv::Vec3b>(i, j)[1] = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y)[1];
-						mini_map.at<cv::Vec3b>(i, j)[2] = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y)[2];
+						copy_pixel_x++;
+						mini_map.at<cv::Vec3b>(j, i) = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y);
 					}
 				}
 				cv::circle(mini_map, cv::Point(500,500), 3, cv::Scalar(0,255,0), -1);
@@ -68,9 +67,7 @@ class map_tracer{
                         	sensor_msgs::Image img_msg;
                         	std_msgs::Header header;
                         	img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, mini_map);
-                        	printf("image converting\n");
                        		img_bridge.toImageMsg(img_msg);
-                        	printf("image converted!\n");
                         	pub.publish(img_msg);
 			}
 		}
