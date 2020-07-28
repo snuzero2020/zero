@@ -83,8 +83,13 @@ add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYT
 target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(globpath_generator slam_generate_messages_cpp)
 
+add_executable(object_detector src/clustering/object_detector.cpp)
+target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(object_detector slam_generate_messages_cpp)
+
+
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
-  src/clustering/clustering.py
+  src/clustering/clustering.py src/clustering/object_visualizer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
