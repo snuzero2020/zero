@@ -98,6 +98,10 @@ class Map_Marker{
 };
 
 int main(int argc, char** argv) {
+    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
+        ros::console::notifyLoggerLevelsChanged();
+    }
+
     ros::init(argc, argv, "map_marker");
     Map_Marker map_marker;
     while (ros::ok()){

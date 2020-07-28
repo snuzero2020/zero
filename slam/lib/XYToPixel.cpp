@@ -17,7 +17,7 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
     pixel_x = static_cast<int>((x - ref_x) / coefficient) + ref_pixel_x;
     pixel_y = static_cast<int>(-(y - ref_y) / coefficient) + ref_pixel_y;
 
-    ROS_DEBUG_STREAM(x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", ");
+    ROS_DEBUG_STREAM(std::setprecision(3) << std::fixed << "XYToPixel: before bounding - (" << x << ", " << y << ") -> (" << pixel_x << ", " << pixel_y << ")");
 
     //limit the position of the car into the image
 
@@ -26,12 +26,15 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
     if (pixel_y < 10.5 / coefficient) {pixel_y = static_cast<int>(10.5 / coefficient) + 1;}
     if (pixel_y > img.rows - 10.5 / coefficient) {pixel_y = img.rows - static_cast<int>(10.5 / coefficient) - 1;}
 
-    ROS_DEBUG_STREAM(x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", ");
+    ROS_DEBUG_STREAM(std::setprecision(3) << std::fixed << "XYToPixel: after bounding - (" << x << ", " << y << ") -> (" << pixel_x << ", " << pixel_y << ")");
+
+    ROS_DEBUG("--------------------------------------");
 
     return 0;
 }
 
 int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place) {
+    ROS_DEBUG("--------------------------------------");
     if (place == KCity) {
         ROS_DEBUG("XYToPixel: The place is 'K-City'");
         XYToPixel_internal(img, x, y, pixel_x, pixel_y, 302536.722, 4124121.856, 4090, 4127, 0.1578331);
