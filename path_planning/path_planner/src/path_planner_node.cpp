@@ -1,4 +1,5 @@
 #include "rrt_star.h"
+#include "defs.h"
 #include <vector>
 #include <ctime>
 #include <cmath>
