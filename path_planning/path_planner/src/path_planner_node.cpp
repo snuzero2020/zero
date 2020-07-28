@@ -177,13 +177,13 @@ public:
 				if(time_parking_complished == 0) ++time_parking_complished;
 			}
 			//////////////////////////////////////////////////////////////////////
-			// already  stop but available path occur (because of localization error)
-			else if( time_parking_complished != 0 && (clock() - time_parking_complished)/CLOCKS_PER_SEC <= 20) {
+			// already stop but available path occur then stop  (because of localization error)
+			else if(time_parking_complished != 0){
 				y.x = 0; y.y = 0;
-			}
-			else if( time_parking_complished != 0 && (clock() - time_parking_complished)/CLOCKS_PER_SEC > 20 ) {
-				gear_state = 1;
-				time_parking_complished = 0;
+				if((clock() - time_parking_complished)/CLOCKS_PER_SEC > 20){
+					gear_state = 1;
+					time_parking_complished = 0;
+				} 
 			}
 			else if(unparking_complished_changed){
 				gear_state = 0;
