@@ -1,0 +1,5 @@
+<launch>
+  <node name="lidar_decoder" pkg="slam" type="lidar_decoder.py" />
+  <node name="object_detector" pkg="slam" type="object_detector" />
+  <node name="object_visualizer" pkg="slam" type="object_visualizer.py"/>
+</launch>

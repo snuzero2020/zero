@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<launch>
+    <node name="velocity_from_keyop" pkg="localization" type="velocity_from_keyop" />
+    <node name="motor_angle" pkg="localization" type="motor_angle" />
+    <node name="global_velocity" pkg="localization" type="global_velocity" />
+    <node name="car_position" pkg="localization" type="car_position" />
+    <node name="depth_camera_position" pkg="localization" type="depth_camera_position" />
+    <node name="show_car_position" pkg="localization" type="show_car_position" />
+</launch>

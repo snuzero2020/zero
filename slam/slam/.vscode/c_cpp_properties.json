@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/junseolee/catkin_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/junseolee/catkin_ws/src/zero/computer_vision/lane_detection_CostMap/include/**",
+                "/home/junseolee/catkin_ws/src/map_deform/include/**",
+                "/home/junseolee/catkin_ws/src/package_name/include/**",
+                "/home/junseolee/catkin_ws/src/zero/path_planning/path_planner/include/**",
+                "/home/junseolee/catkin_ws/src/point_cloud/include/**",
+                "/home/junseolee/catkin_ws/src/realsense-ros/realsense2_camera/include/**",
+                "/home/junseolee/catkin_ws/src/slam/include/**",
+                "/home/junseolee/catkin_ws/src/zero/path_planning/tracker/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}
