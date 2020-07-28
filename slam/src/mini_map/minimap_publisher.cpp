@@ -29,9 +29,10 @@ class map_tracer{
 		void callback(const slam::Data data){
 			int inst_pixel_x, inst_pixel_y;
 			int copy_pixel_x{}, copy_pixel_y{};
-			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
                         
 			XYToPixel(glob_map, data.x, data.y, inst_pixel_x, inst_pixel_y, 2);
+			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
+			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
 
 			if(count == 0){
                                 prev_pixel_x = inst_pixel_x;
@@ -46,13 +47,13 @@ class map_tracer{
                                 check = 1;
                         }
                         if(check==1){
-
-                                glob_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[1] = 0;
-                                std::cout << "pixel filled" << std::endl;
+				cv::circle(glob_map, cv::Point(inst_pixel_y, inst_pixel_x), 2, cv::Scalar(255,0,0), -1);
+				std::cout << "pixel filled" << std::endl;
                                 count++;
                         }
 			
 			if(!x_500 && !y_500 && !x_14500 && !y_14500){
+				std::cout << "on map" << std::endl;
 				for(int i=0; i<1000; i++){
 					copy_pixel_y = inst_pixel_y - 500 + i;
 					for(int j=0; j<1000; j++){

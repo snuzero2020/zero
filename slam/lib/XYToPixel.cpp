@@ -22,14 +22,14 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
 
 
     //limit the position of the car into the image
-
+/*
     if (pixel_x < 14.5 / coefficient) {pixel_x = static_cast<int>(14.5 / coefficient) + 1;} // 10 * sqrt2 m
     if (pixel_x > img.cols - 14.5 / coefficient) {pixel_x = img.cols - static_cast<int>(14.5 / coefficient) - 1;}
     if (pixel_y < 14.5 / coefficient) {pixel_y = static_cast<int>(14.5 / coefficient) + 1;}
     if (pixel_y > img.rows - 14.5 / coefficient) {pixel_y = img.rows - static_cast<int>(14.5 / coefficient) - 1;}
 
     std::cout << x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", " << std::endl;
-
+*/
     return 0;
 }
 
