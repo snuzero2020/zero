@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "ros/console.h"
 #include "slam/Gps.h"
 #include "slam/Data.h"
 #include "slam/Imu.h"
@@ -17,15 +18,16 @@ class Map_Marker{
     public:
     Map_Marker(){
         sub_gps = n_.subscribe("/gps", 10000, &Map_Marker::callback_gps, this);
-        sub_filtered = n_.subscribe("/filtered_data", 10000, &Map_Marker::callback_filtered, this);
-        sub_imu = n_.subscribe("/imu", 10000, &Map_Marker::callback_imu, this);
+        //sub_filtered = n_.subscribe("/filtered_data", 10000, &Map_Marker::callback_filtered, this);
+        //sub_imu = n_.subscribe("/imu", 10000, &Map_Marker::callback_imu, this);
         path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
         img = cv::imread(path_stream.str(), 1);
         ROS_INFO("Image loaded");
     }
 
     void callback_gps(const slam::Gps::ConstPtr& msg){
-	    int pixel_x, pixel_y;    
+	    int pixel_x, pixel_y;
+
         XYToPixel(img, msg->x, msg->y, pixel_x, pixel_y, 2);
         if (n != 1) {
             //cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 3);
@@ -40,12 +42,14 @@ class Map_Marker{
         saved = false;
         prev_pixel_x = pixel_x;
         prev_pixel_y = pixel_y;
+
+        ROS_DEBUG_STREAM("gps_marker: GPS: position(" << msg->x << ", " << msg->y << ") -> position(" << pixel_x << ", " << pixel_y << ")");
         n++;
     }
 
     void callback_filtered(const slam::Data::ConstPtr& msg){
 	    int pixel_x, pixel_y;
-        
+
         XYToPixel(img, msg->x, msg->y, filtered_pixel_x, filtered_pixel_y, 2);
         XYToPixel(img, REF_X, REF_Y, pixel_x, pixel_y, 2);
         XYToPixel(img, REF_X+msg->vx, REF_Y+msg->vy, filtered_pixel_vx, filtered_pixel_vy, 2);
@@ -54,14 +58,20 @@ class Map_Marker{
         XYToPixel(img, REF_X+2*cos(msg->theta), REF_Y+2*sin(msg->theta), filtered_pixel_thx, filtered_pixel_thy, 2);
         filtered_pixel_thx -= pixel_x;
         filtered_pixel_thy -= pixel_y;
+
+        ROS_DEBUG_STREAM("gps_marker: Kalman-filter: (" << msg->x << ", " << msg->y << ") -> position(" << pixel_x << ", " << pixel_y << \
+        "), velocity(" << filtered_pixel_vx << ", " << filtered_pixel_vy << "), theta(" << filtered_pixel_thx << ", " << filtered_pixel_thy << ")");
     }
 
     void callback_imu(const slam::Imu::ConstPtr& msg){
 	    int pixel_x, pixel_y;
+
         XYToPixel(img, REF_X, REF_Y, pixel_x, pixel_y, 2);
         XYToPixel(img, REF_X+2*cos(msg->theta), REF_Y+2*sin(msg->theta), mag_pixel_thx, mag_pixel_thy, 2);
         mag_pixel_thx -= pixel_x;
         mag_pixel_thy -= pixel_y;
+
+        ROS_DEBUG_STREAM("gps_marker: IMU: theta(" << msg->theta << ") -> position(" << pixel_x << ", " << pixel_y << ")");
     }
 
     void save_if_end(){

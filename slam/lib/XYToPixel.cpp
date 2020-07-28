@@ -28,13 +28,13 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
 
     ROS_DEBUG_STREAM(std::setprecision(3) << std::fixed << "XYToPixel: after bounding - (" << x << ", " << y << ") -> (" << pixel_x << ", " << pixel_y << ")");
 
-    ROS_DEBUG("--------------------------------------");
+    ROS_DEBUG("XYToPixel: End--------------------------------------");
 
     return 0;
 }
 
 int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place) {
-    ROS_DEBUG("--------------------------------------");
+    ROS_DEBUG("XYToPixel: Start--------------------------------------");
     if (place == KCity) {
         ROS_DEBUG("XYToPixel: The place is 'K-City'");
         XYToPixel_internal(img, x, y, pixel_x, pixel_y, 302536.722, 4124121.856, 4090, 4127, 0.1578331);
