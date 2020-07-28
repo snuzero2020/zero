@@ -123,12 +123,20 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	// get value index which is closest to look_ahead_radius (except sub path), get value_sub for sub path
 	double value = -1, value_sub = -1;
 	double key = 100000, key_sub = 100000;
+
+	////// if obstacle sudden, check nearest obstacle 
+	int nearest_obs_seq = 1000000;
+
+
 	int sz = goals.size();
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 
+		int pose_flag = poseStamped.header.seq & 0xF;
+		int pose_seq = poseStamped.header.seq>>4;
+
 		// check flag
-		if(!flag[poseStamped.header.seq]) continue;
+		if(!flag[pose_flag]) continue;
 
 		double goal_angle = poseStamped.pose.orientation.z;
 		double ang_diff = angle - goal_angle;
@@ -145,30 +153,19 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(ang_diff < M_PI/2) continue;
 		}
 		
-		// check if on path
 		double dx = poseStamped.pose.orientation.x;
 		double dy = poseStamped.pose.orientation.y;
-//		/////////////////////////////////////////////////
-//		if(motion != PARKING_MOTION){
-//			if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
-//		}
-//		else
-//		{
-//			if(!parking_complished){
-//				if((dx - x) * cos(angle) + (dy-y) * sin(angle) <= 0) continue;
-//			}
-//			else
-//				if((dx - x) * cos(angle+M_PI) + (dy-y) * sin(angle+M_PI) <= 0) continue;
-//		}
-//		/////////////////////////////////////////////////
 
 		// check obstacle
-		if(costmap[(int)dx][(int)dy] >= OBSTACLE) continue;
+		if(costmap[(int)dx][(int)dy] >= OBSTACLE) {
+			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
+			continue;
+		}
 
 		double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
 
 		// not sub path
-		if(flag[poseStamped.header.seq]!=1){
+		if(flag[pose_flag]!=1){
 			if(abs(dist - look_ahead_radius) > key) continue;
 			key = abs(dist - look_ahead_radius);
 			value = i;
@@ -179,6 +176,50 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(abs(dist - look_ahead_radius) > key_sub) continue;
 			key_sub = abs(dist - look_ahead_radius);
 			value_sub = i;
+		}
+	}
+
+	if(task == OBSTACLE_SUDDEN){
+		value = -1;
+		value_sub = -1;
+		for(int i = 0; i<sz; i++){
+			geometry_msgs::PoseStamped poseStamped = goals[i];		
+
+			int pose_flag = poseStamped.header.seq & 0xF;
+			int pose_seq = poseStamped.header.seq>>4;
+
+			// check flag
+			if(!flag[pose_flag]) continue;
+
+			double goal_angle = poseStamped.pose.orientation.z;
+			double ang_diff = angle - goal_angle;
+			ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
+		
+			// check if same dir
+			if(ang_diff > M_PI/2) continue;
+		
+			double dx = poseStamped.pose.orientation.x;
+			double dy = poseStamped.pose.orientation.y;
+
+			// check obstacle
+			if(costmap[(int)dx][(int)dy] >= OBSTACLE) continue;
+			if(pose_seq >= nearest_obs_seq) continue;
+
+			double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
+
+			// not sub path
+			if(flag[pose_flag]!=1){
+				if(abs(dist - look_ahead_radius) > key) continue;
+				key = abs(dist - look_ahead_radius);
+				value = i;
+			}
+	
+			// sub path
+			else{
+				if(abs(dist - look_ahead_radius) > key_sub) continue;
+				key_sub = abs(dist - look_ahead_radius);
+				value_sub = i;
+			}
 		}
 	}
 
