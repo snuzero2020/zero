@@ -1,8 +1,0 @@
-<launch>
-  <node name="gps_subscriber_node" pkg="slam" type="gps_subscriber_node"/>
-  <?ignore
-    <node name="Map_Cutter" pkg="slam" type="map_cutter"/>
-  ?>
-  <rosparam file="$(find slam)/slam_para.yaml" />
-</launch>
-

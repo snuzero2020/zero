@@ -91,6 +91,13 @@ add_executable(object_detector src/clustering/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(object_detector slam_generate_messages_cpp)
 
+add_executable(lidar_pose_estimator src/clustering/lidar_pose_estimator.cpp)
+target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
+
+add_executable(obstacle_image src/clustering/obstacle_image.cpp)
+target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(obstacle_image slam_generate_messages_cpp)
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
