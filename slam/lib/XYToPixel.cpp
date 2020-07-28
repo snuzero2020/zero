@@ -19,14 +19,12 @@ int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel
 
     ROS_DEBUG_STREAM(x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", ");
 
-
-
     //limit the position of the car into the image
 
-    if (pixel_x < 14.5 / coefficient) {pixel_x = static_cast<int>(14.5 / coefficient) + 1;} // 10 * sqrt2 m
-    if (pixel_x > img.cols - 14.5 / coefficient) {pixel_x = img.cols - static_cast<int>(14.5 / coefficient) - 1;}
-    if (pixel_y < 14.5 / coefficient) {pixel_y = static_cast<int>(14.5 / coefficient) + 1;}
-    if (pixel_y > img.rows - 14.5 / coefficient) {pixel_y = img.rows - static_cast<int>(14.5 / coefficient) - 1;}
+    if (pixel_x < 10.5 / coefficient) {pixel_x = static_cast<int>(10.5 / coefficient) + 1;} // 4.5 * sqrt(5) m
+    if (pixel_x > img.cols - 10.5 / coefficient) {pixel_x = img.cols - static_cast<int>(10.5 / coefficient) - 1;}
+    if (pixel_y < 10.5 / coefficient) {pixel_y = static_cast<int>(10.5 / coefficient) + 1;}
+    if (pixel_y > img.rows - 10.5 / coefficient) {pixel_y = img.rows - static_cast<int>(10.5 / coefficient) - 1;}
 
     ROS_DEBUG_STREAM(x << ", " << y << ", " << pixel_x << ", " << pixel_y << ", ");
 

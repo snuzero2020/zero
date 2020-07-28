@@ -173,6 +173,13 @@ public:
 			
 			if(parking_complished_changed){
 				time_parking_complished = clock();
+				// if  accidently clock() == 0
+				if(time_parking_complished == 0) ++time_parking_complished;
+			}
+			//////////////////////////////////////////////////////////////////////
+			// already  stop but available path occur (because of localization error)
+			else if( time_parking_complished != 0 && (clock() - time_parking_complished)/CLOCKS_PER_SEC <= 20) {
+				y.x = 0; y.y = 0;
 			}
 			else if( time_parking_complished != 0 && (clock() - time_parking_complished)/CLOCKS_PER_SEC > 20 ) {
 				gear_state = 1;
