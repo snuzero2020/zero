@@ -50,7 +50,10 @@ enum sector
     B,
     C,
     D,
-    E
+    E,
+
+// for sector_pass_checker's first check, (it is not real sector)
+    X
 };
 
 class Checker
@@ -58,8 +61,10 @@ class Checker
     public:
         vector<int> state_list;
         vector<bool> check_list;
-		int size;
+	int size;
 		
+	Checker(){Checker(0);}
+
         Checker(int _size)
         :check_list(vector<bool>(_size,false)), state_list(vector<int>(_size,0)), size(_size) {}
 
@@ -68,16 +73,16 @@ class Checker
 			int idx=0;
 			for(bool check : check_list){
 				if(check) ++idx;
-				else break;
+				else return state_list[idx];
 			}
-			return state_list[idx];
+			return -1;
 		}
 
 		void check_prior_task(){
 			for(int i = 0; i<size; i++){
 				if(check_list[i]) continue;
 				else{
-					check_list[i] = false;
+					check_list[i] = true;
 					break;
 				}
 			}
