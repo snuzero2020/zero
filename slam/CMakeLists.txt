@@ -91,6 +91,11 @@ add_executable(object_detector src/clustering/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(object_detector slam_generate_messages_cpp)
 
+#add executable for local_costmap_publisher
+add_executable(local_costmap_publisher src/mapping/local_costmap_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
+
 add_executable(lidar_pose_estimator src/clustering/lidar_pose_estimator.cpp)
 target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
