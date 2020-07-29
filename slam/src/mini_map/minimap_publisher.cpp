@@ -4,7 +4,7 @@
 #include <vector>
 #include <cv_bridge/cv_bridge.h>
 #include "XYToPixel.h"
-#include <slam/Data.h>
+#include <slam/Pixel.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 
@@ -16,21 +16,21 @@ class map_tracer{
 
 	public:
 		//set the right path for your map
-		cv::Mat glob_map = cv::imread("/home/Parallels/catkin_ws/src/slam/src/mapping/map.png");
+		cv::Mat glob_map = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/map.png");
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);
-			sub = nh.subscribe("/filtered_data", 1000, &map_tracer::callback, this);
+			sub = nh.subscribe("/position/pixel", 1000, &map_tracer::callback, this);
 		}
 
 		int prev_pixel_x{}, prev_pixel_y{};
 		int count{0}, check{0};
 
-		void callback(const slam::Data data){
+		void callback(const slam::Pixel data){
 			int inst_pixel_x, inst_pixel_y;
 			int copy_pixel_x{}, copy_pixel_y{};
-                        
-			XYToPixel(glob_map, data.x, data.y, inst_pixel_x, inst_pixel_y, 2);
+                        inst_pixel_x = data.x;
+		        inst_pixel_y = data.y;	
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
 
@@ -47,7 +47,7 @@ class map_tracer{
                                 check = 1;
                         }
                         if(check==1){
-				cv::circle(glob_map, cv::Point(inst_pixel_y, inst_pixel_x), 2, cv::Scalar(255,0,0), -1);
+				cv::circle(glob_map, cv::Point(inst_pixel_x, inst_pixel_y), 2, cv::Scalar(255,0,0), -1);
 				std::cout << "pixel filled" << std::endl;
                                 count++;
                         }
@@ -58,9 +58,9 @@ class map_tracer{
 					copy_pixel_y = inst_pixel_y - 500 + i;
 					for(int j=0; j<1000; j++){
 						copy_pixel_x = inst_pixel_x - 500 + j;
-						mini_map.at<cv::Vec3b>(i, j)[0] = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y)[0];
-						mini_map.at<cv::Vec3b>(i, j)[1] = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y)[1];
-						mini_map.at<cv::Vec3b>(i, j)[2] = glob_map.at<cv::Vec3b>(copy_pixel_x, copy_pixel_y)[2];
+						mini_map.at<cv::Vec3b>(i, j)[0] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[0];
+						mini_map.at<cv::Vec3b>(i, j)[1] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[1];
+						mini_map.at<cv::Vec3b>(i, j)[2] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[2];
 					}
 				}
 				cv::circle(mini_map, cv::Point(500,500), 3, cv::Scalar(0,255,0), -1);
