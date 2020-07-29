@@ -105,6 +105,7 @@ add_dependencies(gps_collector slam_generate_messages_cpp)
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
+  src/mapping/transform_finder.py
   src/clustering/clustering.py src/clustering/object_visualizer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
