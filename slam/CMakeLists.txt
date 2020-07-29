@@ -60,7 +60,10 @@ add_dependencies(Map_Cutter slam_generate_messages_cpp)
 add_executable(map_cost_spreader src/mapping/map_cost_spreader.cpp)
 target_link_libraries(map_cost_spreader ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
-#add_executable for clustering
+#add_executable for local costmap publishing
+add_executable(local_costmap_publisher src/mapping/local_costmap_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
 
 #add_executable for localmap publishing
 add_executable(Localmap_Publisher src/localmap_pubnode/localmap_publisher.cpp src/mapping/MapCutter.cpp lib/XYToPixel.cpp)

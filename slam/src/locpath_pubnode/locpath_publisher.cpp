@@ -26,7 +26,7 @@ class Local_path{
 		
 		//cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
 		//set path to the saved global path image
-		cv::Mat glob_path = cv::imread("glob_path.png");
+		cv::Mat glob_path = cv::imread("/home/parallels/data/glob_path.png");
 
 		void callback(const slam::Data data){
 			geometry_msgs::PoseStamped loc_pose;
