@@ -22,7 +22,6 @@ class GPS_Collector{
         count_ ++;
         data_x_.push_back(msg->x);
         data_y_.push_back(msg->y);
-        ROS_INFO("%d", count_);
         
         if(count_ % 100 == 0){
             int n = count_ / 100;
