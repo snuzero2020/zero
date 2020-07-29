@@ -99,6 +99,10 @@ add_executable(obstacle_image src/clustering/obstacle_image.cpp)
 target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(obstacle_image slam_generate_messages_cpp)
 
+add_executable(gps_collector src/mapping/gps_collector.cpp)
+target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(gps_collector slam_generate_messages_cpp)
+
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
   src/clustering/clustering.py src/clustering/object_visualizer.py
