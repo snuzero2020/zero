@@ -23,7 +23,7 @@ find_package(OpenCV REQUIRED)
 add_message_files(
   DIRECTORY msg 
   FILES 
-  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg
+  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Pixel.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
 
@@ -102,6 +102,10 @@ add_dependencies(obstacle_image slam_generate_messages_cpp)
 add_executable(gps_collector src/mapping/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(gps_collector slam_generate_messages_cpp)
+
+add_executable(convert_XY_To_Pixel src/mapping/convert_XY_To_Pixel.cpp)
+target_link_libraries(convert_XY_To_Pixel ${catkin_LIBRARIES})
+add_dependencies(convert_XY_To_Pixel slam_generate_messages_cpp)
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
