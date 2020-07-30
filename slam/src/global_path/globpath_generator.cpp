@@ -53,13 +53,13 @@ class Global_path_gen{
 				global_path.poses.push_back(inst_pose);
 				
 				if(data.theta >= 0){	
-					path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[0] = int(data.theta*180/M_PI)/2;
+					path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[0] = int(data.theta*180/M_PI)/2;
 				}
 				else{
-					path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[0] = int(data.theta*180/M_PI+360)/2;
+					path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[0] = int(data.theta*180/M_PI+360)/2;
 				}
 
-				path_map.at<cv::Vec3b>(inst_pixel_x, inst_pixel_y)[1] = 0;
+				path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[1] = 0;
 
 				std::cout << "pixel filled" << std::endl;
 				if(count%10==0) {

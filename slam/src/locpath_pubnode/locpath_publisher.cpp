@@ -19,7 +19,7 @@ class Local_path{
 
 		//Constructor for local_path_publisher
 		Local_path(){
-			publisher = nh.advertise<nav_msgs::Path>("/local_path", 1000);
+			publisher = nh.advertise<nav_msgs::Path>("/globpath_nearby", 1000);
 			subscriber = nh.subscribe("/filtered_data", 1000, &Local_path::callback, this);
 		}
 		
