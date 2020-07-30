@@ -24,7 +24,7 @@ class map_tracer{
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
-			glob_map = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
+			glob_map = cv::imread(path_stream.str());
 			ROS_INFO("Image loaded");
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
 			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
