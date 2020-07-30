@@ -118,6 +118,12 @@ add_executable(convert_XY_To_Pixel src/mapping/convert_XY_To_Pixel.cpp)
 target_link_libraries(convert_XY_To_Pixel ${catkin_LIBRARIES})
 add_dependencies(convert_XY_To_Pixel slam_generate_messages_cpp)
 
+add_executable(sector_publisher src/mapping/sector_publisher.cpp)
+target_link_libraries(sector_publisher ${catkin_LIBRARIES})
+add_dependencies(sector_publisher slam_generate_messages_cpp)
+
+
+
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
   src/mapping/transform_finder.py

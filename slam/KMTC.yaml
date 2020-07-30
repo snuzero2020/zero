@@ -1,0 +1,8 @@
+# (pixel_x-ref_pixel_x) = a1*(x-ref_x) + b1*(y-ref_y)
+# (pixel_y-ref_pixel_y) = b1*(x-ref_x) + -a1*(y-ref_y)
+ref_x: 298437.1252245
+ref_y: 4137742.4117204
+ref_pixel_x: 8736.4
+ref_pixel_y: 6126.5
+a1: 33.3583829783383
+b1: -0.04376365650453

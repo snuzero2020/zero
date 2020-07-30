@@ -10,14 +10,22 @@
 #define FMTC 2
 
 #endif
-
+/*
 double a1 = 33.358382978338263;
 double b1 = -0.043763656504531664;
 double c1 = -9765560.7805824;
 double a2 = -0.043763656504529812;
 double b2 = -33.358382978338255;
 double c2 = 138047583.23571858;
-    
+*/
+
+double a1 = 33.349818513399164;
+double b1 = -0.041049840938207113;
+double c1 = -9774234.5960532594;
+double a2 = -0.041049840938208966;
+double b2 = -33.349818513399164;
+double c2 = 138011335.78259039;
+
 void XYToPixel(int& pixel_x, int& pixel_y, double x, double y) {
     pixel_x = int(a1*x+b1*y+c1);
     pixel_y = int(a2*x+b2*y+c2);

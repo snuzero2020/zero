@@ -3,7 +3,7 @@ P_gain: 0.2
 I_gain: 0.04
 D_gain: 0.0
 upper_radius: 160.0
-lower_radius: 80.0
+lower_radius: 50.0
 car_length: 105.0
 # rrt_star.h
 iternum: 1000
