@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
   CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs core_msgs slam
 )
 
