@@ -65,7 +65,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[5] = {3,2,2,2,1};
+		float recommend_vel_info[6] = {3,2,2,2,1,3};
 
 		RosNode(){
 			light_state_sub = n.subscribe("light_state", 50, &RosNode::lightstateCallback, this);
@@ -84,16 +84,17 @@ class RosNode{
 
 			checker_container.resize(6, Checker());
 
-			checker_container[0] = Checker(A_task.size());
-			checker_container[0].state_list = A_task;
-			checker_container[1] = Checker(B_task.size());
-			checker_container[1].state_list = B_task;
-			checker_container[2] = Checker(C_task.size());
-			checker_container[2].state_list = C_task;
-			checker_container[3] = Checker(D_task.size());
-			checker_container[3].state_list = D_task;
-			checker_container[4] = Checker(E_task.size());
-			checker_container[4].state_list = E_task;
+//////////////////////////////////////////
+			checker_container[A] = Checker(A_task.size());
+			checker_container[A].state_list = A_task;
+			checker_container[B] = Checker(B_task.size());
+			checker_container[B].state_list = B_task;
+			checker_container[C] = Checker(C_task.size());
+			checker_container[C].state_list = C_task;
+			checker_container[D] = Checker(D_task.size());
+			checker_container[D].state_list = D_task;
+			checker_container[E] = Checker(E_task.size());
+			checker_container[E].state_list = E_task;
 
 			vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
 			sector_pass_checker = Checker(sector_order.size());
@@ -112,7 +113,8 @@ class RosNode{
 		void sectorInfoCallback(const std_msgs::UInt32 & msg){
 
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
-			float recommend_vel = recommend_vel_info[msg.data];
+///////////////////////////////////////
+			float recommend_vel = recommend_vel_info[sector_pass_checker.get_present_task()];
 
 			int motion_state;
 			motion_state_determiner(motion_state,task_state,light_state);
@@ -140,12 +142,12 @@ class RosNode{
 					break;
 			}
 
-			swtich(task){
+			switch(task){
 				case DRIVING_SECTION : ROS_INFO("task : DRIVING_SECTION");
 					break;
 				case INTERSECTION_STRAIGHT : ROS_INFO("task : INTERSECTION_STRAIGHT");
 					break;
-I				case INTERSECTION_LEFT : ROS_INFO("task : INTERSECTION_LEFT");
+				case INTERSECTION_LEFT : ROS_INFO("task : INTERSECTION_LEFT");
 					break;
 				case INTERSECTION_RIGHT : ROS_INFO("task : INTERSECTION_RIGHT");
 					break;

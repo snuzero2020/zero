@@ -58,6 +58,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	const double angle{0};
 	const int x{0};
 	const int y{0};
+
+	// flag info : main(0), sub (1, = other lane), left(2), right(3), halt(4), parking(5~10)
 	bool flag[12];
 	for(int i = 0;i<5;i++) flag[i] = false;
 	switch(motion){
@@ -125,10 +127,13 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	double value = -1, value_sub = -1;
 	double key = 100000, key_sub = 100000;
 
-	////// if obstacle sudden, check nearest obstacle 
+
+	////// in case obstacle sudden, slam team must give sequence of path so that
+	////// we can know where obstacle is, and determine goal
+	////// by checking nearest(smallest) sequence index of obstacle 
 	int nearest_obs_seq = 1000000;
 
-
+	// assign appropriate index which is closest to look_ahead_radius 
 	int sz = goals.size();
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
@@ -150,7 +155,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		else if(!parking_complished){
 			if(ang_diff > M_PI/2) continue;
 		}
-		else{
+		else{ // rear motion
 			if(ang_diff < M_PI/2) continue;
 		}
 		
@@ -180,6 +185,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 	}
 
+	// if obstacle sudden, choose goal which is farthest and closer than obstacle
 	if(task == OBSTACLE_SUDDEN){
 		value = -1;
 		value_sub = -1;
@@ -204,6 +210,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 			// check obstacle
 			if(costmap[(int)dx][(int)dy] >= OBSTACLE) continue;
+
+			// check closer than obstacle
 			if(pose_seq >= nearest_obs_seq) continue;
 
 			double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
@@ -224,17 +232,21 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 	}
 
+	// if we find goal, return
 	if(value != -1){
 		double gx = goals[value].pose.orientation.x;
 		double gy = goals[value].pose.orientation.y;
 		return Cor(gx,gy);
 	}
 
-
+	
 	if(task == OBSTACLE_STATIC){
+		// can't find goal (main and sub), just go straight
 		if(value_sub == -1) {
 			return Cor(0,1);		
 		}
+
+		// else return sub path
 		double gx = goals[value_sub].pose.orientation.x;
 		double gy = goals[value_sub].pose.orientation.y;
 		return Cor(gx,gy);
@@ -242,14 +254,18 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	else if(task == OBSTACLE_SUDDEN){
 		return Cor(0,0); 
 	}
+
 	/////////////////////////////////////////
+	// we check whether parking or unparking complished by no goal available
 	// when parking complished or unparking complished stop!
 	else if(motion==PARKING_MOTION){
+		// parking complished
 		if(parking_complished==false){
 			parking_complished = true;
 			parking_complished_changed = true;
 			return Cor(0,0);
 		}
+		// unparking complished
 		else{
 			unparking_complished = true;
 			unparking_complished_changed = true;
@@ -257,6 +273,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 	}
 	/////////////////////////////////////////
+	// please don't go into this condition
 	// when there is no goal available stop! ////////////////////////should be checked!!
 	else{
 		// stop!!!!
