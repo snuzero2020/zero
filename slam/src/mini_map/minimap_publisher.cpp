@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ros/ros.h>
+#include "ros/package.h"
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <cv_bridge/cv_bridge.h>
@@ -14,14 +15,19 @@ class map_tracer{
 		ros::NodeHandle nh;
 		ros::Publisher pub;
 		ros::Subscriber sub;
+		std::stringstream path_stream;
 
 	public:
 		//set the right path for your map
-		cv::Mat glob_map = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/map.png");
+		cv::Mat glob_map;
+		//cv::Mat glob_map = cv::imread("/home/junseolee/catkin_ws/src/zero/slam/src/mapping/map.png");
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
-			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);
-			sub = nh.subscribe("/filtered_data", 1000, &map_tracer::callback, this);
+			path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
+			glob_map = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
+			ROS_INFO("Image loaded");
+			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
+			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
 		}
 
 		int prev_pixel_x{}, prev_pixel_y{};

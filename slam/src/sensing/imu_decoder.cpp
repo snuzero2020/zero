@@ -36,10 +36,10 @@ class IMU_Decoder{
         pub_.publish(rt);
     }
 
-    void callback_mag(const geometry_msgs::Vector3Stamped::ConstPtr& msg){
-    //void callback_mag(const sensor_msgs::MagneticField::ConstPtr& msg){
-//	double theta_mag = std::atan2(msg->magnetic_field.y, msg->magnetic_field.x);
-        double theta_mag = std::atan2(msg->vector.y,msg->vector.x);
+    //void callback_mag(const geometry_msgs::Vector3Stamped::ConstPtr& msg){
+    void callback_mag(const sensor_msgs::MagneticField::ConstPtr& msg){
+        double theta_mag = std::atan2(msg->magnetic_field.y, msg->magnetic_field.x);
+        // double theta_mag = std::atan2(msg->vector.y,msg->vector.x);
         theta_ = M_PI/2 - (theta_mag + theta_diff_);
     }
 
