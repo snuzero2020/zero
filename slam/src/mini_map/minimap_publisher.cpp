@@ -16,7 +16,7 @@ class map_tracer{
 
 	public:
 		//set the right path for your map
-		cv::Mat glob_map = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/map.png");
+		cv::Mat glob_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/mapping/map.png");
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);

@@ -12,13 +12,13 @@ class sector_publisher{
         sector_publisher(){
             pub = nh.advertise<std_msgs::UInt32>("/sector_info", 1000);
             sub = nh.subscribe("/position/pixel", 1000, &sector_publisher::callback, this);
-            nBlue = 0; nGreen = 0; nRed = 0;
+          //  nBlue = 0; nGreen = 0; nRed = 0;
         }
 
         void callback(const slam::Pixel Data){
-         pixel_x = Data.x;
-         pixel_y = Data.y;
-         std::cout<<"Pixel information is loaded: "<<pixel_x<<", "<<pixel_y<<x_inRange<<y_inRange<<std::endl;
+         pixel_x = Data.y;
+         pixel_y = Data.x;
+         std::cout<<"Pixel information is loaded: "<<pixel_x<<", "<<pixel_y<<std::endl;
 
          if(x_inRange&&y_inRange){
              std::cout<<"on map"<<std::endl;
@@ -27,6 +27,8 @@ class sector_publisher{
              nGreen = color_map.at<cv::Vec3b>(pixel_x,pixel_y)[1];
              nRed = color_map.at<cv::Vec3b>(pixel_x,pixel_y)[2];
              
+	     std::cout<<nBlue<<" "<<nGreen<<" "<<nRed<<std::endl;
+
              //publish
              // in sector A ==> pub 0
              //           B ==> pub 1
