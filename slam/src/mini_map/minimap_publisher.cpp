@@ -17,7 +17,7 @@ class map_tracer{
 
 	public:
 		//set the right path for your map
-		cv::Mat glob_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/mapping/map.png");
+		cv::Mat glob_map = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/map.png");
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);
@@ -32,25 +32,26 @@ class map_tracer{
 			int copy_pixel_x{}, copy_pixel_y{};
                         //inst_pixel_x = data.x;
 		        //inst_pixel_y = data.y;
-			XYToPixel(inst_pixel_x,inst_pixel_y,data.x,data.y);	
+			XYToPixel(inst_pixel_x,inst_pixel_y,data.x,data.y);
+			std::cout<<inst_pixel_x << inst_pixel_y << std::endl;
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
 
 			if(count == 0){
                                 prev_pixel_x = inst_pixel_x;
                                 prev_pixel_y = inst_pixel_y;
-                                std::cout << "initial pose" << std::endl;
+                          //      std::cout << "initial pose" << std::endl;
                                 check = 1;
                         }
                         else if(((inst_pixel_x-prev_pixel_x)*(inst_pixel_x-prev_pixel_x)+(inst_pixel_y-prev_pixel_y)*(inst_pixel_y-prev_pixel_y))>80){
                                 prev_pixel_x = inst_pixel_x;
                                 prev_pixel_y = inst_pixel_y;
-                                std::cout << "pixel fixed" << std::endl;
+                            //    std::cout << "pixel fixed" << std::endl;
                                 check = 1;
                         }
                         if(check==1){
 				cv::circle(glob_map, cv::Point(inst_pixel_x, inst_pixel_y), 2, cv::Scalar(255,0,0), -1);
-				std::cout << "pixel filled" << std::endl;
+			//	std::cout << "pixel filled" << std::endl;
                                 count++;
                         }
 			
