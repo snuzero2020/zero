@@ -26,7 +26,7 @@ class Local_path{
 		
 		//cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
 		//set path to the saved global path image
-		cv::Mat glob_path = cv::imread("glob_path.png");
+		cv::Mat glob_path = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/locpath_pubnode/glob_path.png");
 
 		void callback(const slam::Data data){
 			geometry_msgs::PoseStamped loc_pose;
@@ -74,7 +74,7 @@ class Local_path{
 					//loc_pose.pose.position.y = 300-j/2;
 
 					if(bgr[1] == 0) {
-						loc_pose.pose.position.x = i/2;
+						loc_pose.pose.position.x =i/2;
 						loc_pose.pose.position.y = j/2;
 						if(bgr[0] == int(pix_heading*180/M_PI)/2) loc_pose.pose.position.z = 0;
 						else if(bgr[0] < int(pix_heading*180/M_PI)/2) loc_pose.pose.position.z = 180 - (int(pix_heading*180/M_PI)/2-bgr[0]);
@@ -88,8 +88,8 @@ class Local_path{
 				point_pixel_x = curr_pixel_x + j*head_coor_y;
 				point_pixel_y = curr_pixel_y - j*head_coor_x;
 				for(int i=1; i<300; i++){
-					point_pixel_x += -head_coor_x;
-					point_pixel_y += -head_coor_y;
+					point_pixel_x -= head_coor_x;
+					point_pixel_y -= head_coor_y;
 					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_y), int(point_pixel_x));
 					if(bgr[1] == 0){
 						loc_pose.pose.position.x = -i/2;

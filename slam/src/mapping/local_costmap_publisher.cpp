@@ -35,7 +35,7 @@ class Local_costmap_publisher{
 
                 //cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
 		//set path for own global costmap
-		cv::Mat glob_costmap = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/costmap.png", cv::IMREAD_GRAYSCALE);
+		cv::Mat glob_costmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/costmap.png", cv::IMREAD_GRAYSCALE);
 		//cv::Mat local_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
 		//const int channels = local_costmap.channels();
 
