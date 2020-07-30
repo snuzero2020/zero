@@ -5,6 +5,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include "XYToPixel.h"
 #include <slam/Pixel.h>
+#include <slam/Data.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 
@@ -20,17 +21,18 @@ class map_tracer{
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);
-			sub = nh.subscribe("/position/pixel", 1000, &map_tracer::callback, this);
+			sub = nh.subscribe("/filtered_data", 1000, &map_tracer::callback, this);
 		}
 
 		int prev_pixel_x{}, prev_pixel_y{};
 		int count{0}, check{0};
 
-		void callback(const slam::Pixel data){
+		void callback(const slam::Data data){
 			int inst_pixel_x, inst_pixel_y;
 			int copy_pixel_x{}, copy_pixel_y{};
-                        inst_pixel_x = data.x;
-		        inst_pixel_y = data.y;	
+                        //inst_pixel_x = data.x;
+		        //inst_pixel_y = data.y;
+			XYToPixel(inst_pixel_x,inst_pixel_y,data.x,data.y);	
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
 

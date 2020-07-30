@@ -19,7 +19,7 @@ class Local_path{
 
 		//Constructor for local_path_publisher
 		Local_path(){
-			publisher = nh.advertise<nav_msgs::Path>("/local_path", 1000);
+			publisher = nh.advertise<nav_msgs::Path>("/globpath_nearby", 1000);
 			subscriber = nh.subscribe("/filtered_data", 1000, &Local_path::callback, this);
 		}
 		
@@ -59,17 +59,17 @@ class Local_path{
 			head_coor_y = (0.5)*cos(pix_heading);
 			//}
 
-			XYToPixel(glob_path, data.x, data.y, curr_pixel_x, curr_pixel_y, 2);
+			XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y);
 			double point_pixel_x{}, point_pixel_y{};
 
 			for(int j=1; j<600; j++){
-				point_pixel_x = curr_pixel_x - j*head_coor_y;
-				point_pixel_y = curr_pixel_y + j*head_coor_x;
+				point_pixel_x = curr_pixel_x + j*head_coor_y;
+				point_pixel_y = curr_pixel_y - j*head_coor_x;
 				for(int i=1; i<300; i++){
 					point_pixel_x += head_coor_x;
 					point_pixel_y += head_coor_y;
 					
-					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_x), int(point_pixel_y));
+					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_y), int(point_pixel_x));
 					//loc_pose.pose.position.x = 150+i/2;
 					//loc_pose.pose.position.y = 300-j/2;
 
@@ -85,12 +85,12 @@ class Local_path{
 				}
 			}
 			for(int j=1; j<600; j++){
-				point_pixel_x = curr_pixel_x - j*head_coor_y;
-				point_pixel_y = curr_pixel_y + j*head_coor_x;
+				point_pixel_x = curr_pixel_x + j*head_coor_y;
+				point_pixel_y = curr_pixel_y - j*head_coor_x;
 				for(int i=1; i<300; i++){
 					point_pixel_x += -head_coor_x;
 					point_pixel_y += -head_coor_y;
-					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_x), int(point_pixel_y));
+					cv::Vec3b bgr = glob_path.at<cv::Vec3b>(int(point_pixel_y), int(point_pixel_x));
 					if(bgr[1] == 0){
 						loc_pose.pose.position.x = -i/2;
 						loc_pose.pose.position.y = j/2;
