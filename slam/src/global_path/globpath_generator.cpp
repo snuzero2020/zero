@@ -62,7 +62,7 @@ class Global_path_gen{
 				path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[1] = 0;
 
 				std::cout << "pixel filled" << std::endl;
-				if(count%10==0) {
+				if(count%3==0) {
 					cv::imwrite("/home/parallels/data/global_path/glob_path.png", path_map);
 					std::cout << "image saved" << std::endl;
 				}

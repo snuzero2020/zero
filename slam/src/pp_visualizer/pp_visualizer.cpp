@@ -52,10 +52,12 @@ class pp_visualizer{
 				visualized_img.at<cv::Vec3b>(globpath_nearby.poses[i].x, globpath_nearby.poses[i].y)[1] = 255;
 				visualized_img.at<cv::Vec3b>(globpath_nearby.poses[i].x, globpath_nearby.poses[i].y)[2] = 255;
 			*/
+				std::cout << globpath_nearby->poses[i].pose.position.x << std::endl;
 				cv::circle(visualized_img, cv::Point(150+globpath_nearby->poses[i].pose.position.x, 300-globpath_nearby->poses[i].pose.position.y), 3, cv::Scalar(255,255,255),-1);
 			//	cv::arrowedLine(visualized_img, cv::Point(150+globpath_nearby->poses[i].pose.position.x, 300-globpath_nearby->poses[i].pose.position.y), cv::Point(150+(globpath_nearby->poses[i].pose.position.x) + 5*cos(globpath_nearby->poses[i].pose.position.z*2*M_PI/180), 300 - (globpath_nearby->poses[i].pose.position.y) - 5*sin(globpath_nearby->poses[i].pose.position.z*2*M_PI/180)), 2, 4, 1, 2);
 			
 			}
+			std::cout << "--------------------------------" << std::endl;
 			//cv::ellipse(visualized_img, cv::Point(150,300), cv::Size(80,150), 0, M_PI, (0,255,0), 3);
 			cv_bridge::CvImage img_bridge;
 			sensor_msgs::Image img_msg;
