@@ -9,6 +9,8 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 
+//codes which are commented(?) like this(//**) are waiting for test. This codes will be tested after getting correct theta value and global path.
+
 class map_tracer{
 	private:
 		ros::NodeHandle nh;
@@ -18,6 +20,7 @@ class map_tracer{
 	public:
 		//set the right path for your map
 		cv::Mat glob_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/mapping/map.png");
+		//**cv::Mat flag_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/mapping/flag_map.png");
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 100);
@@ -32,6 +35,8 @@ class map_tracer{
 			int copy_pixel_x{}, copy_pixel_y{};
                         //inst_pixel_x = data.x;
 		        //inst_pixel_y = data.y;
+			//**double theta;
+			//**theta = data.theta;
 			XYToPixel(inst_pixel_x,inst_pixel_y,data.x,data.y);	
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
@@ -65,6 +70,8 @@ class map_tracer{
 						mini_map.at<cv::Vec3b>(i, j)[2] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[2];
 					}
 				}
+				
+				//draw circle at the present position(center)
 				cv::circle(mini_map, cv::Point(500,500), 3, cv::Scalar(0,255,0), -1);
 				cv_bridge::CvImage img_bridge;
                         	sensor_msgs::Image img_msg;
@@ -74,6 +81,12 @@ class map_tracer{
                        		img_bridge.toImageMsg(img_msg);
                         	printf("image converted!\n");
                         	pub.publish(img_msg);
+				
+				//draw arrow of the heading
+				//**cv::arrowedLine(flag_map, <cv::Vec3b>(inst_pixel_y, inst_pixel_x), <cv::Vec3b>((inst_pixel_y+sin(theta)), inst_pixel_x+cos(theta), (0,0,255), 8, 0, 0.1);
+
+				//draw circle
+
 			}
 		}
 };

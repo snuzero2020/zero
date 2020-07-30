@@ -19,8 +19,8 @@ class Global_path_gen{
 		int prev_pixel_y{};
 		int count{0};
 		nav_msgs::Path global_path;
-		cv::Mat path_map = cv::Mat(15000, 15000, CV_8UC3, cv::Scalar(255,255,255));
-                //cv::Mat path_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/global_path/glob_path.png");
+		//cv::Mat path_map = cv::Mat(15000, 15000, CV_8UC3, cv::Scalar(255,255,255));
+                cv::Mat path_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/global_path/glob_path.png");
 
 		Global_path_gen(){
 			sub = nh.subscribe("/filtered_data", 1000, &Global_path_gen::callback, this);
@@ -31,7 +31,8 @@ class Global_path_gen{
 			int inst_pixel_x, inst_pixel_y;
 			int  check{0};	
 			//change the last parameter in XYToPixel to choose the specific map
-			XYToPixel(inst_pixel_x, inst_pixel_y,data.x, data.y);
+			XYToPixel(inst_pixel_x, inst_pixel_y, data.x, data.y);
+			std::cout<<inst_pixel_x<<" "<<inst_pixel_y<<std::endl;
 			if(global_path.poses.empty()){
 				inst_pose.pose.position.x = inst_pixel_x;
 				inst_pose.pose.position.y = inst_pixel_y;
@@ -65,7 +66,7 @@ class Global_path_gen{
 
 				std::cout << "pixel filled" << std::endl;
 				if(count%3==0) {
-					cv::imwrite("/home/healthykim/catkin_ws/src/zero/slam/src/global_path/glob_path2.png", path_map);
+					cv::imwrite("/home/healthykim/catkin_ws/src/zero/slam/src/global_path/glob_path.png", path_map);
 					std::cout << "image saved" << std::endl;
 				}
 				count++;

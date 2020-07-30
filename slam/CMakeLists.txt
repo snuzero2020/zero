@@ -83,9 +83,9 @@ target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(BGRmap_to_costmap)
 
 #add_executable for global_path
-#add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYToPixel.cpp)
-#target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#add_dependencies(globpath_generator slam_generate_messages_cpp)
+add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYToPixel.cpp)
+target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(globpath_generator slam_generate_messages_cpp)
 
 add_executable(object_detector src/clustering/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
