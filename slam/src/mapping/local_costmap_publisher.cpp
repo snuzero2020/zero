@@ -35,7 +35,7 @@ class Local_costmap_publisher{
 
                 //cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
 		//set path for own global costmap
-		cv::Mat glob_costmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/costmap.png", cv::IMREAD_GRAYSCALE);
+		cv::Mat glob_costmap = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/costmap.png", cv::IMREAD_GRAYSCALE);
 		//cv::Mat local_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
 		//const int channels = local_costmap.channels();
 
@@ -52,28 +52,28 @@ class Local_costmap_publisher{
 			double head_coor_x, head_coor_y;
                         head_coor_x = (step)*sin(pix_heading);
                         head_coor_y = (step)*cos(pix_heading);
-			XYToPixel(glob_costmap, data.x, data.y, curr_pixel_x, curr_pixel_y, 2);
+			XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y);
                         
 			double point_pixel_x{}, point_pixel_y{};
 
                         for(int j=1; j<600; j++){
-                                point_pixel_x = curr_pixel_x - j*head_coor_y;
-                                point_pixel_y = curr_pixel_y + j*head_coor_x;
+                                point_pixel_x = curr_pixel_x + j*head_coor_y;
+                                point_pixel_y = curr_pixel_y - j*head_coor_x;
                                 for(int i=1; i<300; i++){
                                         point_pixel_x += head_coor_x;
                                         point_pixel_y += head_coor_y;
 							
-					local_costmap.at<uchar>(int(150+i*step),int(300-j*step)) = int(glob_costmap.at<uchar>(int(point_pixel_x), int(point_pixel_y)));
+					local_costmap.at<uchar>(int(300-j*step),int(150+i*step)) = int(glob_costmap.at<uchar>(int(point_pixel_y), int(point_pixel_x)));
 				}
                         }
                         for(int j=1; j<600; j++){
-                                point_pixel_x = curr_pixel_x - j*head_coor_y;
-                                point_pixel_y = curr_pixel_y + j*head_coor_x;
+                                point_pixel_x = curr_pixel_x + j*head_coor_y;
+                                point_pixel_y = curr_pixel_y - j*head_coor_x;
                                 for(int i=1; i<300; i++){
                                         point_pixel_x += -head_coor_x;
                                         point_pixel_y += -head_coor_y;
 
-					local_costmap.at<uchar>(int(150-i*step),int(300-j*step)) = int(glob_costmap.at<uchar>(int(point_pixel_x), int(point_pixel_y)));
+					local_costmap.at<uchar>(int(300-j*step),int(150-i*step)) = int(glob_costmap.at<uchar>(int(point_pixel_y), int(point_pixel_x)));
 				
                                 }
                         }
