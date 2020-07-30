@@ -18,7 +18,7 @@ double a2 = -0.043763656504529812;
 double b2 = -33.358382978338255;
 double c2 = 138047583.23571858;
     
-int XYToPixel(int& pixel_x, int& pixel_y, double x, double y) {
+void XYToPixel(int& pixel_x, int& pixel_y, double x, double y) {
     pixel_x = int(a1*x+b1*y+c1);
     pixel_y = int(a2*x+b2*y+c2);
     ROS_DEBUG("%d %d", pixel_x, pixel_y);

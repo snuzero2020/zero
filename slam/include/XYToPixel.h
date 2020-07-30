@@ -9,7 +9,9 @@
 
 #endif
 
-int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place);
+void XYToPixel(int& pixel_x, int& pixel_y, double x, double y);
+
+//int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place);
 // Convert a UTM52 coordinate to a position(pixel) on the received map.
 // 
 // Input

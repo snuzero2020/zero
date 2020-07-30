@@ -22,7 +22,7 @@ class Localmap_Publisher{
 		}
 
 		void callback(const slam::Data data){
-			//cv::Mat gmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/map.png", cv::IMREAD_COLOR);
+			//cv::Mat gmap = cv::imread("/home/jeongwoooh/catkin_ws/src/zero/slam/src/mapping/map.png", cv::IMREAD_COLOR);
 
 			MapCutter map_cutter(2);
 			cv::Mat gmap = map_cutter.smartCut(data.x, data.y, data.theta);
