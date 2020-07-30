@@ -30,7 +30,7 @@ class Global_path_gen{
 			int inst_pixel_x, inst_pixel_y;
 			int  check{0};	
 			//change the last parameter in XYToPixel to choose the specific map
-			XYToPixel(path_map, data.x, data.y, inst_pixel_x, inst_pixel_y, 2);
+			XYToPixel(inst_pixel_x, inst_pixel_y,data.x, data.y);
 			if(global_path.poses.empty()){
 				inst_pose.pose.position.x = inst_pixel_x;
 				inst_pose.pose.position.y = inst_pixel_y;
