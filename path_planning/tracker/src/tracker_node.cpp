@@ -72,19 +72,19 @@ class Tracker
 
 		// initializer
 		Tracker() 
-			:steering_angle(Float32()), curr_local_path(Path()), look_ahead_oval_ratio(0)
-	{
-		steering_angle_pub = nh.advertise<Float32>("configuration",1000);
-		car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
-		local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
-		current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
-		recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
-		nh.getParam("/P_gain", P_gain);
-		nh.getParam("/I_gain", I_gain);
-		nh.getParam("/D_gain", D_gain);
-		nh.getParam("/upper_radius", upper_radius);
-		nh.getParam("/lower_radius", lower_radius);
-	}
+			:steering_angle(Float32()), curr_local_path(Path()), look_ahead_oval_ratio(2)
+		{
+			steering_angle_pub = nh.advertise<Float32>("configuration",1000);
+			car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
+			local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
+			current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
+			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
+			nh.getParam("/P_gain", P_gain);
+			nh.getParam("/I_gain", I_gain);
+			nh.getParam("/D_gain", D_gain);
+			nh.getParam("/upper_radius", upper_radius);
+			nh.getParam("/lower_radius", lower_radius);
+		}
 
 		// setter function
 		void set_steering_angle(const double angle) {steering_angle.data = angle;}
@@ -155,7 +155,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 
 	if (recommend_vel<-0.2)
 		return;	
-	
+
 	cout << "before determind steering angle\n";	
 	determind_steering_angle();
 	cout << "before calculate input signal\n";	
@@ -177,7 +177,7 @@ void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
 }
 
 void Tracker::current_vel_callback(const core_msgs::VehicleState::ConstPtr msg){
-    current_vel = msg->speed;
+	current_vel = msg->speed;
 }
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
@@ -185,7 +185,7 @@ void Tracker::current_vel_callback(const core_msgs::VehicleState::ConstPtr msg){
 void Tracker::set_look_ahead_point()
 {
 	cout << "set_look_ahead_point start\n";
-    //current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
+	//current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
 
 	double major_axis_radius{determind_major_axis_radius()};
 	int idx{0};
@@ -364,7 +364,7 @@ void Tracker::vehicle_output_signal(){
 		else {
 			cout << "Someting wrong" << endl;
 			msg.brake = 100;
-    	    msg.speed = 0;
+			msg.speed = 0;
 			check = 0;
 		}
 	}
@@ -375,36 +375,36 @@ void Tracker::vehicle_output_signal(){
 
 
 	if (count == 0){
-        msg.brake = 0;
-    	msg.speed = (pid_input>0)?pid_input:0;
+		msg.brake = 0;
+		msg.speed = (pid_input>0)?pid_input:0;
 	}
 
 	else if (count == 1){
-        msg.brake = 10;
-    	msg.speed = 0;
+		msg.brake = 10;
+		msg.speed = 0;
 		integral_error = 0.0;
 	}
 
 	else if (count == 2){
-        msg.brake = 20;
-    	msg.speed = 0;
+		msg.brake = 20;
+		msg.speed = 0;
 		integral_error = 0.0;
 	}
 
 	else if (count == 3){
-        msg.brake = 30;
-    	msg.speed = 0;
+		msg.brake = 30;
+		msg.speed = 0;
 		integral_error = 0.0;
 	}
 
 	else {
 		cout << "Someting wrong" << endl;
 		msg.brake = 100;
-    	msg.speed = 0;
+		msg.speed = 0;
 	}
-	
+
 	msg.is_auto = 1;
-    msg.estop = 0;
+	msg.estop = 0;
 
 	// forward motion
 	if (curr_local_path.header.seq | 0x10 != 0x10){
@@ -415,8 +415,7 @@ void Tracker::vehicle_output_signal(){
 		msg.gear = 2;
 	}
 
-	//msg.steer = get_steering_angle().data;
-	msg.steer = 0;
+	msg.steer = get_steering_angle().data;
 	car_signal_pub.publish(msg);
 }
 
