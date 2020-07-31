@@ -21,6 +21,7 @@ add_message_files( DIRECTORY msg
   ActiveNode.msg
   CenterLine.msg
   Location.msg
+  UInt32WithHeader.msg
 )
 
 generate_messages(DEPENDENCIES   geometry_msgs  sensor_msgs   std_msgs )

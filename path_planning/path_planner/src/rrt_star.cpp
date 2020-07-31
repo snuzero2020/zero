@@ -4,8 +4,9 @@
 #include <iostream>
 #include <ctime>
 #include <queue>
-//#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp> // for visualization
 
+// for debugging
 void debug(bool reset = false) {
 	static int cnt = 0;
 	if(reset) cnt = 0;	
@@ -28,26 +29,29 @@ void debugtime(int flag = -1) {
 	prev = cur;
 }
 
+
 // cost between two points
+// return (average cost between two points) * distance
 double RRT::cost(Cor start, Cor dest) 
 {
     Cor marcher{start};
     double ds{ start.dist(dest) }, ret = 0, temp;
-	double dx{ (dest.x - start.x) * stepsize / ds }, dy{ (dest.y - start.y) * stepsize / ds };
+    double dx{ (dest.x - start.x) * stepsize / ds }, dy{ (dest.y - start.y) * stepsize / ds };
     int step_times = 0;
     while (1)
     {
         // march!!
-		if (static_cast<int>(marcher.x) < 0 || static_cast<int>(marcher.x) >= map_length || static_cast<int>(marcher.y) < 0 || static_cast<int>(marcher.y) >= map_length) {
-			break;
-		}
+
+	// if marcher is out of map, break
+	if (static_cast<int>(marcher.x) < 0 || static_cast<int>(marcher.x) >= map_length || static_cast<int>(marcher.y) < 0 || static_cast<int>(marcher.y) >= map_length) break;
+
         step_times++;
         ret += cost_map[static_cast<int>(marcher.x)][static_cast<int>(marcher.y)];
         if (step_times * stepsize > ds) break;
-		marcher.x += dx;
-		marcher.y += dy;
+	marcher.x += dx;
+	marcher.y += dy;
     }
-	return ds * ret / step_times;
+    return ds * ret / step_times;
 }
 
 // pick random point in map
@@ -99,6 +103,8 @@ Cor RRT::steer(Cor start, Cor dest, bool& check)
 			step_times++;
 			continue;
 		}
+
+		// out of map! return!
 		if (marcher.x < 0 || marcher.x >= map_length || marcher.y < 0 || marcher.y >= map_length) {
 			return marcher_saved;
 		}
@@ -247,6 +253,7 @@ void RRT::pathOptimization(Node* q_cur, Tree& tree)
 	return;
 }
 
+// check straight path from start to dest
 bool RRT::straightCheck(Cor start, Cor dest){
 	Cor marcher{start};
 	int step_times = 0;
@@ -255,10 +262,10 @@ bool RRT::straightCheck(Cor start, Cor dest){
 	while (1)
 	{
 	        // march!!
-		if (static_cast<int>(marcher.x) < 0 || static_cast<int>(marcher.x) >= map_length || static_cast<int>(marcher.y) < 0 || static_cast<int>(marcher.y) >= map_length) {
-			break;
-		}
-//cout<<"marcher : "<<marcher.x<<" "<<marcher.y<<"\n cost : "<<cost_map[static_cast<int>(marcher.x)][static_cast<int>(marcher.y)] << endl;
+
+		// if out of map, break;
+		if (static_cast<int>(marcher.x) < 0 || static_cast<int>(marcher.x) >= map_length || static_cast<int>(marcher.y) < 0 || static_cast<int>(marcher.y) >= map_length) break;
+
 		if(threshold2 <= cost_map[static_cast<int>(marcher.x)][static_cast<int>(marcher.y)]) return false;
 		step_times++;
         	if (step_times * stepsize > ds) break;

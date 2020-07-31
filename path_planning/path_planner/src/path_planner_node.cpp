@@ -16,7 +16,6 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-//extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed);
 extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed);
 
 class RosNode{
@@ -40,7 +39,7 @@ public:
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
 
-		task = light = motion = -1;
+		task = light = motion = parking_space = -1;
 		n.getParam("/isTrackDriving", isTrackDriving);
 		n.getParam("/stepsize_pp", stepsize_pp_value);
 	}
@@ -51,7 +50,7 @@ public:
 		motion = data & mask;
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
-		parking_space = (data>>12) & mask;
+		//parking_space = (data>>12) & mask;
 	}
 
 	void goalsCallback(const nav_msgs::Path & msg){

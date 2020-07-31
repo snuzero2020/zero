@@ -114,15 +114,18 @@ class RosNode{
 
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
 ///////////////////////////////////////
-			float recommend_vel = recommend_vel_info[sector_pass_checker.get_present_task()];
+			std_msgs::Float32 recommend_vel_msg;
+			recommend_vel_msg.data = recommend_vel_info[sector_pass_checker.get_present_task()];
+			recommend_vel_pub.publish(recommend_vel_msg);
 
 			int motion_state;
 			motion_state_determiner(motion_state,task_state,light_state);
 			
 			if(debug) print_debug((int)msg.data, task_state, light_state, motion_state);
 
+			// sector, task, light, motion (each 4 bits)
 			std_msgs::UInt32 mission_state;
-			mission_state.data =(((int)recommend_vel*4)<<12) | (task_state<<8) | (light_state<<4) | motion_state;
+			mission_state.data =(((int)msg.data)<<12) | (task_state<<8) | (light_state<<4) | motion_state;
 			mission_state_pub.publish(mission_state);		
 		}
 
