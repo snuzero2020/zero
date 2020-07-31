@@ -32,10 +32,10 @@ class Map_Marker{
         if (n != 1) {
             cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 3);
             cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 3, cv::Scalar(255, 0, 0), -1);
-            if( n % 40 == 0){
-                //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+2*filtered_pixel_vx, filtered_pixel_y+2*filtered_pixel_vy), cv::Scalar(255, 0, 255), 16, 8, 0, 0.2);
-                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+2*filtered_pixel_thx, pixel_y+2*filtered_pixel_thy), cv::Scalar(255, 255, 0), 10, 8, 0, 0.5);
-                //cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+2*mag_pixel_thx, pixel_y+2*mag_pixel_thy), cv::Scalar(255, 255, 0), 16, 8, 0, 0.2);
+            if( n % 20 == 0){
+                //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_vx, filtered_pixel_y+filtered_pixel_vy), cv::Scalar(255, 0, 255), 16, 8, 0, 0.2);
+                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_thx, pixel_y+filtered_pixel_thy), cv::Scalar(255, 255, 0), 10, 8, 0, 0.5);
+                //cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+mag_pixel_thx, pixel_y+mag_pixel_thy), cv::Scalar(255, 255, 0), 16, 8, 0, 0.2);
             }
         }
         t = ros::Time::now();
