@@ -36,8 +36,8 @@ class Tracker
 
 		// configuration constants
 		double look_ahead_oval_ratio{2}; // ratio of look ahead area which is oval shape
-		double upper_radius;
-		double lower_radius;
+		double upper_radius{160};
+		double lower_radius{80};
 
 		Point look_ahead_point{Point()};
 		double curvature{0};
@@ -49,9 +49,9 @@ class Tracker
 		double desired_vel_before{0}; // get from current_vel and recommend_vel
 		double desired_vel_after{0};
 
-		double P_gain;
-		double I_gain;
-		double D_gain;
+		double P_gain{1};
+		double I_gain{100};
+		double D_gain{0};
 		double error{0};
 		double integral_error{0};
 		double differential_error{0};
@@ -79,11 +79,11 @@ class Tracker
 			local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
 			current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
 			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
-			nh.getParam("/P_gain", P_gain);
-			nh.getParam("/I_gain", I_gain);
-			nh.getParam("/D_gain", D_gain);
-			nh.getParam("/upper_radius", upper_radius);
-			nh.getParam("/lower_radius", lower_radius);
+			//nh.getParam("/P_gain", P_gain);
+			//nh.getParam("/I_gain", I_gain);
+			//nh.getParam("/D_gain", D_gain);
+			//nh.getParam("/upper_radius", upper_radius);
+			//nh.getParam("/lower_radius", lower_radius);
 		}
 
 		// setter function
@@ -123,6 +123,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	//set_curr_local_path(msg);
 	curr_local_path = Path();
 	curr_local_path.header = msg->header;
+	curr_local_path.header.seq = 0;
 	int i{0};
 	while(1)
 	{
@@ -314,6 +315,7 @@ double Tracker::calculate_desired_vel(){
 	look_ahead_multiplier = (look_ahead_multiplier>1)? 1:look_ahead_multiplier;
 	desired_vel_before = desired_vel_after;
 	desired_vel_after =  recommend_vel *(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
+	cout << desired_vel_after << endl;
 	return desired_vel_after;
 }
 
@@ -354,7 +356,7 @@ void Tracker::vehicle_output_signal(){
 
 	if(check == 1){
 		if (desired_vel_before < 1.01){
-			if( current_vel > (desired_vel_before - desired_vel_after) * 0.4 + desired_vel_after){
+			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
 				count = 1;
 			}
 			else {
@@ -400,19 +402,19 @@ void Tracker::vehicle_output_signal(){
 	}
 
 	else if (count == 1){
-		msg.brake = 10;
+		msg.brake = 0;
 		msg.speed = 0;
 		integral_error = 0.0;
 	}
 
 	else if (count == 2){
-		msg.brake = 20;
+		msg.brake = 0;
 		msg.speed = 0;
 		integral_error = 0.0;
 	}
 
 	else if (count == 3){
-		msg.brake = 30;
+		msg.brake = 0;
 		msg.speed = 0;
 		integral_error = 0.0;
 	}
@@ -426,12 +428,14 @@ void Tracker::vehicle_output_signal(){
 	msg.is_auto = 1;
 	msg.estop = 0;
 
+	cout<<"curr seq : "<<curr_local_path.header.seq<<"\n\n"; 
 	// forward motion
-	if (curr_local_path.header.seq & 0x10 != 0x10){
+	if ((curr_local_path.header.seq & 0x10) != 0x10){
 		msg.gear = 0;
 	}
 	// backward motion
 	else{
+		cout<<"asdfasdfsafdsf";
 		msg.gear = 2;
 	}
 
