@@ -263,7 +263,24 @@ void Tracker::adjust_steering_angle()
 {
 	// experimental result should be reflected
 	cout << "Experimental result should be reflected.\n";
-	steering_angle.data = nonslip_steering_angle;
+	//left 
+	if(nonslip_steering_angle<1e-6)
+	{
+		steering_angle.data = -84.359 * pow(rotational_radius*0.03, -1.029);
+		cout<<"rotational_radius: "<<rotational_radius<<endl;
+		cout<<"---"<<endl;
+	}
+	//right
+	else
+	{
+		steering_angle.data = 83.556 * pow(rotational_radius*0.03, -0.99);
+		cout<<"rotational_radius: "<<rotational_radius<<endl;
+		
+		cout<<"---"<<endl;
+	}
+	// total
+	//float sign = (nonslip_steering_angle>0)?1.0:-1.0;
+	//steering_angle.data = sign * 79.12363452 * pow(rotational_radius, -0.98117930922);	
 }
 
 // capsulized module
