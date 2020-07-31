@@ -17,9 +17,9 @@ using namespace std;
 class Map_Marker{
     public:
     Map_Marker(){
-        sub_gps = n_.subscribe("/gps", 10000, &Map_Marker::callback_gps, this);
-        sub_filtered = n_.subscribe("/filtered_data", 10000, &Map_Marker::callback_filtered, this);
-        sub_imu = n_.subscribe("/imu", 10000, &Map_Marker::callback_imu, this);
+        sub_gps = n_.subscribe("/gps", 2, &Map_Marker::callback_gps, this);
+        sub_filtered = n_.subscribe("/filtered_data", 2, &Map_Marker::callback_filtered, this);
+        sub_imu = n_.subscribe("/imu", 2, &Map_Marker::callback_imu, this);
         path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
         img = cv::imread(path_stream.str(), 1);
         ROS_INFO("Image loaded");
@@ -34,7 +34,7 @@ class Map_Marker{
             cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 3, cv::Scalar(255, 0, 0), -1);
             if( n % 20 == 0){
                 //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_vx, filtered_pixel_y+filtered_pixel_vy), cv::Scalar(255, 0, 255), 16, 8, 0, 0.2);
-                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_thx, pixel_y+filtered_pixel_thy), cv::Scalar(255, 255, 0), 10, 8, 0, 0.5);
+                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_thx, filtered_pixel_y+filtered_pixel_thy), cv::Scalar(255, 255, 0), 10, 8, 0, 0.5);
                 //cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+mag_pixel_thx, pixel_y+mag_pixel_thy), cv::Scalar(255, 255, 0), 16, 8, 0, 0.2);
             }
         }
