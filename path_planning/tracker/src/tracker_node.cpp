@@ -192,6 +192,7 @@ void Tracker::set_look_ahead_point()
 	double check_outside{0};
 	while(1)
 	{
+		// end of path --> lower radius and iter from the start
 		if (curr_local_path.poses[idx].header.seq == 0)
 		{
 			if (major_axis_radius < 5){
@@ -202,6 +203,7 @@ void Tracker::set_look_ahead_point()
 			idx = 0;
 			continue;
 		}
+
 		check_outside = (curr_local_path.poses[idx].pose.position.x)*(curr_local_path.poses[idx].pose.position.x)/((major_axis_radius/look_ahead_oval_ratio)* (major_axis_radius/look_ahead_oval_ratio))
 			+ (curr_local_path.poses[idx].pose.position.y)*(curr_local_path.poses[idx].pose.position.y)/((major_axis_radius)*(major_axis_radius));
 		if (check_outside>1)
@@ -220,9 +222,10 @@ void Tracker::solve_pure_pursuit()
 {
 	Point rotational_center{Point()};
 	double temp_angle;
-	// curr_local_path.header.seq | 0x10 != 0x10 : front gear
-	// curr_local_path.header.seq | 0x10 == 0x10 : reverse gear (only for parking motion with backward motion
-	if (curr_local_path.header.seq | 0x10 != 0x10){
+	bool is_front_gear = ((curr_local_path.header.seq & 0x10) != 0x10);
+	// curr_local_path.header.seq & 0x10 != 0x10 : front gear
+	// curr_local_path.header.seq & 0x10 == 0x10 : reverse gear (only for parking motion with backward motion
+	if (is_front_gear){
 		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
 		rotational_center.y = -1.05*100/3.0;
 		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
@@ -239,14 +242,14 @@ void Tracker::solve_pure_pursuit()
 	// temp_angle < 3.141592/2.0 : right turn
 	// temp_angle > 3.141592/2.0 : left turn
 	if (temp_angle < 3.141592/2.0){
-		if (curr_local_path.header.seq | 0x10 != 0x10){
+		if (is_front_gear){
 			nonslip_steering_angle = temp_angle*180/3.141592;
 		}
 		else
 			nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
 	}
 	else{
-		if (curr_local_path.header.seq | 0x10 != 0x10){
+		if (is_front_gear){
 			nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
 		}
 		else
@@ -407,7 +410,7 @@ void Tracker::vehicle_output_signal(){
 	msg.estop = 0;
 
 	// forward motion
-	if (curr_local_path.header.seq | 0x10 != 0x10){
+	if (curr_local_path.header.seq & 0x10 != 0x10){
 		msg.gear = 0;
 	}
 	// backward motion
