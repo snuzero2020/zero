@@ -346,6 +346,7 @@ void Tracker::calculate_input_signal(){
 	cout << "pid_input : " << pid_input << endl; 
 }
 
+/*
 void Tracker::vehicle_output_signal(){
 	core_msgs::Control msg;
 
@@ -421,6 +422,79 @@ void Tracker::vehicle_output_signal(){
 		integral_error = 0.0;
 	}
 
+	else {
+		cout << "Someting wrong" << endl;
+		msg.brake = 100;
+		msg.speed = 0;
+	}
+
+	cout << "current_vel : " << current_vel << endl;
+	cout << "decel_level : " << decel_level << endl;
+	cout << "decel_check : " << decel_check << endl;
+
+	msg.is_auto = 1;
+	msg.estop = 0;
+
+	cout<<"curr seq : "<<curr_local_path.header.seq<<"\n\n"; 
+	// forward motion
+	if ((curr_local_path.header.seq & 0x10) != 0x10){
+		msg.gear = 0;
+	}
+	// backward motion
+	else{
+		msg.gear = 2;
+	}
+
+	msg.steer = get_steering_angle().data;
+	car_signal_pub.publish(msg);
+}
+*/
+
+void Tracker::vehicle_output_signal(){
+	core_msgs::Control msg;
+
+	//if ( desired_vel_before > desired_vel_after){
+	if ( current_vel > desired_vel_after){
+		decel_check = 1;
+	}
+
+	if(decel_check == 1){
+		if (desired_vel_before < 1.01){
+			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
+				decel_level = 1;
+				integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
+			}
+			else {
+				decel_level = 0;
+				decel_check = 0;
+			}
+		}
+		else if (desired_vel_before < 4.5){
+			decel_level = 0;
+			decel_check = 0;
+		}
+		else {
+			cout << "Someting wrong" << endl;
+			msg.brake = 100;
+			msg.speed = 0;
+			decel_check = 0;
+		}
+	}
+
+	else{
+		decel_level = 0;
+	}
+
+
+	if (decel_level == 0){
+		msg.brake = 0;
+		msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
+		cout << "real pid input : " << msg.speed << endl;
+	}
+	else if (decel_level == 1){
+		msg.brake = 0;
+		msg.speed = 0;
+	}
 	else {
 		cout << "Someting wrong" << endl;
 		msg.brake = 100;
