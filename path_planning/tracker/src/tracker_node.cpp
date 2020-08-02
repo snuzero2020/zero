@@ -352,7 +352,7 @@ void Tracker::vehicle_output_signal(){
 	//if ( desired_vel_before > desired_vel_after){
 	if ( current_vel > desired_vel_after){
 		decel_check = 1;
-		integral_error = 0.0;
+		integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
 	}
 
 	if(decel_check == 1){
