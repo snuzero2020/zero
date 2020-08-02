@@ -48,6 +48,7 @@ class Tracker
 		double recommend_vel{0}; // determine by mission master and location
 		double desired_vel_before{0}; // get from current_vel and recommend_vel
 		double desired_vel_after{0};
+		double desired_vel_buff{0};
 
 		double P_gain{1};
 		double I_gain{100};
@@ -59,8 +60,8 @@ class Tracker
 		double pid_input{0};
 		clock_t time = clock();
 
-		int count = 0;
-		int check = 0;
+		int decel_level = 0;
+		int decel_check = 0;
 
 	public:
 
@@ -157,18 +158,14 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	if (recommend_vel<-0.2)
 		return;	
 
-	cout << "before determind steering angle\n";	
 	determind_steering_angle();
-	cout << "before calculate input signal\n";	
 	calculate_input_signal();
-	cout << "before vehicle output signal\n";	
 	vehicle_output_signal();
 
 	cout << "current_vel : " << current_vel << endl;
 	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
 	cout << "steering_angle : " << steering_angle << endl;
-	cout << "pid_input : " << pid_input << endl;
-	cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
+	//cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
 }
 
 
@@ -185,7 +182,6 @@ void Tracker::current_vel_callback(const core_msgs::VehicleState::ConstPtr msg){
 // output : look_ahead_point
 void Tracker::set_look_ahead_point()
 {
-	cout << "set_look_ahead_point start\n";
 	//current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
 
 	double major_axis_radius{determind_major_axis_radius()};
@@ -263,7 +259,6 @@ void Tracker::solve_pure_pursuit()
 void Tracker::adjust_steering_angle()
 {
 	// experimental result should be reflected
-	cout << "Experimental result should be reflected.\n";
 	//left 
 	if(nonslip_steering_angle<1e-6)
 	{
@@ -287,13 +282,9 @@ void Tracker::adjust_steering_angle()
 // capsulized module
 void Tracker::determind_steering_angle()
 {
-	cout << "check1\n";
 	set_look_ahead_point();
-	cout << "check2\n";
 	solve_pure_pursuit();
-	cout << "check3\n";
 	adjust_steering_angle();
-	cout << "check4\n";
 }
 
 // input : current_vel
@@ -312,10 +303,18 @@ double Tracker::determind_major_axis_radius()
 double Tracker::calculate_desired_vel(){
 	double look_ahead_multiplier{0};
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
-	look_ahead_multiplier = (look_ahead_multiplier>1)? 1:look_ahead_multiplier;
-	desired_vel_before = desired_vel_after;
+	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
 	desired_vel_after =  recommend_vel *(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
-	cout << desired_vel_after << endl;
+	
+	if (abs(desired_vel_buff-desired_vel_after)>0.0001) //&& recommend_vel_change_check == false)
+	{
+		desired_vel_before = desired_vel_buff;
+		desired_vel_buff = desired_vel_after;
+	}
+
+	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
+	cout << "desired_vel_before : " << desired_vel_before << endl;
+	cout << "desired_vel_after : " << desired_vel_after << endl;
 	return desired_vel_after;
 }
 
@@ -343,77 +342,80 @@ void Tracker::calculate_input_signal(){
 	time = clock();
 	cout << "error : " << error << endl;
 	cout << "integral_error : " << integral_error << endl;
-	cout << "differential_error : " << differential_error << endl;
+	//cout << "differential_error : " << differential_error << endl;
 	cout << "pid_input : " << pid_input << endl; 
 }
 
 void Tracker::vehicle_output_signal(){
 	core_msgs::Control msg;
 
-	if ( desired_vel_before > desired_vel_after){
-		check = 1;
+	//if ( desired_vel_before > desired_vel_after){
+	if ( current_vel > desired_vel_after){
+		decel_check = 1;
+		integral_error = 0.0;
 	}
 
-	if(check == 1){
+	if(decel_check == 1){
 		if (desired_vel_before < 1.01){
 			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				count = 1;
+				decel_level = 1;
 			}
 			else {
-				count = 0;
-				check = 0;
+				decel_level = 0;
+				decel_check = 0;
 			}
 		}
 
 		else if(desired_vel_before <2.01){
 			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				count = 2;
+				decel_level = 2;
 			}
 			else {
-				count = 0;
-				check = 0;
+				decel_level = 0;
+				decel_check = 0;
 			}			
 		}
 		else if (desired_vel_before < 4.5){
 			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				count = 3;
+				decel_level = 3;
 			}
 			else {
-				count = 0;
-				check = 0;
+				decel_level = 0;
+				decel_check = 0;
 			}
 		}
 		else {
 			cout << "Someting wrong" << endl;
 			msg.brake = 100;
 			msg.speed = 0;
-			check = 0;
+			decel_check = 0;
 		}
 	}
 
 	else{
-		count = 0;
+		decel_level = 0;
 	}
 
 
-	if (count == 0){
+	if (decel_level == 0){
 		msg.brake = 0;
-		msg.speed = (pid_input>0)?pid_input:0;
+		msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
+		cout << "real pid input : " << msg.speed << endl;
 	}
 
-	else if (count == 1){
-		msg.brake = 0;
-		msg.speed = 0;
-		integral_error = 0.0;
-	}
-
-	else if (count == 2){
+	else if (decel_level == 1){
 		msg.brake = 0;
 		msg.speed = 0;
 		integral_error = 0.0;
 	}
 
-	else if (count == 3){
+	else if (decel_level == 2){
+		msg.brake = 0;
+		msg.speed = 0;
+		integral_error = 0.0;
+	}
+
+	else if (decel_level == 3){
 		msg.brake = 0;
 		msg.speed = 0;
 		integral_error = 0.0;
@@ -425,6 +427,10 @@ void Tracker::vehicle_output_signal(){
 		msg.speed = 0;
 	}
 
+	cout << "current_vel : " << current_vel << endl;
+	cout << "decel_level : " << decel_level << endl;
+	cout << "decel_check : " << decel_check << endl;
+
 	msg.is_auto = 1;
 	msg.estop = 0;
 
@@ -435,7 +441,6 @@ void Tracker::vehicle_output_signal(){
 	}
 	// backward motion
 	else{
-		cout<<"asdfasdfsafdsf";
 		msg.gear = 2;
 	}
 
@@ -447,7 +452,6 @@ void Tracker::vehicle_output_signal(){
 
 int main(int argc, char *argv[])
 {
-	int count{0};
 
 	ros::init(argc,argv,"path_traker");
 	ros::NodeHandle nh;

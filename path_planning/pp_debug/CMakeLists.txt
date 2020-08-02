@@ -17,6 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 catkin_package(
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS roscpp rospy std_msgs core_msgs message_filters
 )
 
 include_directories(
@@ -29,5 +31,6 @@ include_directories(
 add_executable(pp_debuger src/pp_debuger.cpp)
 
 add_dependencies(pp_debuger ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(pp_debuger core_msgs_generate_messages_cpp )
 
 target_link_libraries(pp_debuger  ${catkin_LIBRARIES} )
