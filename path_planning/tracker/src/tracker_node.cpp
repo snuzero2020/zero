@@ -295,7 +295,10 @@ double Tracker::determind_major_axis_radius()
 // input : recommend_vel, curvature
 // output : desired_vel
 double Tracker::calculate_desired_vel(){
-	return recommend_vel*(1 - 1.0 * curvature); // should be changed
+	double look_ahead_multiplier{0};
+	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
+	look_ahead_multiplier = (look_ahead_multiplier>1)? 1:look_ahead_multiplier;
+	return recommend_vel*(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
 }
 
 // input : current_vel, recommed_vel, curvature

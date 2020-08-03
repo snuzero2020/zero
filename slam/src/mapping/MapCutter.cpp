@@ -127,7 +127,7 @@ int MapCutter::cutViaPxCenter(Mat& original_map, Mat& modified_map, int pixel_x,
 
     modified_map = original_map(range_col, range_row);
 
-    ROS_INFO("MapCutter: cut => cutViaPxCenter");
+    ROS_DEBUG("MapCutter: cut => cutViaPxCenter");
     return 0;
 
 }
@@ -136,9 +136,9 @@ Mat MapCutter::smartCut(double x, double y, double heading) {
     Mat modified_map;
 
     if (place == FMTC) {
-        ROS_INFO("MapCutter: smartCut => cut");
+        ROS_DEBUG("MapCutter: smartCut => cut");
         cut(FMTC_map, modified_map, x, y, heading);
-        ROS_INFO("MapCutter: cut => smartCut");
+        ROS_DEBUG("MapCutter: cut => smartCut");
         
     }
 
@@ -150,7 +150,7 @@ int MapCutter::cut(Mat& original_map, Mat& modified_map, double x, double y, dou
 
     // pre-cutting
     Mat cut_map;
-    ROS_INFO_STREAM("MapCutter: " << position_px[0] << ", " << position_px[1]);
+    ROS_DEBUG_STREAM("MapCutter: " << position_px[0] << ", " << position_px[1]);
 
     if (position_px[0] < 337) {position_px[0] = 337;}
     if (position_px[0] > original_map.cols - 337) {position_px[0] = original_map.cols - 337;}
@@ -159,7 +159,7 @@ int MapCutter::cut(Mat& original_map, Mat& modified_map, double x, double y, dou
     if (position_px[1] > original_map.cols - 337) {position_px[1] = original_map.cols - 337;}
 
     cutViaPxCenter(original_map, cut_map, position_px[0], position_px[1]);
-    ROS_INFO("MapCutter: cutViaPxCenter => smartCut");
+    ROS_DEBUG("MapCutter: cutViaPxCenter => smartCut");
 
     //rotate the image
     Mat rotated_map;

@@ -1,0 +1,3 @@
+<launch>
+	<node pkg = "slam" type="gps_marker" name="gps_marker" output="screen" />
+</launch>
