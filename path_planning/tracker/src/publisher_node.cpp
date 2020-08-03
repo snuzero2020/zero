@@ -121,8 +121,8 @@ int main(int argc, char *argv[])
 		publisher.local_path_pub.publish(publisher.curr_local_path);
 		publisher.odometry_pub.publish(publisher.curr_odom);
 
-		publisher.recommend_vel.data = 0.5;
-		publisher.recommend_vel_pub.publish(publisher.recommend_vel);
+		//publisher.recommend_vel.data = 0.5;
+		//publisher.recommend_vel_pub.publish(publisher.recommend_vel);
 		loop_rate.sleep();
 		//vel_x += 1;
 		//vel_y += 2;

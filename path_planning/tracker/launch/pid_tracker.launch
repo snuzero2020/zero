@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="tracker" type="publisher_node" name="publisher_node" output="screen" launch-prefix="gnome-terminal --command" />
+
+	<node pkg="tracker" type="tracker_node" name="tracker_node" output="screen"  launch-prefix="gnome-terminal --command"/>
+
+</launch>

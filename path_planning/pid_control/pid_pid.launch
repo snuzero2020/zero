@@ -1,0 +1,7 @@
+<launch>
+   <node pkg="pid_control" type="keyboard.py" 
+              name="keyboard_input" 
+              output="screen">
+   </node>
+</launch>
+

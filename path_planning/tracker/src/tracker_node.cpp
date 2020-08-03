@@ -36,8 +36,8 @@ class Tracker
 
 		// configuration constants
 		double look_ahead_oval_ratio{2}; // ratio of look ahead area which is oval shape
-		double upper_radius{160};
-		double lower_radius{80};
+		double upper_radius;
+		double lower_radius;
 
 		Point look_ahead_point{Point()};
 		double curvature{0};
@@ -50,9 +50,9 @@ class Tracker
 		double desired_vel_after{0};
 		double desired_vel_buff{0};
 
-		double P_gain{1.0};
-		double I_gain{50};
-		double D_gain{0};
+		double P_gain;
+		double I_gain;
+		double D_gain;
 		double error{0};
 		double integral_error{0};
 		double differential_error{0};
@@ -80,11 +80,11 @@ class Tracker
 			local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
 			current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
 			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
-			//nh.getParam("/P_gain", P_gain);
-			//nh.getParam("/I_gain", I_gain);
-			//nh.getParam("/D_gain", D_gain);
-			//nh.getParam("/upper_radius", upper_radius);
-			//nh.getParam("/lower_radius", lower_radius);
+			nh.getParam("/P_gain", P_gain);
+			nh.getParam("/I_gain", I_gain);
+			nh.getParam("/D_gain", D_gain);
+			nh.getParam("/upper_radius", upper_radius);
+			nh.getParam("/lower_radius", lower_radius);
 		}
 
 		// setter function
