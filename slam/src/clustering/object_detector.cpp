@@ -289,7 +289,7 @@ class ObjectDetector{
     vector<geometry_msgs::Point> projected_points_;
     vector<int> clustering_helper_;
     int iteration_;
-    double plane_config_[4];
+    double plane_config_[4]; // 
     double lidar_angle_;
     double lidar_height_;
     double plane_tolerance_;
