@@ -33,7 +33,7 @@ class IMU_Decoder{
         //rt.omega = msg->angular_velocity.z;
         //rt.theta = theta_;
         geometry_msgs::Quaternion q = msg->orientation;
-        rt.theta = std::atan2( 2*(q.x*q.y+q.z*q.w), 1-2*(q.y*q.y+q.z*q.z) );
+        rt.theta = std::atan2( 2*(q.x*q.y+q.z*q.w), 1-2*(q.y*q.y+q.z*q.z) ) - theta_diff_;
         double roll = std::atan2( 2*(q.x*q.w+q.y*q.z), 1-2*(q.x*q.x+q.y*q.y) );
         double pitch = asin(2*(q.y*q.w-q.x*q.z));
         rt.local_ax = std::cos(pitch)*msg->linear_acceleration.x + std::sin(roll)*std::sin(pitch)*msg->linear_acceleration.y + std::cos(roll)*std::sin(pitch)*msg->linear_acceleration.z;

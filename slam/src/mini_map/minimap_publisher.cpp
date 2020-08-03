@@ -71,35 +71,35 @@ class map_tracer{
 			
 			if(!x_500 && !y_500 && !x_14500 && !y_14500){
 				std::cout << "on map" << std::endl;
-				//mini_map = glob_map(cv::Rect(inst_pixel_x-500,inst_pixel_y-500,1000,1000));
-				 for(int i=0; i<1000; i++){
-				 	copy_pixel_y = inst_pixel_y - 500 + i;
-				 	for(int j=0; j<1000; j++){
-				 		copy_pixel_x = inst_pixel_x - 500 + j;
-				 		mini_map.at<cv::Vec3b>(i, j)[0] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[0];
-				 		mini_map.at<cv::Vec3b>(i, j)[1] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[1];
-				 		mini_map.at<cv::Vec3b>(i, j)[2] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[2];
-						/*
-						switch(flag_map.at<cv::Vec3b>(copy_pixel_y,copy_pixel_x)[2])
-						{
-							case 0:
-								cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(120,0,0), -1);
-								break;
-							case 1:
-								cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(0,120,0), -1);
-								break;
-							case 2:
-								cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(0,0,120), -1);
-								break;
-							case 3:
-								cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(60,60,0), -1);
-								break;
-						}*/
+				mini_map = glob_map(cv::Rect(inst_pixel_x-500,inst_pixel_y-500,1000,1000)).clone();
+				// for(int i=0; i<1000; i++){
+				//  	copy_pixel_y = inst_pixel_y - 500 + i;
+				//  	for(int j=0; j<1000; j++){
+				//  		copy_pixel_x = inst_pixel_x - 500 + j;
+				//  		mini_map.at<cv::Vec3b>(i, j)[0] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[0];
+				//  		mini_map.at<cv::Vec3b>(i, j)[1] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[1];
+				//  		mini_map.at<cv::Vec3b>(i, j)[2] = glob_map.at<cv::Vec3b>(copy_pixel_y, copy_pixel_x)[2];
+				// 		/*
+				// 		switch(flag_map.at<cv::Vec3b>(copy_pixel_y,copy_pixel_x)[2])
+				// 		{
+				// 			case 0:
+				// 				cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(120,0,0), -1);
+				// 				break;
+				// 			case 1:
+				// 				cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(0,120,0), -1);
+				// 				break;
+				// 			case 2:
+				// 				cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(0,0,120), -1);
+				// 				break;
+				// 			case 3:
+				// 				cv::circle(mini_map, cv::Point(i,j), 3, cv::Scalar(60,60,0), -1);
+				// 				break;
+				// 		}*/
 
-				 	}
-				}
+				//  	}
+				// }
 				cv::circle(mini_map, cv::Point(500,500), 3, cv::Scalar(0,255,0), -1);
-				cv::arrowedLine(mini_map, cv::Point(500,500), cv::Point(500+50*sin(theta), 500+50*cos(theta)), (0,0,255), 8, 0, 0.5);
+				cv::arrowedLine(mini_map, cv::Point(500,500), cv::Point(500+50*cos(theta), 500-50*sin(theta)), (0,0,255), 8, 0, 0.5);
 
 				cv_bridge::CvImage img_bridge;
 				sensor_msgs::Image img_msg;

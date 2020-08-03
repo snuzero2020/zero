@@ -93,7 +93,7 @@ add_dependencies(object_detector slam_generate_messages_cpp)
 
 #add executable for local_costmap_publisher
 add_executable(local_costmap_publisher src/mapping/local_costmap_publisher.cpp lib/XYToPixel.cpp)
-target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
 
 add_executable(lidar_pose_estimator src/clustering/lidar_pose_estimator.cpp)
@@ -109,7 +109,7 @@ target_link_libraries(cone_detection ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${E
 add_dependencies(cone_detection slam_generate_messages_cpp)
 
 add_executable(gps_collector src/mapping/gps_collector.cpp)
-target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_collector slam_generate_messages_cpp)
 
 add_executable(convert_XY_To_Pixel src/mapping/convert_XY_To_Pixel.cpp)

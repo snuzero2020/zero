@@ -49,10 +49,10 @@ class Local_costmap_publisher{
 			geometry_msgs::PoseStamped loc_pose;
                         int curr_pixel_x{}, curr_pixel_y{};
                         double step = 0.5;
-			double pix_heading{};
+                        double pix_heading{};
                         
 			if(data.theta >= 0) pix_heading = data.theta;
-                        else pix_heading = data.theta + M_2_PI;
+                        else pix_heading = data.theta + 2*M_PI;
 
 			double head_coor_x, head_coor_y;
                         head_coor_x = (step)*sin(pix_heading);
