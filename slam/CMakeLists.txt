@@ -104,11 +104,10 @@ add_executable(obstacle_image src/clustering/obstacle_image.cpp)
 target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(obstacle_image slam_generate_messages_cpp)
 
-<<<<<<< HEAD
 add_executable(cone_detection src/clustering/find_cone.cpp)
 target_link_libraries(cone_detection ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(cone_detection slam_generate_messages_cpp)
-=======
+
 add_executable(gps_collector src/mapping/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(gps_collector slam_generate_messages_cpp)
@@ -122,7 +121,6 @@ target_link_libraries(sector_publisher ${catkin_LIBRARIES})
 add_dependencies(sector_publisher slam_generate_messages_cpp)
 
 
->>>>>>> aba96ec3856181a1e84737b63d233602ecfe87e7
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
