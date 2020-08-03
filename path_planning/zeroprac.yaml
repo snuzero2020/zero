@@ -1,6 +1,6 @@
 # tracker_node
-P_gain: 1.0
-I_gain: 50.0
+P_gain: 2.0
+I_gain: 40.0
 D_gain: 0.0
 upper_radius: 160.0
 lower_radius: 50.0
@@ -15,5 +15,5 @@ stepsize_rrt: 1.0
 stepsize_pp: 5.0
 isTrackDriving: True
 # pid_control
-vel1: 3.0
-vel2: 0.0
+vel1: 2.0
+vel2: 1.0

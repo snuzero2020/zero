@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
 	cout << "aloha3" << endl;
 
 	PoseStamped pose;
+	/*
 	while(1)
 	{
 		x= r- r*cos(i) - (r- sqrt(r*r -1.05*100/3.0*1.05*100/3.0));
@@ -94,13 +95,13 @@ int main(int argc, char *argv[])
 		seq++;
 		//cout<<"---"<<endl;
 	}
+*/
 
-/*
 	pose.pose.position.x = 0;
 	pose.pose.position.y = 100;
 	pose.header.seq = 1;
 	publisher.curr_local_path.poses.push_back(pose);
-*/
+
 	pose.header.seq = 0;
 	publisher.curr_local_path.poses.push_back(pose);
 
