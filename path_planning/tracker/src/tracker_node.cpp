@@ -50,8 +50,8 @@ class Tracker
 		double desired_vel_after{0};
 		double desired_vel_buff{0};
 
-		double P_gain{1};
-		double I_gain{100};
+		double P_gain{1.0};
+		double I_gain{50};
 		double D_gain{0};
 		double error{0};
 		double integral_error{0};
@@ -331,6 +331,7 @@ void Tracker::calculate_input_signal(){
 
 	error = calculate_desired_vel() - current_vel;
 	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
+	integral_error = (integral_error>0)? integral_error:0;
 	differential_error = (error - Prev_error)/(double(clock() - time)/(double)CLOCKS_PER_SEC);
 	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
 	// pid_input's limit is 6  
@@ -454,12 +455,13 @@ void Tracker::vehicle_output_signal(){
 	core_msgs::Control msg;
 
 	//if ( desired_vel_before > desired_vel_after){
-	if ( current_vel > desired_vel_after){
+	if ( current_vel > desired_vel_after + 0.000001){
 		decel_check = 1;
 	}
 
 	if(decel_check == 1){
-		if (desired_vel_before < 1.01){
+		//if (desired_vel_before < 1.01){
+		if (current_vel < 1.01){
 			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
 				decel_level = 1;
 				integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
@@ -488,7 +490,8 @@ void Tracker::vehicle_output_signal(){
 
 	if (decel_level == 0){
 		msg.brake = 0;
-		msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
+		msg.speed = (pid_input>0)?pid_input:0;
+		//msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
 		cout << "real pid input : " << msg.speed << endl;
 	}
 	else if (decel_level == 1){

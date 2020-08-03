@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	cout << "aloha3" << endl;
 
 	PoseStamped pose;
-/*	while(1)
+	while(1)
 	{
 		x= r- r*cos(i) - (r- sqrt(r*r -1.05*100/3.0*1.05*100/3.0));
 		y= r*sin(i)-1.05*100/3.0;
@@ -94,11 +94,13 @@ int main(int argc, char *argv[])
 		seq++;
 		//cout<<"---"<<endl;
 	}
-*/
+
+/*
 	pose.pose.position.x = 0;
 	pose.pose.position.y = 100;
 	pose.header.seq = 1;
 	publisher.curr_local_path.poses.push_back(pose);
+*/
 	pose.header.seq = 0;
 	publisher.curr_local_path.poses.push_back(pose);
 
@@ -119,8 +121,8 @@ int main(int argc, char *argv[])
 		publisher.local_path_pub.publish(publisher.curr_local_path);
 		publisher.odometry_pub.publish(publisher.curr_odom);
 
-		//publisher.recommend_vel.data = 0.5;
-		//publisher.recommend_vel_pub.publish(publisher.recommend_vel);
+		publisher.recommend_vel.data = 0.5;
+		publisher.recommend_vel_pub.publish(publisher.recommend_vel);
 		loop_rate.sleep();
 		//vel_x += 1;
 		//vel_y += 2;
