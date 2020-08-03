@@ -9,6 +9,7 @@
 #include <geometry_msgs/Point.h>
 #include "core_msgs/Control.h"
 #include "core_msgs/VehicleState.h"
+#include "core_msgs/Encoderfilter.h"
 
 using namespace std;
 using namespace std_msgs;
@@ -49,6 +50,7 @@ class Tracker
 		double desired_vel_before{0}; // get from current_vel and recommend_vel
 		double desired_vel_after{0};
 		double desired_vel_buff{0};
+		double slope{0};
 
 		double P_gain;
 		double I_gain;
@@ -62,6 +64,7 @@ class Tracker
 
 		int decel_level = 0;
 		int decel_check = 0;
+
 
 	public:
 
@@ -78,7 +81,8 @@ class Tracker
 			steering_angle_pub = nh.advertise<Float32>("configuration",1000);
 			car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
 			local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
-			current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
+			//current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
+			current_vel_sub = nh.subscribe("filter_encoder_data",100, &Tracker::current_vel_callback, this);
 			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
@@ -95,7 +99,7 @@ class Tracker
 		const Path get_current_path() {return curr_local_path;}
 		// callback function
 		void local_path_callback(const Path::ConstPtr msg);
-		void current_vel_callback(const core_msgs::VehicleState::ConstPtr);
+		void current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg);
 		void recommend_vel_callback(const Float32::ConstPtr msg);
 
 		// Fuctions for determind steering angle
@@ -174,8 +178,9 @@ void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
 	recommend_vel = msg->data;
 }
 
-void Tracker::current_vel_callback(const core_msgs::VehicleState::ConstPtr msg){
-	current_vel = msg->speed;
+void Tracker::current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg){
+	current_vel = msg->filtered_encoder;
+	slope = msg->slope;
 }
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
@@ -332,7 +337,7 @@ void Tracker::calculate_input_signal(){
 	error = calculate_desired_vel() - current_vel;
 	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
 	integral_error = (integral_error>0)? integral_error:0;
-	differential_error = (error - Prev_error)/(double(clock() - time)/(double)CLOCKS_PER_SEC);
+	differential_error = slope;
 	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
 	// pid_input's limit is 6  
 	if (pid_input > 6){

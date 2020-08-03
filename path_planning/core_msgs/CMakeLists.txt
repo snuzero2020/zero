@@ -22,6 +22,7 @@ add_message_files( DIRECTORY msg
   CenterLine.msg
   Location.msg
   UInt32WithHeader.msg
+  Encoderfilter.msg
 )
 
 generate_messages(DEPENDENCIES   geometry_msgs  sensor_msgs   std_msgs )

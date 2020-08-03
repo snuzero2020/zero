@@ -24,6 +24,8 @@ include_directories(
 add_executable(${PROJECT_NAME}_node src/tracker_node.cpp)
 add_dependencies(${PROJECT_NAME}_node core_msgs_generate_messages_cpp)
 add_executable(publisher_node src/publisher_node.cpp)
+add_executable(filter_encoder src/filter_encoder.cpp)
+add_dependencies(filter_encoder core_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(${PROJECT_NAME}_node
@@ -33,6 +35,9 @@ add_executable(publisher_node src/publisher_node.cpp)
    ${catkin_LIBRARIES}
  )
 
+ target_link_libraries(filter_encoder
+   ${catkin_LIBRARIES}
+ )
 #############
 ## Install ##
 #############
