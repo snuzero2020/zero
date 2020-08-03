@@ -13,6 +13,8 @@ using namespace std;
 
 #define REF_X 298500
 #define REF_Y 4137850
+#define VEL 1.0
+#define INTER 0.5
 
 class Map_Marker{
     public:
@@ -30,12 +32,12 @@ class Map_Marker{
 
         XYToPixel(pixel_x, pixel_y, msg->x, msg->y);
         if (n != 1) {
-            cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 3);
-            cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 3, cv::Scalar(255, 0, 0), -1);
-            if( n % 20 == 0){
-                //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_vx, filtered_pixel_y+filtered_pixel_vy), cv::Scalar(255, 0, 255), 16, 8, 0, 0.2);
-                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+filtered_pixel_thx, filtered_pixel_y+filtered_pixel_thy), cv::Scalar(255, 255, 0), 10, 8, 0, 0.5);
-                //cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+mag_pixel_thx, pixel_y+mag_pixel_thy), cv::Scalar(255, 255, 0), 16, 8, 0, 0.2);
+            cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 1);
+            //cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 3, cv::Scalar(255, 0, 0), -1);
+            if( n % int(2*INTER*10.0) == 0){
+                //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+INTER*filtered_pixel_vx, filtered_pixel_y+INTER*filtered_pixel_vy), cv::Scalar(255, 0, 255), 3, 8, 0, 0.4);
+                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+INTER*filtered_pixel_thx, filtered_pixel_y+INTER*filtered_pixel_thy), cv::Scalar(255, 255, 0), 3, 8, 0, 0.4);
+                cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+INTER*mag_pixel_thx, pixel_y+INTER*mag_pixel_thy), cv::Scalar(255, 0, 255), 3, 8, 0, 0.4);
             }
         }
         t = ros::Time::now();
@@ -55,7 +57,7 @@ class Map_Marker{
         XYToPixel(filtered_pixel_vx, filtered_pixel_vy, REF_X+msg->vx, REF_Y+msg->vy);
         filtered_pixel_vx -= pixel_x;
         filtered_pixel_vy -= pixel_y;
-        XYToPixel(filtered_pixel_thx, filtered_pixel_thy, REF_X+2*cos(msg->theta), REF_Y+2*sin(msg->theta));
+        XYToPixel(filtered_pixel_thx, filtered_pixel_thy, REF_X+VEL*cos(msg->theta), REF_Y+VEL*sin(msg->theta));
         filtered_pixel_thx -= pixel_x;
         filtered_pixel_thy -= pixel_y;
 
@@ -67,7 +69,7 @@ class Map_Marker{
 	    int pixel_x, pixel_y;
 
         XYToPixel(pixel_x, pixel_y, REF_X, REF_Y);
-        XYToPixel(mag_pixel_thx, mag_pixel_thy, REF_X+2*cos(msg->theta), REF_Y+2*sin(msg->theta));
+        XYToPixel(mag_pixel_thx, mag_pixel_thy, REF_X+VEL*cos(msg->theta), REF_Y+VEL*sin(msg->theta));
         mag_pixel_thx -= pixel_x;
         mag_pixel_thy -= pixel_y;
 
@@ -89,7 +91,6 @@ class Map_Marker{
     ros::Subscriber sub_gps;
     ros::Subscriber sub_filtered;
     ros::Subscriber sub_imu;
-    ros::Subscriber sub_keyboard;
     cv::Mat img;
     stringstream path_stream;
     int n = 1;
