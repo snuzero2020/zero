@@ -15,7 +15,7 @@ alive = 0
 enc = []
 
 sudoPassword = 'snuzero123'
-command = 'chmod 777 /dev/ttyUSB0'
+command = 'chmod 777 /dev/ttyUSB1'
 p= os.system('echo %s|sudo -S %s' % (sudoPassword, command))
 
 
@@ -30,7 +30,7 @@ def init():
     msg = VehicleState() #define msg - current platform state
 
     while not rospy.is_shutdown():
-        with serial.Serial(port='/dev/ttyUSB0',
+        with serial.Serial(port='/dev/ttyUSB1',
                            baudrate=115200,
                            parity=serial.PARITY_NONE,
                            stopbits=serial.STOPBITS_ONE,

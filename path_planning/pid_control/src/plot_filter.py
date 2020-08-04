@@ -33,11 +33,15 @@ class getVehicleState():
         global count 
         global start_time 
         
-        self.speed.append(msg.filtered_encoder)
-        self.time.append(msg.time)
-        self.t.append(self.number)
-        self.number = self.number + 1
-        print(msg.time)
+        if(count == 0):
+            start_time = msg.time
+        
+        if(count == 1):
+            self.speed.append(msg.filtered_encoder)
+            self.time.append(msg.time - start_time)
+            self.t.append(self.number)
+            self.number = self.number + 1
+            print(msg.time - start_time)
 
         count = 1
 

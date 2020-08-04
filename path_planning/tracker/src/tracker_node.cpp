@@ -337,8 +337,8 @@ void Tracker::calculate_input_signal(){
 	error = calculate_desired_vel() - current_vel;
 	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
 	integral_error = (integral_error>0)? integral_error:0;
-	differential_error = slope;
-	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
+	differential_error = -slope;
+	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error + desired_vel_after;
 	// pid_input's limit is 6  
 	if (pid_input > 6){
 		pid_input = 6;
@@ -348,7 +348,7 @@ void Tracker::calculate_input_signal(){
 	time = clock();
 	cout << "error : " << error << endl;
 	cout << "integral_error : " << integral_error << endl;
-	//cout << "differential_error : " << differential_error << endl;
+	cout << "differential_error : " << differential_error << endl;
 	cout << "pid_input : " << pid_input << endl; 
 }
 

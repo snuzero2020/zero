@@ -58,8 +58,8 @@ void Publisher::time_callback(const std_msgs::Float64::ConstPtr msg){
 
 int main(int argc, char *argv[])
 {
-	double vel1{2.0};
-	double vel2{1.0};
+	double vel1{2.5};
+	double vel2{2.0};
 
 	ros::init(argc,argv,"pub_vel");
 	cout << "aloha1" << endl;
