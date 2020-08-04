@@ -37,13 +37,13 @@ void Filter::encoder_sub_callback(const core_msgs::VehicleState::ConstPtr msg){
     encoder_data[2] = msg->speed;
     time[0] = time[1];
     time[1] = time[2];
-    time[2] = float(msg->header.stamp.sec) + msg->header.stamp.nsec / 1000000000.0;
-    std::cout << float(msg->header.stamp.sec) + msg->header.stamp.nsec / 1000000000.0 << std::endl;
+    time[2] = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
+    //std::cout << msg->header.stamp.sec << "  "  << msg->header.stamp.nsec / 1000000000.0 << std::endl;
 
 }
 
 void Filter::determind_filter_encoder(){
-    if (check == 3){
+    if (check == 0){
         if (encoder_data[0] - encoder_data[1] > threshold){
             if(encoder_data[2] - encoder_data[1] > threshold){
                 encoder_data[1] = (encoder_data[0] + encoder_data[2])/2.0;
@@ -53,7 +53,14 @@ void Filter::determind_filter_encoder(){
 
     core_msgs::Encoderfilter msg;
     msg.filtered_encoder = encoder_data[1];
-    msg.slope = (encoder_data[2] - encoder_data[0]) / (time[2] - time[0]);
+    if (abs(time[2] - time[0]) > 0.001){
+        msg.slope = (encoder_data[2] - encoder_data[0]) / (time[2] - time[0]);
+    }
+    else{
+        msg.slope = (encoder_data[2] - encoder_data[0]) / 0.001;
+    }
+
+    std::cout << msg.slope << std::endl;
     msg.time = time[1];
 
     filter_encoder_pub.publish(msg);
