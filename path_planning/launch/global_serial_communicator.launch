@@ -1,0 +1,11 @@
+<launch>
+   <node pkg="serial_communicator" type="input_signal"    
+               name="input_signal">
+   </node>
+
+   <node pkg="serial_communicator" type="serial_com.py" 
+              name="serial_com" 
+	      output="screen">
+   </node>
+</launch>
+
