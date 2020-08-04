@@ -6,13 +6,15 @@
 #include "slam/Data.h"
 #include <nav_msgs/Path.h>
 #include <cmath>
+#include "ros/package.h"
 
 class Global_path_gen{
 	private:
 		ros::NodeHandle nh;
 		ros::Publisher pub;
 		ros::Subscriber sub;
-	
+		std::stringstream path_stream;
+
 	public:
 	
 		int prev_pixel_x{}; 
@@ -20,10 +22,19 @@ class Global_path_gen{
 		int count{0};
 		nav_msgs::Path global_path;
 		//cv::Mat path_map = cv::Mat(15000, 15000, CV_8UC3, cv::Scalar(255,255,255));
-                cv::Mat path_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/global_path/glob_path.png");
+        	//cv::Mat path_map = cv::imread("/home/junseolee/catkin_ws/src/zero/slam/src/global_path/glob_path.png");
+		cv::Mat path_map;
 
 		Global_path_gen(){
 			sub = nh.subscribe("/filtered_data", 1000, &Global_path_gen::callback, this);
+			path_stream << ros::package::getPath("slam") << "/src/global_path/glob_path.png";	
+			path_map = cv::imread(path_stream.str());
+			if(path_map.empty()){
+				path_map = cv::Mat(15000, 15000, CV_8UC3, cv::Scalar(255,255,255));
+				ROS_INFO("Image initiated");
+			}else{
+				ROS_INFO("Image loaded");
+			}
 		}
 		
 		void callback(const slam::Data data){
@@ -66,7 +77,8 @@ class Global_path_gen{
 
 				std::cout << "pixel filled" << std::endl;
 				if(count%3==0) {
-					cv::imwrite("/home/healthykim/catkin_ws/src/zero/slam/src/global_path/glob_path.png", path_map);
+					//cv::imwrite("/home/junseolee/catkin_ws/src/zero/slam/src/global_path/glob_path.png", path_map);
+					cv::imwrite(path_stream.str(), path_map);
 					std::cout << "image saved" << std::endl;
 				}
 				count++;
