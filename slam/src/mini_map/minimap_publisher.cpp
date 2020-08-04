@@ -42,36 +42,25 @@ class map_tracer{
 		void callback(const slam::Data data){
 			int inst_pixel_x, inst_pixel_y;
 			int copy_pixel_x{}, copy_pixel_y{};
-                        //inst_pixel_x = data.x;
-		        //inst_pixel_y = data.y;
-			double theta;
+            double theta;
 			theta = data.theta;
 			XYToPixel(inst_pixel_x,inst_pixel_y,data.x,data.y);	
-			std::cout<<inst_pixel_x << inst_pixel_y << std::endl;
+			std::cout << inst_pixel_x << "," << inst_pixel_y << std::endl;
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	
 
-			if(count == 0){
+			if(count == 0 || ((inst_pixel_x-prev_pixel_x)*(inst_pixel_x-prev_pixel_x)+(inst_pixel_y-prev_pixel_y)*(inst_pixel_y-prev_pixel_y))>80){
 				prev_pixel_x = inst_pixel_x;
 				prev_pixel_y = inst_pixel_y;
-				// std::cout << "initial pose" << std::endl;
-				check = 1;
-			}
-			else if(((inst_pixel_x-prev_pixel_x)*(inst_pixel_x-prev_pixel_x)+(inst_pixel_y-prev_pixel_y)*(inst_pixel_y-prev_pixel_y))>80){
-				prev_pixel_x = inst_pixel_x;
-				prev_pixel_y = inst_pixel_y;
-				// std::cout << "pixel fixed" << std::endl;
-				check = 1;
-			}
-			if(check==1){
-				cv::circle(glob_map, cv::Point(inst_pixel_x, inst_pixel_y), 2, cv::Scalar(255,0,0), -1);
 				// std::cout << "pixel filled" << std::endl;
+				cv::circle(glob_map, cv::Point(inst_pixel_x, inst_pixel_y), 2, cv::Scalar(255,0,0), -1);
 				count++;
+				//check = 1;
 			}
 			
 			if(!x_500 && !y_500 && !x_14500 && !y_14500){
 				std::cout << "on map" << std::endl;
-				mini_map = glob_map(cv::Rect(inst_pixel_x-500,inst_pixel_y-500,1000,1000)).clone();
+				glob_map(cv::Rect(inst_pixel_x-500,inst_pixel_y-500,1000,1000)).copyTo(mini_map);
 				// for(int i=0; i<1000; i++){
 				//  	copy_pixel_y = inst_pixel_y - 500 + i;
 				//  	for(int j=0; j<1000; j++){

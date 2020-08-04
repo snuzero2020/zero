@@ -13,21 +13,23 @@
 #include <cv_bridge/cv_bridge.h>
 #include <cmath>
 
-//std::stringstream ss;
-//ss << ros::package::getPath("slam") << "src/mapping/costmap.png";
+#define HALF 150
 
 class Local_costmap_publisher{
         private:
                 ros::NodeHandle nh;
                 ros::Publisher pub;
                 ros::Subscriber sub;
+                int bighalf = (int)(HALF*std::sqrt(5));
 
         public:
 
-		int map_size = 300;
+		int map_size = 2*HALF;
                 std::stringstream path_stream;
                 cv::Mat glob_costmap;
-                
+                cv::Mat mini_costmap = cv::Mat(2*bighalf+1, 2*bighalf+1, CV_8UC1, cv::Scalar(0));
+                cv::Mat local_costmap = cv::Mat(map_size, map_size, CV_8UC1, cv::Scalar(0));
+			
                 //Constructor for local_path_publisher
                 Local_costmap_publisher(){
                         path_stream << ros::package::getPath("slam") << "/src/mapping/costmap.png";
@@ -45,50 +47,60 @@ class Local_costmap_publisher{
 		//const int channels = local_costmap.channels();
 
                 void callback(const slam::Data data){
-			cv::Mat local_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
-			geometry_msgs::PoseStamped loc_pose;
+			//cv::Mat local_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
+			//geometry_msgs::PoseStamped loc_pose;
                         int curr_pixel_x{}, curr_pixel_y{};
-                        double step = 0.5;
+                        //double step = 0.5;
                         double pix_heading{};
                         
 			if(data.theta >= 0) pix_heading = data.theta;
                         else pix_heading = data.theta + 2*M_PI;
 
-			double head_coor_x, head_coor_y;
-                        head_coor_x = (step)*sin(pix_heading);
-                        head_coor_y = (step)*cos(pix_heading);
+			// double head_coor_x, head_coor_y;
+                        // head_coor_x = (step)*sin(pix_heading);
+                        // head_coor_y = (step)*cos(pix_heading);
 			XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y);
-                        
-			double point_pixel_x{}, point_pixel_y{};
+                        bool x_s{curr_pixel_x <= bighalf}, y_s{curr_pixel_y <= bighalf}, x_b{curr_pixel_x >= 15000-bighalf}, y_b{curr_pixel_y >= 15000-bighalf};
+			std::cout << x_s << "," << y_s << "," << x_b << "," << y_b << std::endl;
+                        if(!x_s && !y_s && !x_b && !y_b){       
+                                cv::warpAffine( 
+                                        glob_costmap(cv::Rect(curr_pixel_x-bighalf, curr_pixel_y-bighalf, 2*bighalf+1, 2*bighalf+1)), 
+                                        mini_costmap, 
+                                        cv::getRotationMatrix2D(cv::Point(bighalf, bighalf), 90-pix_heading*180/M_PI, 1.0),
+                                        mini_costmap.size()
+                                        );
+                                local_costmap = mini_costmap(cv::Rect(bighalf-HALF, bighalf-2*HALF+1, 2*HALF, 2*HALF));
+                                // double point_pixel_x{}, point_pixel_y{};
 
-                        for(int j=1; j<600; j++){
-                                point_pixel_x = curr_pixel_x + j*head_coor_y;
-                                point_pixel_y = curr_pixel_y - j*head_coor_x;
-                                for(int i=1; i<300; i++){
-                                        point_pixel_x += head_coor_x;
-                                        point_pixel_y += head_coor_y;
-							
-					local_costmap.at<uchar>(int(300-j*step),int(150+i*step)) = int(glob_costmap.at<uchar>(int(point_pixel_y), int(point_pixel_x)));
-				}
-                        }
-                        for(int j=1; j<600; j++){
-                                point_pixel_x = curr_pixel_x + j*head_coor_y;
-                                point_pixel_y = curr_pixel_y - j*head_coor_x;
-                                for(int i=1; i<300; i++){
-                                        point_pixel_x += -head_coor_x;
-                                        point_pixel_y += -head_coor_y;
+                                // for(int j=1; j<600; j++){
+                                //         point_pixel_x = curr_pixel_x + j*head_coor_y;
+                                //         point_pixel_y = curr_pixel_y - j*head_coor_x;
+                                //         for(int i=1; i<300; i++){
+                                //                 point_pixel_x += head_coor_x;
+                                //                 point_pixel_y += head_coor_y;
+                                                                
+                                // 		local_costmap.at<uchar>(int(300-j*step),int(150+i*step)) = int(glob_costmap.at<uchar>(int(point_pixel_y), int(point_pixel_x)));
+                                // 	}
+                                // }
+                                // for(int j=1; j<600; j++){
+                                //         point_pixel_x = curr_pixel_x + j*head_coor_y;
+                                //         point_pixel_y = curr_pixel_y - j*head_coor_x;
+                                //         for(int i=1; i<300; i++){
+                                //                 point_pixel_x += -head_coor_x;
+                                //                 point_pixel_y += -head_coor_y;
 
-					local_costmap.at<uchar>(int(300-j*step),int(150-i*step)) = int(glob_costmap.at<uchar>(int(point_pixel_y), int(point_pixel_x)));
-				
-                                }
+                                // 		local_costmap.at<uchar>(int(300-j*step),int(150-i*step)) = int(glob_costmap.at<uchar>(int(point_pixel_y), int(point_pixel_x)));
+                                        
+                                //         }
+                                // }
+                                
+                                cv_bridge::CvImage img_bridge;
+                                sensor_msgs::Image img_msg;
+                                std_msgs::Header header;
+                                img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, local_costmap);
+                                img_bridge.toImageMsg(img_msg);
+                                pub.publish(img_msg);
                         }
-			
-			cv_bridge::CvImage img_bridge;
-                        sensor_msgs::Image img_msg;
-                        std_msgs::Header header;
-                        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, local_costmap);
-                        img_bridge.toImageMsg(img_msg);
-                        pub.publish(img_msg);
                 }
 
 };
