@@ -26,11 +26,6 @@ class Local_path{
 			path_stream << ros::package::getPath("slam") << "/src/global_path/glob_path.png";
 			glob_path = cv::imread(path_stream.str());
 		}
-		
-		
-		//cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
-		//set path to the saved global path image
-		cv::Mat glob_path = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/locpath_pubnode/glob_path.png");
 
 		void callback(const slam::Data data){
 			geometry_msgs::PoseStamped loc_pose;
@@ -40,34 +35,14 @@ class Local_path{
 			else pix_heading = data.theta + 2*M_PI;
 			double head_coor_x, head_coor_y;
 
-			/*
-			 if(pix_heading == 0){
-				head_coor_x = -0.5;
-				head_coor_y = 0;
-			}
-			else if(pix_heading == M_PI){
-				head_coor_x = 0.5;
-				head_coor_y = 0;
-			}
-			else if(pix_heading == M_PI_2){
-				head_coor_x = 0;
-				head_coor_y = 0.5;
-			}
-			else if(pix_heading == 3*M_PI_2){
-				head_coor_x = 0;
-				head_coor_y = -0.5;
-			}
-			*/
-			//else{
 			head_coor_x = (0.5)*sin(pix_heading);
 			head_coor_y = (0.5)*cos(pix_heading);
-			//}
 
 			XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y);
 			double point_pixel_x{}, point_pixel_y{};
 			
 			local_path.poses.clear();
-			for(int j=1; j<600; j++){
+			for(int j=0; j<600; j++){
 				point_pixel_x = curr_pixel_x + j*head_coor_y;
 				point_pixel_y = curr_pixel_y - j*head_coor_x;
 				for(int i=1; i<300; i++){
@@ -89,7 +64,7 @@ class Local_path{
 					}
 				}
 			}
-			for(int j=1; j<600; j++){
+			for(int j=0; j<600; j++){
 				point_pixel_x = curr_pixel_x + j*head_coor_y;
 				point_pixel_y = curr_pixel_y - j*head_coor_x;
 				for(int i=1; i<300; i++){
@@ -108,6 +83,7 @@ class Local_path{
 				}
 			}
 			publisher.publish(local_path);
+			std::cout << local_path.poses.size() << std::endl;
 		}
 
 };

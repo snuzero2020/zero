@@ -21,8 +21,6 @@ class Global_path_gen{
 		int prev_pixel_y{};
 		int count{0};
 		nav_msgs::Path global_path;
-		//cv::Mat path_map = cv::Mat(15000, 15000, CV_8UC3, cv::Scalar(255,255,255));
-        	//cv::Mat path_map = cv::imread("/home/junseolee/catkin_ws/src/zero/slam/src/global_path/glob_path.png");
 		cv::Mat path_map;
 
 		Global_path_gen(){
