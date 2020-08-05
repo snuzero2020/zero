@@ -40,8 +40,9 @@ public:
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
 
 		task = light = motion = parking_space = -1;
-		n.getParam("/isTrackDriving", isTrackDriving);
-		n.getParam("/stepsize_pp", stepsize_pp_value);
+		isTrackDriving = false;
+		//n.getParam("/isTrackDriving", isTrackDriving);
+		//n.getParam("/stepsize_pp", stepsize_pp_value);
 	}
 
 	void missionstateCallback(const std_msgs::UInt32 & msg){
@@ -63,6 +64,7 @@ public:
 
 		cout<<"cost_map callback\n";
 		if(isTrackDriving){
+			
 			int iternum;
 			double radius;
 			double stepsize;
@@ -73,6 +75,7 @@ public:
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);		
+			
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			//rrt.print_RRT();
 			int t = clock();
@@ -129,6 +132,9 @@ public:
 			ROS_INFO("pub, duration : %ld",clock()-t);
 		}
 		else {
+			///////////////////
+			task = light = motion = 0;
+
 			if(goals.poses.empty()) return;
 			if(task == -1) return;
 			
@@ -151,34 +157,22 @@ public:
 			int w = map.info.width;
 			for(int i = 0; i<h; i++){
 				for(int j = 0; j<w;j++){
-					//cost_map[i][j] = (double)(map.data[i*w+j]);
-					cost_map[h-1-i][w-1-j] = (double)(map.data[i*w+j]+ 1);
+					cost_map[i][j] = (double)(map.data[i*w+j]+ 1);
 				}
 			}
-
-			for (int i = 0;i<300;i+=10){
-				for(int j=0;j<300;j+=10){
-					printf("%3d ",(int)cost_map[i][j]);
-				}
-				cout<<"\n\n";
-			}
-			//for(int i = 0; i<h; i++){
-			//	for(int j = 0; j<w;j++){
-			//		cost_map[199-i][199-j] = ((double)map.data[j*w+i] * 4 * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
-			//	}
-			//}
 
 			// rrt star algorithm
 			vector<Cor> path;
-			Cor x(w/2,0);
+			Cor x(0,w/2);
 			
 			// 1. initial gear_state is forward(0)
 			// 2. when parking_complished if true, time_parking_complished is recorded.
 			// 3. when 20s is passed, gear_state is changed to rear(1) and time_parking_complished is reset to 0.
-			// 4. finally, when unparking_complished is true, gaer_state is changed to front(0).
+			// 4. finally, when unparking_complished is true, gear_state is changed to front(0).
 			bool parking_complished_changed = false, unparking_complished_changed = false;
 			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed);
-			
+			printf("goal : %lf %lf\n",y.x,y.y);
+						
 			if(parking_complished_changed){
 				time_parking_complished = clock();
 				// if  accidently clock() == 0
@@ -210,7 +204,7 @@ public:
 				return;
 			}
 
-			y.x+=w/2;
+			y.y+=w/2;
 			
 			rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
 
@@ -222,15 +216,16 @@ public:
 				return;
 			}
 
+			// not sure
 			cv::namedWindow("costmap_path");
 			cv::Mat image(h,w,CV_8UC3);
 			for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
-				image.at<cv::Vec3b>(i,j)[0] = cost_map[j][h-1-i];	
-				image.at<cv::Vec3b>(i,j)[1] = cost_map[j][h-1-i];	
-				image.at<cv::Vec3b>(i,j)[2] = cost_map[j][h-1-i];	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = cost_map[i][j];	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = cost_map[i][j];	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = cost_map[i][j];	
 			}
 			for(int i = 0;i<path.size()-1;i++)
-				line(image, cv::Point(path[i].x,h-1-path[i].y), cv::Point(path[i+1].x,h-1- path[i+1].y), cv::Scalar(100,200,50),1,0);
+				line(image, cv::Point(w-1-path[i].y,h-1-path[i].x), cv::Point(w-1-path[i+1].y,h-1- path[i+1].x), cv::Scalar(100,200,50),1,0);
 
 			cv::imshow("costmap_path",image);
 			cv::waitKey(1);
@@ -238,12 +233,14 @@ public:
 			// convert path
 			nav_msgs::Path local_path;
 
+
+			// tracker use another coordinate system, heading = y axis!, right = x axis!
 			geometry_msgs::PoseStamped poseStamped;
 			int cnt = 0;
 			for(Cor cor : path){
 				poseStamped.header.seq = ++cnt;
-				poseStamped.pose.position.x = cor.x-w/2;
-				poseStamped.pose.position.y = cor.y;
+				poseStamped.pose.position.x = - (cor.y-w/2);
+				poseStamped.pose.position.y = cor.x;
 				local_path.poses.push_back(poseStamped);
 			}
 			poseStamped.header.seq = 0;

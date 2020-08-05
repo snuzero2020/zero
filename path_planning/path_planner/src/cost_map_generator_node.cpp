@@ -38,12 +38,12 @@ int main(int argc, char **argv)
 	int tmp = 10;
 	for(int i = 0;i<300;i++){
 		for(int j = 0;j<300;j++){
-			if(i >=100 && i<=200) 
+			if(j >=100 && j<=200) 
 			{
 				if(i >=140 && i<=160 && j >=140 && j<=180)
 				{
-					//cost_map.data.push_back((int8_t)50);
-					cost_map.data.push_back((int8_t)tmp);
+					cost_map.data.push_back((int8_t)50);
+					//cost_map.data.push_back((int8_t)tmp);
 				}
 				else
 					cost_map.data.push_back((int8_t)tmp);
@@ -52,24 +52,24 @@ int main(int argc, char **argv)
 		}
 	}
 
-while(ros::ok()){
-	nav_msgs::Path goals;
-	geometry_msgs::PoseStamped pose;
-	pose.pose.position.y=50;
-	pose.pose.position.x=0;
-	goals.poses.push_back(pose);
-	pose.pose.position.y=100;
-	pose.pose.position.x=0;
-	goals.poses.push_back(pose);
-	pose.pose.position.y=200;
-	pose.pose.position.x=0;
-	goals.poses.push_back(pose);
-	goals_pub.publish(goals);
-
-	ROS_INFO("pub");
-	cost_map_pub.publish(cost_map);
-	ros::spinOnce();
-	loop_rate.sleep();
-}
-return 0;
+	while(ros::ok()){
+		nav_msgs::Path goals;
+		geometry_msgs::PoseStamped pose;
+		pose.pose.position.y=0;
+		pose.pose.position.x=50;
+		goals.poses.push_back(pose);
+		pose.pose.position.y=0;
+		pose.pose.position.x=100;
+		goals.poses.push_back(pose);
+		pose.pose.position.y=0;
+		pose.pose.position.x=200;
+		goals.poses.push_back(pose);
+		goals_pub.publish(goals);
+	
+		ROS_INFO("pub");
+		cost_map_pub.publish(cost_map);
+		ros::spinOnce();
+		loop_rate.sleep();
+	}
+	return 0;
 }
