@@ -1,11 +1,11 @@
 #ifndef RRT_STAR
 #define RRT_STAR
 #include <iostream>
-#include <ctime>   // time()
-#include <cstdlib> // rand()
 #include <vector>
 #include <cmath>
-#include <algorithm> // reverse()
+#include <ctime>   // use time()
+#include <cstdlib> // use rand()
+#include <algorithm> // use reverse()
 
 using namespace std;
 
@@ -51,6 +51,8 @@ using namespace std;
 //};
 //
 
+
+// 2d point coordinate class
 class Cor {
     public:
         double x, y;
@@ -64,6 +66,7 @@ class Cor {
         }
 };
 
+// node class for tree class, has coordinate member(= location)
 class Node {
     public:
         double cost_sum; // cost sum from the start
@@ -77,6 +80,8 @@ class Node {
         void insert_child(Node* ptr) { children.push_back(ptr); }
 };
 
+
+// tree class for rrt star
 class Tree {
     private:
         std::vector<Node> nodes;
@@ -94,22 +99,23 @@ class Tree {
 	const int arrsize() {return node_cnt;}
 	Node& operator[](int idx) {return nodes[idx];}
         Node* insert(Node node) {
-            if (node_cnt == size) {
+	    if (node_cnt == size) {
                 size <<= 1;
                 nodes.resize(size);
             }
             nodes[node_cnt++] = node;
-			return &nodes[node_cnt-1];
+	    return &nodes[node_cnt-1];
         }
 };
 
 
 // optimal path = cost가 가장 작은 path
+// METHOD : initial straight check --> rrt star (+ bidirectional + path optimization)
 class RRT {
     public:
         std::vector<std::vector<double>> cost_map;
-        int size = 1<<13; // intialize tree size
-        const int map_length = 200; // map length
+        int size = 1<<13; // intial tree size
+        const int map_length = 300; // map length
         int iternum; // iteration number
         double radius; // radius to find near nodes
         double stepsize; // step size to check obstacle and steer (cost(), steer())
@@ -120,20 +126,14 @@ class RRT {
             iternum = _iternum; radius = _radius; stepsize = _stepsize; threshold = _threshold; threshold2 = _threshold2;
         }
         ~RRT() {}
-        //test
-	    // void print_RRT(){
-		//     cout << "iternum: " << iternum << endl;
-		//     cout << "radius: " << radius << endl;
-		//     cout << "stepsize: " << stepsize << endl;
-		//     cout << "threshold: " << threshold << endl;
-	    // };
-		// cost between two points
-		double cost(Cor start, Cor dest);
+
+	// cost between two points
+	double cost(Cor start, Cor dest);
 
         // pick random point in map
         Cor random_point();
 
-        // pick nearest point
+        // pick nearest point of tree from specific point 
         Cor nearest(Tree& tree, Cor point);
 
         // cost가 threshold이상이거나 거리가 radius이상이면 stop, 만약 dest까지 갔다면 check = true
@@ -149,8 +149,8 @@ class RRT {
         // near points들의 cost update
         void rewire(std::vector<Node*>& Q_near, Node* q_new_node, Tree& tree);
 
-		// cost update
-		void cost_update(Node* parent, const double diff, Tree& tree);
+	// cost update for every children of parent
+	void cost_update(Node* parent, const double diff, Tree& tree);
 
         // path발견시 부모를 따라가면서 parent, cost update
         void pathOptimization(Node* q_cur, Tree& tree);
@@ -158,12 +158,14 @@ class RRT {
 	// check straight path from start to dest
 	bool straightCheck(Cor start, Cor dest);
 
+	// CALLING RRT STAR FUNCTION
         void solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden=false);
+	
+	// check obstacle between two points
+	bool isobstacle(Cor a, Cor b);
 
-
-		bool isobstacle(Cor a, Cor b);
-
-		bool isobstacle(Cor c);
+	// check if this point is on obstacle
+	bool isobstacle(Cor c);
 };
 
 #endif

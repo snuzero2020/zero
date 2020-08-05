@@ -7,6 +7,7 @@ from slam.msg import Data
 from matplotlib import pyplot as plt
 import sys, select, termios, tty
 from std_msgs.msg import Float64
+from core_msgs.msg import Encoderfilter
 
 def init():
     while not rospy.is_shutdown():
@@ -14,7 +15,7 @@ def init():
         rospy.init_node('control_test', anonymous = True)
         vehiclestate = getVehicleState()
         #rospy.Subscriber("filtered_data", Data, vehiclestate.callback)
-        rospy.Subscriber("/vehicle_state",VehicleState , vehiclestate.callback)
+        rospy.Subscriber("filter_encoder_data",Encoderfilter, vehiclestate.callback)
         rospy.spin()
 
 count = 0
@@ -31,20 +32,20 @@ class getVehicleState():
 
         global count 
         global start_time 
-
+        
         if(count == 0):
-            start_time =  float(msg.header.stamp.secs) + msg.header.stamp.nsecs / 1000000000.0 
+            start_time = msg.time
         
         if(count == 1):
-            self.speed.append(msg.speed)
-            self.time.append((float(msg.header.stamp.secs) + msg.header.stamp.nsecs / 1000000000.0) - start_time)
+            self.speed.append(msg.filtered_encoder)
+            self.time.append(msg.time - start_time)
             self.t.append(self.number)
             self.number = self.number + 1
-            print(msg.speed)
+            print(msg.time - start_time)
 
         count = 1
 
-        if (self.number == 1000):
+        if (self.number == 300):
             plt.plot(self.t, self.speed)
             plt.grid(True)
             plt.show()

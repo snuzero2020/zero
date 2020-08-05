@@ -26,8 +26,7 @@ class Signal {
             brake = msg.brake;
             gear = msg.gear;
             speed = msg.speed;
-            steer = msg.steer-3.1; //3.1 is offset angle of steering.
-            //steer = msg.steer;
+            steer = msg.steer - 2.5; //3.1 is offset angle of steering.            //steer = msg.steer;
         }
 };
 

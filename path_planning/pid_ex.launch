@@ -1,0 +1,9 @@
+<launch>
+	<include file="$(find serial_communicator)/pid_serial_communicator.launch" />
+
+	<include file="$(find tracker)/launch/pid_tracker.launch" />
+
+	<include file="$(find pid_control)/pid_pid.launch" />
+
+	<rosparam file="/home/snuzero/catkin_ws/src/zero/path_planning/zeroprac.yaml" />
+</launch>

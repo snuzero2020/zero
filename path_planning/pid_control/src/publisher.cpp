@@ -42,7 +42,7 @@ class Publisher
 			:curr_local_path(Path()), curr_odom(Odometry())
 			{
 				//local_path_pub = nh.advertise<Path>("local_path",100);
-				odometry_pub = nh.advertise<Odometry>("odometory",100);
+				//odometry_pub = nh.advertise<Odometry>("odometory",100);
 				recommend_vel_pub = nh.advertise<Float32>("recommend_vel",100);
 				time_sub_vel_sub = nh.subscribe("start_time",100, &Publisher::time_callback, this);
 			}
@@ -58,10 +58,10 @@ void Publisher::time_callback(const std_msgs::Float64::ConstPtr msg){
 
 int main(int argc, char *argv[])
 {
-	double vel1{3.0};
-	double vel2{0.0};
+	double vel1{2.5};
+	double vel2{2.0};
 
-	ros::init(argc,argv,"publisher_temp");
+	ros::init(argc,argv,"pub_vel");
 	cout << "aloha1" << endl;
 	Publisher publisher{Publisher()};
 	cout << "aloha2" << endl;

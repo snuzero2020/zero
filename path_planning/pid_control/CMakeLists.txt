@@ -26,10 +26,10 @@ include_directories(
 )
 
 add_executable(PID_tracker_node src/pid_tracker.cpp)
-add_executable(publisher src/publisher.cpp)
+add_executable(pub_vel src/publisher.cpp)
 add_executable(pid_control_node src/pid_control.cpp)
 
-add_dependencies(publisher core_msgs_generate_messages_cpp)
+add_dependencies(pub_vel core_msgs_generate_messages_cpp)
 add_dependencies(PID_tracker_node core_msgs_generate_messages_cpp)
 add_dependencies(PID_tracker_node slam_generate_messages_cpp)
 add_dependencies(pid_control_node core_msgs_generate_messages_cpp)
@@ -38,7 +38,7 @@ add_dependencies(pid_control_node slam_generate_messages_cpp)
  target_link_libraries(PID_tracker_node
    ${catkin_LIBRARIES}
  )
- target_link_libraries(publisher
+ target_link_libraries(pub_vel
    ${catkin_LIBRARIES}
  )
  target_link_libraries(pid_control_node

@@ -8,6 +8,8 @@
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Point.h>
 #include "core_msgs/Control.h"
+#include "core_msgs/VehicleState.h"
+#include "core_msgs/Encoderfilter.h"
 
 using namespace std;
 using namespace std_msgs;
@@ -31,22 +33,24 @@ class Tracker
 
 		Float32 steering_angle;
 		Path curr_local_path;
-		Odometry curr_odom;
+		double current_vel{0};
 
 		// configuration constants
 		double look_ahead_oval_ratio{2}; // ratio of look ahead area which is oval shape
 		double upper_radius;
 		double lower_radius;
 
-		double current_vel{0};
 		Point look_ahead_point{Point()};
 		double curvature{0};
 		double nonslip_steering_angle{0}; // right side is positive, degree
 		double rotational_radius{0};
 
 		// PID control
-		double recommend_vel{-1}; // determine by mission master and location
-		double desired_vel{0}; // get from current_vel and recommend_vel
+		double recommend_vel{0}; // determine by mission master and location
+		double desired_vel_before{0}; // get from current_vel and recommend_vel
+		double desired_vel_after{0};
+		double desired_vel_buff{0};
+		double slope{0};
 
 		double P_gain;
 		double I_gain;
@@ -58,44 +62,44 @@ class Tracker
 		double pid_input{0};
 		clock_t time = clock();
 
+		int decel_level = 0;
+		int decel_check = 0;
+
 
 	public:
 
 		ros::Publisher steering_angle_pub;
 		ros::Publisher car_signal_pub;
 		ros::Subscriber local_path_sub;
-		ros::Subscriber odometry_sub;
+		ros::Subscriber current_vel_sub;
 		ros::Subscriber recommend_vel_sub;
-
 
 		// initializer
 		Tracker() 
-			:steering_angle(Float32()), curr_local_path(Path()), curr_odom(Odometry()),
-			look_ahead_oval_ratio(0)
-	{
-		steering_angle_pub = nh.advertise<Float32>("configuration",1000);
-		car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
-		local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
-		odometry_sub = nh.subscribe("odometory",100,&Tracker::odometory_callback,this);
-		recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
-		nh.getParam("/P_gain", P_gain);
-		nh.getParam("/I_gain", I_gain);
-		nh.getParam("/D_gain", D_gain);
-		nh.getParam("/upper_radius", upper_radius);
-		nh.getParam("/lower_radius", lower_radius);
-	}
+			:steering_angle(Float32()), curr_local_path(Path()), look_ahead_oval_ratio(2)
+		{
+			steering_angle_pub = nh.advertise<Float32>("configuration",1000);
+			car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
+			local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
+			//current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
+			current_vel_sub = nh.subscribe("filter_encoder_data",100, &Tracker::current_vel_callback, this);
+			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
+			nh.getParam("/P_gain", P_gain);
+			nh.getParam("/I_gain", I_gain);
+			nh.getParam("/D_gain", D_gain);
+			nh.getParam("/upper_radius", upper_radius);
+			nh.getParam("/lower_radius", lower_radius);
+		}
 
 		// setter function
 		void set_steering_angle(const double angle) {steering_angle.data = angle;}
 		void set_curr_local_path(const Path& path) {curr_local_path=path;}
-		void set_curr_odom(const Odometry odom) {curr_odom = odom;}
 		// getter function
 		const Float32 get_steering_angle() {return steering_angle;}
 		const Path get_current_path() {return curr_local_path;}
-		const Odometry get_current_odom() {return curr_odom;}
 		// callback function
 		void local_path_callback(const Path::ConstPtr msg);
-		void odometory_callback(const Odometry::ConstPtr msg);
+		void current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg);
 		void recommend_vel_callback(const Float32::ConstPtr msg);
 
 		// Fuctions for determind steering angle
@@ -124,6 +128,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	//set_curr_local_path(msg);
 	curr_local_path = Path();
 	curr_local_path.header = msg->header;
+	curr_local_path.header.seq = 0;
 	int i{0};
 	while(1)
 	{
@@ -138,16 +143,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		}
 		i++;
 	}
-}
 
-void Tracker::odometory_callback(const Odometry::ConstPtr msg)
-{
-	//set_curr_odom(msg);
-	curr_odom.header = msg->header;
-	curr_odom.pose = msg->pose;
-	curr_odom.twist = msg->twist;
-
-	// if there's no path generated, estop.
 	if (curr_local_path.poses.size()==0){
 		core_msgs::Control msg;
 
@@ -162,42 +158,43 @@ void Tracker::odometory_callback(const Odometry::ConstPtr msg)
 
 		return;
 	}
+
 	if (recommend_vel<-0.2)
-		return;
+		return;	
 
-	int time{static_cast<int>(clock())};
-
-	cout << "before determind steering angle\n";	
 	determind_steering_angle();
-	cout << "before calculate input signal\n";	
 	calculate_input_signal();
-	cout << "before vehicle output signal\n";	
 	vehicle_output_signal();
 
 	cout << "current_vel : " << current_vel << endl;
 	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
 	cout << "steering_angle : " << steering_angle << endl;
-	cout << "pid_input : " << pid_input << endl;
-	cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
+	//cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
 }
+
 
 void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
 {
 	recommend_vel = msg->data;
 }
 
+void Tracker::current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg){
+	current_vel = msg->filtered_encoder;
+	slope = msg->slope;
+}
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
 // output : look_ahead_point
 void Tracker::set_look_ahead_point()
 {
-	cout << "set_look_ahead_point start\n";
-	current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
+	//current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
+
 	double major_axis_radius{determind_major_axis_radius()};
 	int idx{0};
 	double check_outside{0};
 	while(1)
 	{
+		// end of path --> lower radius and iter from the start
 		if (curr_local_path.poses[idx].header.seq == 0)
 		{
 			if (major_axis_radius < 5){
@@ -208,6 +205,7 @@ void Tracker::set_look_ahead_point()
 			idx = 0;
 			continue;
 		}
+
 		check_outside = (curr_local_path.poses[idx].pose.position.x)*(curr_local_path.poses[idx].pose.position.x)/((major_axis_radius/look_ahead_oval_ratio)* (major_axis_radius/look_ahead_oval_ratio))
 			+ (curr_local_path.poses[idx].pose.position.y)*(curr_local_path.poses[idx].pose.position.y)/((major_axis_radius)*(major_axis_radius));
 		if (check_outside>1)
@@ -226,9 +224,10 @@ void Tracker::solve_pure_pursuit()
 {
 	Point rotational_center{Point()};
 	double temp_angle;
-	// curr_local_path.header.seq | 0x10 != 0x10 : front gear
-	// curr_local_path.header.seq | 0x10 == 0x10 : reverse gear (only for parking motion with backward motion
-	if (curr_local_path.header.seq | 0x10 != 0x10){
+	bool is_front_gear = ((curr_local_path.header.seq & 0x10) != 0x10);
+	// curr_local_path.header.seq & 0x10 != 0x10 : front gear
+	// curr_local_path.header.seq & 0x10 == 0x10 : reverse gear (only for parking motion with backward motion
+	if (is_front_gear){
 		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
 		rotational_center.y = -1.05*100/3.0;
 		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
@@ -245,14 +244,14 @@ void Tracker::solve_pure_pursuit()
 	// temp_angle < 3.141592/2.0 : right turn
 	// temp_angle > 3.141592/2.0 : left turn
 	if (temp_angle < 3.141592/2.0){
-		if (curr_local_path.header.seq | 0x10 != 0x10){
+		if (is_front_gear){
 			nonslip_steering_angle = temp_angle*180/3.141592;
 		}
 		else
 			nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
 	}
 	else{
-		if (curr_local_path.header.seq | 0x10 != 0x10){
+		if (is_front_gear){
 			nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
 		}
 		else
@@ -265,20 +264,32 @@ void Tracker::solve_pure_pursuit()
 void Tracker::adjust_steering_angle()
 {
 	// experimental result should be reflected
-	cout << "Experimental result should be reflected.\n";
-	steering_angle.data = nonslip_steering_angle;
+	//left 
+	if(nonslip_steering_angle<1e-6)
+	{
+		steering_angle.data = -84.359 * pow(rotational_radius*0.03, -1.029);
+		cout<<"rotational_radius: "<<rotational_radius<<endl;
+		cout<<"---"<<endl;
+	}
+	//right
+	else
+	{
+		steering_angle.data = 83.556 * pow(rotational_radius*0.03, -0.99);
+		cout<<"rotational_radius: "<<rotational_radius<<endl;
+		
+		cout<<"---"<<endl;
+	}
+	// total
+	//float sign = (nonslip_steering_angle>0)?1.0:-1.0;
+	//steering_angle.data = sign * 79.12363452 * pow(rotational_radius, -0.98117930922);	
 }
 
 // capsulized module
 void Tracker::determind_steering_angle()
 {
-	cout << "check1\n";
 	set_look_ahead_point();
-	cout << "check2\n";
 	solve_pure_pursuit();
-	cout << "check3\n";
 	adjust_steering_angle();
-	cout << "check4\n";
 }
 
 // input : current_vel
@@ -297,8 +308,19 @@ double Tracker::determind_major_axis_radius()
 double Tracker::calculate_desired_vel(){
 	double look_ahead_multiplier{0};
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
-	look_ahead_multiplier = (look_ahead_multiplier>1)? 1:look_ahead_multiplier;
-	return recommend_vel*(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
+	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
+	desired_vel_after =  recommend_vel *(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
+	
+	if (abs(desired_vel_buff-desired_vel_after)>0.0001) //&& recommend_vel_change_check == false)
+	{
+		desired_vel_before = desired_vel_buff;
+		desired_vel_buff = desired_vel_after;
+	}
+
+	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
+	cout << "desired_vel_before : " << desired_vel_before << endl;
+	cout << "desired_vel_after : " << desired_vel_after << endl;
+	return desired_vel_after;
 }
 
 // input : current_vel, recommed_vel, curvature
@@ -311,36 +333,200 @@ void Tracker::calculate_input_signal(){
 		first = false;
 		return;
 	}
+
 	error = calculate_desired_vel() - current_vel;
 	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
-	differential_error = (error - Prev_error)/(double(clock() - time)/(double)CLOCKS_PER_SEC);
-	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error;
+	integral_error = (integral_error>0)? integral_error:0;
+	differential_error = -slope;
+	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error + desired_vel_after;
+	// pid_input's limit is 6  
+	if (pid_input > 6){
+		pid_input = 6;
+	}
 	Prev_error = error;
 	cout << "dt : " << (clock()-time)/(double)CLOCKS_PER_SEC << endl;
 	time = clock();
 	cout << "error : " << error << endl;
 	cout << "integral_error : " << integral_error << endl;
 	cout << "differential_error : " << differential_error << endl;
+	cout << "pid_input : " << pid_input << endl; 
 }
 
-
+/*
 void Tracker::vehicle_output_signal(){
 	core_msgs::Control msg;
 
+	//if ( desired_vel_before > desired_vel_after){
+	if ( current_vel > desired_vel_after){
+		decel_check = 1;
+		integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
+	}
+
+	if(decel_check == 1){
+		if (desired_vel_before < 1.01){
+			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
+				decel_level = 1;
+			}
+			else {
+				decel_level = 0;
+				decel_check = 0;
+			}
+		}
+
+		else if(desired_vel_before <2.01){
+			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
+				decel_level = 2;
+			}
+			else {
+				decel_level = 0;
+				decel_check = 0;
+			}			
+		}
+		else if (desired_vel_before < 4.5){
+			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
+				decel_level = 3;
+			}
+			else {
+				decel_level = 0;
+				decel_check = 0;
+			}
+		}
+		else {
+			cout << "Someting wrong" << endl;
+			msg.brake = 100;
+			msg.speed = 0;
+			decel_check = 0;
+		}
+	}
+
+	else{
+		decel_level = 0;
+	}
+
+
+	if (decel_level == 0){
+		msg.brake = 0;
+		msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
+		cout << "real pid input : " << msg.speed << endl;
+	}
+
+	else if (decel_level == 1){
+		msg.brake = 0;
+		msg.speed = 0;
+		integral_error = 0.0;
+	}
+
+	else if (decel_level == 2){
+		msg.brake = 0;
+		msg.speed = 0;
+		integral_error = 0.0;
+	}
+
+	else if (decel_level == 3){
+		msg.brake = 0;
+		msg.speed = 0;
+		integral_error = 0.0;
+	}
+
+	else {
+		cout << "Someting wrong" << endl;
+		msg.brake = 100;
+		msg.speed = 0;
+	}
+
+	cout << "current_vel : " << current_vel << endl;
+	cout << "decel_level : " << decel_level << endl;
+	cout << "decel_check : " << decel_check << endl;
+
 	msg.is_auto = 1;
 	msg.estop = 0;
+
+	cout<<"curr seq : "<<curr_local_path.header.seq<<"\n\n"; 
 	// forward motion
-	if (curr_local_path.header.seq | 0x10 != 0x10){
+	if ((curr_local_path.header.seq & 0x10) != 0x10){
 		msg.gear = 0;
 	}
 	// backward motion
 	else{
 		msg.gear = 2;
 	}
-	msg.brake = 0;
-	msg.speed = 1.0;//(pid_input>0)?pid_input:0; // try offset method
-	msg.steer = get_steering_angle().data;
 
+	msg.steer = get_steering_angle().data;
+	car_signal_pub.publish(msg);
+}
+*/
+
+void Tracker::vehicle_output_signal(){
+	core_msgs::Control msg;
+
+	//if ( desired_vel_before > desired_vel_after){
+	if ( current_vel > desired_vel_after + 0.000001){
+		decel_check = 1;
+	}
+
+	if(decel_check == 1){
+		//if (desired_vel_before < 1.01){
+		if (current_vel < 1.01){
+			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
+				decel_level = 1;
+				integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
+			}
+			else {
+				decel_level = 0;
+				decel_check = 0;
+			}
+		}
+		else if (desired_vel_before < 4.5){
+			decel_level = 0;
+			decel_check = 0;
+		}
+		else {
+			cout << "Someting wrong" << endl;
+			msg.brake = 100;
+			msg.speed = 0;
+			decel_check = 0;
+		}
+	}
+
+	else{
+		decel_level = 0;
+	}
+
+
+	if (decel_level == 0){
+		msg.brake = 0;
+		msg.speed = (pid_input>0)?pid_input:0;
+		//msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
+		cout << "real pid input : " << msg.speed << endl;
+	}
+	else if (decel_level == 1){
+		msg.brake = 0;
+		msg.speed = 0;
+	}
+	else {
+		cout << "Someting wrong" << endl;
+		msg.brake = 100;
+		msg.speed = 0;
+	}
+
+	cout << "current_vel : " << current_vel << endl;
+	cout << "decel_level : " << decel_level << endl;
+	cout << "decel_check : " << decel_check << endl;
+
+	msg.is_auto = 1;
+	msg.estop = 0;
+
+	cout<<"curr seq : "<<curr_local_path.header.seq<<"\n\n"; 
+	// forward motion
+	if ((curr_local_path.header.seq & 0x10) != 0x10){
+		msg.gear = 0;
+	}
+	// backward motion
+	else{
+		msg.gear = 2;
+	}
+
+	msg.steer = get_steering_angle().data;
 	car_signal_pub.publish(msg);
 }
 
@@ -348,7 +534,6 @@ void Tracker::vehicle_output_signal(){
 
 int main(int argc, char *argv[])
 {
-	int count{0};
 
 	ros::init(argc,argv,"path_traker");
 	ros::NodeHandle nh;

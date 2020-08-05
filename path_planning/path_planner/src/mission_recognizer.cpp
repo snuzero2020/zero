@@ -51,7 +51,8 @@ using namespace std;
 //
 
 class RosNode{
-	private:
+	//private:
+	public:
 		ros::NodeHandle n;
 		ros::Subscriber light_state_sub;
 		//ros::Subscriber task_state_sub;
@@ -65,7 +66,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[5] = {3,2,2,2,1};
+		float recommend_vel_info[6] = {1,2,2,2,1,3};
 
 		RosNode(){
 			light_state_sub = n.subscribe("light_state", 50, &RosNode::lightstateCallback, this);
@@ -73,7 +74,7 @@ class RosNode{
 			sector_info_sub = n.subscribe("/sector_info", 50, &RosNode::sectorInfoCallback, this);
 			mission_state_pub = n.advertise<std_msgs::UInt32>("mission_state", 50);
 			recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 50);
-			light_state = -1;
+			light_state = 15;
 
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
@@ -84,16 +85,17 @@ class RosNode{
 
 			checker_container.resize(6, Checker());
 
-			checker_container[0] = Checker(A_task.size());
-			checker_container[0].state_list = A_task;
-			checker_container[1] = Checker(B_task.size());
-			checker_container[1].state_list = B_task;
-			checker_container[2] = Checker(C_task.size());
-			checker_container[2].state_list = C_task;
-			checker_container[3] = Checker(D_task.size());
-			checker_container[3].state_list = D_task;
-			checker_container[4] = Checker(E_task.size());
-			checker_container[4].state_list = E_task;
+//////////////////////////////////////////
+			checker_container[A] = Checker(A_task.size());
+			checker_container[A].state_list = A_task;
+			checker_container[B] = Checker(B_task.size());
+			checker_container[B].state_list = B_task;
+			checker_container[C] = Checker(C_task.size());
+			checker_container[C].state_list = C_task;
+			checker_container[D] = Checker(D_task.size());
+			checker_container[D].state_list = D_task;
+			checker_container[E] = Checker(E_task.size());
+			checker_container[E].state_list = E_task;
 
 			vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
 			sector_pass_checker = Checker(sector_order.size());
@@ -112,18 +114,85 @@ class RosNode{
 		void sectorInfoCallback(const std_msgs::UInt32 & msg){
 
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
-			float recommend_vel = recommend_vel_info[msg.data];
-
-			if(debug) ROS_INFO("sector_info : %d", msg.data);
-			if(debug) ROS_INFO("task_state : %d", task_state);
+///////////////////////////////////////
+			std_msgs::Float32 recommend_vel_msg;
+			recommend_vel_msg.data = recommend_vel_info[sector_pass_checker.get_present_task()];
+			recommend_vel_pub.publish(recommend_vel_msg);
 
 			int motion_state;
 			motion_state_determiner(motion_state,task_state,light_state);
 			
+			if(debug) print_debug((int)msg.data, task_state, light_state, motion_state);
+
+			// sector, task, light, motion (each 4 bits)
 			std_msgs::UInt32 mission_state;
-			mission_state.data =(((int)recommend_vel*4)<<12) | (task_state<<8) | (light_state<<4) | motion_state;
+			mission_state.data =(((int)msg.data)<<12) | (task_state<<8) | (light_state<<4) | motion_state;
 			mission_state_pub.publish(mission_state);		
 		}
+
+		void print_debug(int sector, int task, int light, int motion){
+			switch(sector){
+				case A : ROS_INFO("sector : A");
+					break;
+				case B : ROS_INFO("sector : B");
+					break;
+				case C : ROS_INFO("sector : C");
+					break;
+				case D : ROS_INFO("sector : D");
+					break;
+				case E : ROS_INFO("sector : E");
+					break;
+				case X : ROS_INFO("sector : X");
+					break;
+			}
+
+			switch(task){
+				case DRIVING_SECTION : ROS_INFO("task : DRIVING_SECTION");
+					break;
+				case INTERSECTION_STRAIGHT : ROS_INFO("task : INTERSECTION_STRAIGHT");
+					break;
+				case INTERSECTION_LEFT : ROS_INFO("task : INTERSECTION_LEFT");
+					break;
+				case INTERSECTION_RIGHT : ROS_INFO("task : INTERSECTION_RIGHT");
+					break;
+				case INTERSECTION_STRAIGHT_UNSIGNED : ROS_INFO("task : INTERSECTION_STRAIGHT_UNSIGNED");
+					break;
+				case INTERSECTION_LEFT_UNSIGNED : ROS_INFO("task : INTERSECTION_LEFT_UNSIGNED");
+					break;
+				case INTERSECTION_RIGHT_UNSIGNED : ROS_INFO("task : INTERSECTION_RIGHT_UNSIGNED");
+					break;
+				case OBSTACLE_STATIC : ROS_INFO("task : OBSTACLE_STATIC");
+					break;
+				case OBSTACLE_SUDDEN : ROS_INFO("task : OBSTACLE_SUDDEN");
+					break;
+				case CROSSWALK : ROS_INFO("task : CROSSWALK");
+					break;
+				case PARKING : ROS_INFO("task : PARKING");
+					break;
+			}
+
+			if(isSign(light, 0)) ROS_INFO("light : GREEN_LIGHT");
+			if(isSign(light, 1)) ROS_INFO("light : LEFT_LIGHT");
+			if(isSign(light, 2)) ROS_INFO("light : YELLOW_LIGHT");
+			if(isSign(light, 3)) ROS_INFO("light : RED_LIGHT");
+
+			switch(motion){
+				case FORWARD_MOTION : ROS_INFO("motion : FORWARD_MOTION");
+					break;
+				case FORWARD_SLOW_MOTION : ROS_INFO("motion : FORWARD_SLOW_MOTION");
+					break;
+				case HALT_MOTION : ROS_INFO("motion : HALT_MOTION");
+					break;
+				case LEFT_MOTION : ROS_INFO("motion : LEFT_MOTION");
+					break;
+				case RIGHT_MOTION : ROS_INFO("motion : RIGHT_MOTION");
+					break;
+				case PARKING_MOTION : ROS_INFO("motion : PARKING_MOTION");
+					break;
+			}
+		}
+
+		
 
 		void motion_state_determiner(int &motion_state, int task_state, int light_state){
 
@@ -211,6 +280,24 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "mission_recognizer");
 	RosNode rosnode;
 	ROS_INFO("start");
-	ros::spin();
+	
+	//ros::spin();
+
+	// code for first global way point driving
+	/////////////////////////////////////////////////////
+	ros::Rate loop(100);
+	while(1)
+	{
+			ros::spinOnce();
+			std_msgs::Float32 recommend_vel_msg;
+			//recommend_vel_msg.data = rosnode.recommend_vel_info[rosnode.sector_pass_checker.get_present_task()];
+			recommend_vel_msg.data = 3;
+			rosnode.recommend_vel_pub.publish(recommend_vel_msg);
+			std_msgs::UInt32 mission_state;
+			mission_state.data = 0;
+			rosnode.mission_state_pub.publish(mission_state);		
+		loop.sleep();
+	}
+	/////////////////////////////////////////////////////
 	return 0;
 }
