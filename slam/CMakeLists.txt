@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   message_generation
   cv_bridge
+  message_filters
   cmake_modules #for eigen used in sensing/kalman_fusion
 )
 #for eigen used in sensing/kalman_fusion
@@ -96,6 +97,11 @@ add_executable(local_costmap_publisher src/mapping/local_costmap_publisher.cpp l
 target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
 
+#add_executable for local_costmap_publisher
+add_executable(pp_visualizer src/pp_visualizer/pp_visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(pp_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(pp_visualizer slam_generate_messages_cpp)
+
 add_executable(lidar_pose_estimator src/clustering/lidar_pose_estimator.cpp)
 target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
@@ -123,6 +129,10 @@ add_dependencies(sector_publisher slam_generate_messages_cpp)
 add_executable(local_path_publisher src/global_path/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher ${catkin_LIBRARIES})
 add_dependencies(local_path_publisher slam_generate_messages_cpp)
+
+add_executable(global_path_generator src/global_path/global_path_generator.cpp)
+target_link_libraries(global_path_generator ${catkin_LIBRARIES})
+add_dependencies(global_path_generator slam_generate_messages_cpp)
 
 
 catkin_install_python(PROGRAMS 
