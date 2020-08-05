@@ -126,10 +126,13 @@ add_executable(sector_publisher src/mapping/sector_publisher.cpp)
 target_link_libraries(sector_publisher ${catkin_LIBRARIES})
 add_dependencies(sector_publisher slam_generate_messages_cpp)
 
+add_executable(local_path_publisher src/global_path/local_path_publisher.cpp)
+target_link_libraries(local_path_publisher ${catkin_LIBRARIES})
+add_dependencies(local_path_publisher slam_generate_messages_cpp)
+
 add_executable(global_path_generator src/global_path/global_path_generator.cpp)
 target_link_libraries(global_path_generator ${catkin_LIBRARIES})
 add_dependencies(global_path_generator slam_generate_messages_cpp)
-
 
 
 catkin_install_python(PROGRAMS 
