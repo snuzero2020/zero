@@ -6,12 +6,14 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+#include "nav_msgs/OccupancyGrid.h"
 
 class Localmap_Publisher{
 	private:
 		ros::NodeHandle nh;
 		ros::Publisher publisher;
 		ros::Subscriber subscriber;
+		ros::Publisher 
 
 	public:
 		static int count;
