@@ -42,7 +42,8 @@ int main(int argc, char **argv)
 			{
 				if(i >=140 && i<=160 && j >=140 && j<=180)
 				{
-					cost_map.data.push_back((int8_t)50);
+					//cost_map.data.push_back((int8_t)50);
+					cost_map.data.push_back((int8_t)tmp);
 				}
 				else
 					cost_map.data.push_back((int8_t)tmp);

@@ -66,7 +66,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[6] = {3,2,2,2,1,3};
+		float recommend_vel_info[6] = {1,2,2,2,1,3};
 
 		RosNode(){
 			light_state_sub = n.subscribe("light_state", 50, &RosNode::lightstateCallback, this);
@@ -289,6 +289,10 @@ int main(int argc, char **argv)
 	while(1)
 	{
 			ros::spinOnce();
+			std_msgs::Float32 recommend_vel_msg;
+			//recommend_vel_msg.data = rosnode.recommend_vel_info[rosnode.sector_pass_checker.get_present_task()];
+			recommend_vel_msg.data = 3;
+			rosnode.recommend_vel_pub.publish(recommend_vel_msg);
 			std_msgs::UInt32 mission_state;
 			mission_state.data = 0;
 			rosnode.mission_state_pub.publish(mission_state);		
