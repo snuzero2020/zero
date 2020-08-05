@@ -69,16 +69,16 @@ class Global_path_gen{
 				else{
 					path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[0] = int(data.theta*180/M_PI+360)/2;
 				}
-
+				
 				path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[1] = 0;
 				path_map.at<cv::Vec3b>(inst_pixel_y, inst_pixel_x)[2] = 0;
 
 				std::cout << "pixel filled" << std::endl;
-				if(count%3==0) {
+				//if(count%3==0) {
 					//cv::imwrite("/home/junseolee/catkin_ws/src/zero/slam/src/global_path/glob_path.png", path_map);
 					cv::imwrite(path_stream.str(), path_map);
 					std::cout << "image saved" << std::endl;
-				}
+				//}
 				count++;
 			}
 
