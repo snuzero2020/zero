@@ -61,7 +61,7 @@ public:
 		static int time_parking_complished{0};
 		static int gear_state{0};
 
-		cout<<"callback\n";
+		cout<<"cost_map callback\n";
 		if(isTrackDriving){
 			int iternum;
 			double radius;
@@ -97,8 +97,8 @@ public:
 			rrt.solve(path,cost_map,x, y);
 
 			cv::namedWindow("costmap_path");
-			cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);
-			for(int i = 0;i<rrt.map_length;i++) for(int j = 0;j<rrt.map_length;j++){
+			cv::Mat image(h,w,CV_8UC3);
+			for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
 				image.at<cv::Vec3b>(i,j)[0] = cost_map[j][199-i];	
 				image.at<cv::Vec3b>(i,j)[1] = cost_map[j][199-i];	
 				image.at<cv::Vec3b>(i,j)[2] = cost_map[j][199-i];	
@@ -151,8 +151,16 @@ public:
 			int w = map.info.width;
 			for(int i = 0; i<h; i++){
 				for(int j = 0; j<w;j++){
-					cost_map[i][j] = (double)(map.data[i*w+j]);
+					//cost_map[i][j] = (double)(map.data[i*w+j]);
+					cost_map[h-1-i][w-1-j] = (double)(map.data[i*w+j]+ 1);
 				}
+			}
+
+			for (int i = 0;i<300;i+=10){
+				for(int j=0;j<300;j+=10){
+					printf("%3d ",(int)cost_map[i][j]);
+				}
+				cout<<"\n\n";
 			}
 			//for(int i = 0; i<h; i++){
 			//	for(int j = 0; j<w;j++){
@@ -205,6 +213,9 @@ public:
 			y.x+=w/2;
 			
 			rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
+
+			for(Cor point :  path)
+				cout << point.x << "," << point.y << endl;
 			if(path.empty()){
 				nav_msgs::Path local_path;	
 				path_pub.publish(local_path);
@@ -212,14 +223,14 @@ public:
 			}
 
 			cv::namedWindow("costmap_path");
-			cv::Mat image(rrt.map_length,rrt.map_length,CV_8UC3);
-			for(int i = 0;i<rrt.map_length;i++) for(int j = 0;j<rrt.map_length;j++){
-				image.at<cv::Vec3b>(i,j)[0] = cost_map[j][199-i];	
-				image.at<cv::Vec3b>(i,j)[1] = cost_map[j][199-i];	
-				image.at<cv::Vec3b>(i,j)[2] = cost_map[j][199-i];	
+			cv::Mat image(h,w,CV_8UC3);
+			for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
+				image.at<cv::Vec3b>(i,j)[0] = cost_map[j][h-1-i];	
+				image.at<cv::Vec3b>(i,j)[1] = cost_map[j][h-1-i];	
+				image.at<cv::Vec3b>(i,j)[2] = cost_map[j][h-1-i];	
 			}
 			for(int i = 0;i<path.size()-1;i++)
-				line(image, cv::Point(path[i].x,199-path[i].y), cv::Point(path[i+1].x,199- path[i+1].y), cv::Scalar(100,200,50),1,0);
+				line(image, cv::Point(path[i].x,h-1-path[i].y), cv::Point(path[i+1].x,h-1- path[i+1].y), cv::Scalar(100,200,50),1,0);
 
 			cv::imshow("costmap_path",image);
 			cv::waitKey(1);

@@ -13,7 +13,7 @@ radius: 30.0
 stepsize_rrt: 1.0
 # path_planner_node
 stepsize_pp: 5.0
-isTrackDriving: True
+isTrackDriving: 0
 # pid_control
 vel1: 3.0
 vel2: 2.0

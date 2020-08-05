@@ -51,7 +51,8 @@ using namespace std;
 //
 
 class RosNode{
-	private:
+	//private:
+	public:
 		ros::NodeHandle n;
 		ros::Subscriber light_state_sub;
 		//ros::Subscriber task_state_sub;
@@ -279,6 +280,20 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "mission_recognizer");
 	RosNode rosnode;
 	ROS_INFO("start");
-	ros::spin();
+	
+	//ros::spin();
+
+	// code for first global way point driving
+	/////////////////////////////////////////////////////
+	ros::Rate loop(100);
+	while(1)
+	{
+			ros::spinOnce();
+			std_msgs::UInt32 mission_state;
+			mission_state.data = 0;
+			rosnode.mission_state_pub.publish(mission_state);		
+		loop.sleep();
+	}
+	/////////////////////////////////////////////////////
 	return 0;
 }

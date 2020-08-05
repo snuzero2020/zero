@@ -55,7 +55,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
 	///////////////////////////////////////////////
-	const double angle{0};
+	const double angle{0.0};
 	const int x{0};
 	const int y{0};
 
@@ -138,13 +138,14 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 
-		int pose_flag = poseStamped.header.seq & 0xF;
+		//int pose_flag = poseStamped.header.seq & 0xF;
+		int pose_flag = 0;
 		int pose_seq = poseStamped.header.seq>>4;
 
 		// check flag
 		if(!flag[pose_flag]) continue;
 
-		double goal_angle = poseStamped.pose.orientation.z;
+		double goal_angle = poseStamped.pose.position.z;
 		double ang_diff = angle - goal_angle;
 		ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
 		
@@ -159,11 +160,11 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(ang_diff < M_PI/2) continue;
 		}
 		
-		double dx = poseStamped.pose.orientation.x;
-		double dy = poseStamped.pose.orientation.y;
-
+		double dx = poseStamped.pose.position.x;
+		double dy = poseStamped.pose.position.y;
+		printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx+costmap.size()/2][(int)dy]);
 		// check obstacle
-		if(costmap[(int)dx][(int)dy] >= OBSTACLE) {
+		if(costmap[(int)dx+costmap.size()/2][(int)dy] >= OBSTACLE) {
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
 			continue;
 		}
@@ -171,7 +172,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
 
 		// not sub path
-		if(flag[pose_flag]!=1){
+		//if(flag[pose_flag]!=1){
+		if(pose_flag!=1){
 			if(abs(dist - look_ahead_radius) > key) continue;
 			key = abs(dist - look_ahead_radius);
 			value = i;
@@ -198,18 +200,18 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			// check flag
 			if(!flag[pose_flag]) continue;
 
-			double goal_angle = poseStamped.pose.orientation.z;
+			double goal_angle = poseStamped.pose.position.z;
 			double ang_diff = angle - goal_angle;
 			ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
 		
 			// check if same dir
 			if(ang_diff > M_PI/2) continue;
 		
-			double dx = poseStamped.pose.orientation.x;
-			double dy = poseStamped.pose.orientation.y;
+			double dx = poseStamped.pose.position.x;
+			double dy = poseStamped.pose.position.y;
 
 			// check obstacle
-			if(costmap[(int)dx][(int)dy] >= OBSTACLE) continue;
+			if(costmap[(int)dx+costmap.size()/2][(int)dy] >= OBSTACLE) continue;
 
 			// check closer than obstacle
 			if(pose_seq >= nearest_obs_seq) continue;
@@ -234,8 +236,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	// if we find goal, return
 	if(value != -1){
-		double gx = goals[value].pose.orientation.x;
-		double gy = goals[value].pose.orientation.y;
+		double gx = goals[value].pose.position.x;
+		double gy = goals[value].pose.position.y;
 		return Cor(gx,gy);
 	}
 
@@ -247,8 +249,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 
 		// else return sub path
-		double gx = goals[value_sub].pose.orientation.x;
-		double gy = goals[value_sub].pose.orientation.y;
+		double gx = goals[value_sub].pose.position.x;
+		double gy = goals[value_sub].pose.position.y;
 		return Cor(gx,gy);
 	}
 	else if(task == OBSTACLE_SUDDEN){
