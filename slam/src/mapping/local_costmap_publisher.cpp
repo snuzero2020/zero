@@ -35,9 +35,9 @@ class Local_costmap_publisher{
                         path_stream << ros::package::getPath("slam") << "/src/mapping/costmap.png";
                         glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
                         ROS_INFO("Image loaded");
-                        //pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);
+                        pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);
                         sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
-                        cost_map_pub = nh.advertise<nav_msgs::OccupancyGrid>("/local_costmap", 2);
+                        cost_map_pub = nh.advertise<nav_msgs::OccupancyGrid>("/cost_map_with_goal_vector", 2);
                 }
                 
 
@@ -92,7 +92,7 @@ class Local_costmap_publisher{
                         cost_map.info.height = 300;
 
                         for (int i = 0; i < 300; i++){
-                                for (int j = 0; j < 300; j++) cost_map.data.push_back(local_costmap.at<uchar>(300-j,300-i)); 
+                                for (int j = 0; j < 300; j++) cost_map.data.push_back((int8_t)local_costmap.at<uchar>(300-j,300-i)); 
                         }
 
                         cost_map_pub.publish(cost_map);

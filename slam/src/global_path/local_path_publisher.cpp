@@ -41,10 +41,9 @@ class LocalPathPublisher{
 
     public:
     
-    nav_msgs::Path local_path;
 
     LocalPathPublisher(){
-        local_path_pub = nh.advertise<nav_msgs::Path>("/globalpath_nearby", 2);
+        local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
         filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
         load_global_path();
     }
@@ -75,7 +74,7 @@ class LocalPathPublisher{
     }
 
     void global_to_local(){
-
+	nav_msgs::Path local_path;
         slam::Data pose;
         geometry_msgs::PoseStamped pose_change;
         for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
@@ -99,6 +98,7 @@ class LocalPathPublisher{
                 }
             }
         }
+	printf("# of local path : %d\n", local_path.poses.size());
         local_path_pub.publish (local_path);
     }
 
