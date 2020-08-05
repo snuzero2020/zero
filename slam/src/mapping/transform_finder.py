@@ -36,6 +36,8 @@ if __name__ == '__main__':
 
     print("a1 : ", c*R[0,0], ", b1 : ", c*R[0,1], ", c1 : ", p[0,0])
     print("a2 : ", c*R[1,0], ", b2 : ", c*R[1,1], ", c2 : ", p[1,0])
+    print(bc)
+    print(ac)
     print("error : ")
 
     affine_matrix = np.concatenate((c*R,p),axis=1)

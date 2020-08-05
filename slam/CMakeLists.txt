@@ -46,9 +46,9 @@ target_link_libraries(kalman_fusion ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(kalman_fusion slam_generate_messages_cpp)
 
 #add_executable for mapping
-#add_executable(gps_marker src/mapping/gps_marker.cpp lib/XYToPixel.cpp)
-#target_link_libraries(gps_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#add_dependencies(gps_marker slam_generate_messages_cpp)
+add_executable(gps_marker src/mapping/gps_marker.cpp lib/XYToPixel.cpp)
+target_link_libraries(gps_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(gps_marker slam_generate_messages_cpp)
 
 #add_executable(gps_subscriber_node src/mapping/gps_subscriber_node.cpp lib/UTM.cpp lib/XYToPixel.cpp)
 #target_link_libraries(gps_subscriber_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})

@@ -18,7 +18,7 @@ color_threshold: 180
 #sensing
 #gps_decoder.cpp
 #type = double
-QI_err: 2
+QI_err: 1
 QI_warn: 4
 Satellites_err: 4
 Satellites_warn: 8
@@ -29,7 +29,7 @@ HDOP_warn: 3.5
 #type = double
 initial_state_error_var : 10.0
 initial_a_process_noise_var : 1.0
-initial_omega_process_noise_var : 0.1
+initial_omega_process_noise_var : 0.001
 initial_imu_observation_noise_var : 1.0
 initial_gps_observation_noise_var : 0.2
 time_noise_var : 0.002

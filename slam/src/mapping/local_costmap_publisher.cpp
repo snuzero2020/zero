@@ -25,17 +25,22 @@ class Local_costmap_publisher{
         public:
 
 		int map_size = 300;
-
+                std::stringstream path_stream;
+                cv::Mat glob_costmap;
+                
                 //Constructor for local_path_publisher
                 Local_costmap_publisher(){
-                        pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 10);
-                        sub = nh.subscribe("/filtered_data", 1000, &Local_costmap_publisher::callback, this);
+                        path_stream << ros::package::getPath("slam") << "/src/mapping/costmap.png";
+                        glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
+                        ROS_INFO("Image loaded");
+                        pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);
+                        sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
                 }
 
 
                 //cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
 		//set path for own global costmap
-		cv::Mat glob_costmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/costmap.png", cv::IMREAD_GRAYSCALE);
+		//cv::Mat glob_costmap = cv::imread("/home/parallels/catkin_ws/src/zero/slam/src/mapping/costmap.png", cv::IMREAD_GRAYSCALE);
 		//cv::Mat local_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
 		//const int channels = local_costmap.channels();
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ros/ros.h>
+#include "ros/package.h"
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <slam/Pixel.h>
@@ -8,8 +9,13 @@
 
 class sector_publisher{
     public:
-        cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/mapping/color_map.png");
+        std::stringstream path_stream;
+        cv::Mat color_map;
+		//cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/src/mapping/color_map.png");
         sector_publisher(){
+            path_stream << ros::package::getPath("slam") << "/src/mapping/color_map.png";
+		    cv::Mat color_map = cv::imread(path_stream.str());
+            ROS_INFO("Image loaded");
             pub = nh.advertise<std_msgs::UInt32>("/sector_info", 1000);
             sub = nh.subscribe("/position/pixel", 1000, &sector_publisher::callback, this);
           //  nBlue = 0; nGreen = 0; nRed = 0;

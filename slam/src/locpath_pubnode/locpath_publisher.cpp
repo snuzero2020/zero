@@ -61,7 +61,8 @@ class Local_path{
 
 			XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y);
 			double point_pixel_x{}, point_pixel_y{};
-
+			
+			local_path.poses.clear();
 			for(int j=1; j<600; j++){
 				point_pixel_x = curr_pixel_x + j*head_coor_y;
 				point_pixel_y = curr_pixel_y - j*head_coor_x;
