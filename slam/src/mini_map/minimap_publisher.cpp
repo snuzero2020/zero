@@ -10,7 +10,6 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 
-
 class map_tracer{
 	private:
 		ros::NodeHandle nh;
@@ -35,7 +34,6 @@ class map_tracer{
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
 			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
 		}
-
 		int prev_pixel_x{}, prev_pixel_y{};
 		int count{0}, check{0};
 
@@ -100,7 +98,6 @@ class map_tracer{
 				}
 				cv::circle(mini_map, cv::Point(500,500), 3, cv::Scalar(0,255,0), -1);
 				cv::arrowedLine(mini_map, cv::Point(500,500), cv::Point(500+50*cos(theta), 500-50*sin(theta)), (0,0,255), 8, 0, 0.5);
-
 				cv_bridge::CvImage img_bridge;
 				sensor_msgs::Image img_msg;
 				std_msgs::Header header;
