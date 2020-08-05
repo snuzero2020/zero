@@ -24,7 +24,7 @@ find_package(OpenCV REQUIRED)
 add_message_files(
   DIRECTORY msg 
   FILES 
-  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Pixel.msg
+  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Pixel.msg GlobalPathPoint.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
 
@@ -125,6 +125,10 @@ add_dependencies(convert_XY_To_Pixel slam_generate_messages_cpp)
 add_executable(sector_publisher src/mapping/sector_publisher.cpp)
 target_link_libraries(sector_publisher ${catkin_LIBRARIES})
 add_dependencies(sector_publisher slam_generate_messages_cpp)
+
+add_executable(global_path_generator src/global_path/global_path_generator.cpp)
+target_link_libraries(global_path_generator ${catkin_LIBRARIES})
+add_dependencies(global_path_generator slam_generate_messages_cpp)
 
 
 
