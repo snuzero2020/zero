@@ -40,8 +40,9 @@ public:
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
 
 		task = light = motion = parking_space = -1;
-		n.getParam("/isTrackDriving", isTrackDriving);
-		n.getParam("/stepsize_pp", stepsize_pp_value);
+		isTrackDriving = false;
+		//n.getParam("/isTrackDriving", isTrackDriving);
+		//n.getParam("/stepsize_pp", stepsize_pp_value);
 	}
 
 	void missionstateCallback(const std_msgs::UInt32 & msg){
@@ -63,6 +64,7 @@ public:
 
 		cout<<"cost_map callback\n";
 		if(isTrackDriving){
+			
 			int iternum;
 			double radius;
 			double stepsize;
@@ -73,6 +75,7 @@ public:
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);		
+			
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			//rrt.print_RRT();
 			int t = clock();
@@ -129,9 +132,17 @@ public:
 			ROS_INFO("pub, duration : %ld",clock()-t);
 		}
 		else {
+			///////////////////
+			task = light = motion = 0;
+
 			if(goals.poses.empty()) return;
 			if(task == -1) return;
-			
+			int iternum=500;
+			double radius=50.0;
+			double stepsize=1.0;
+			double threshold=100.0;
+			double threshold2=30.0;
+/*
 			int iternum;
 			double radius;
 			double stepsize;
@@ -142,6 +153,7 @@ public:
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);		
+*/
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			int t = clock();
 
@@ -165,7 +177,8 @@ public:
 			// 4. finally, when unparking_complished is true, gear_state is changed to front(0).
 			bool parking_complished_changed = false, unparking_complished_changed = false;
 			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed);
-			
+			printf("goal : %lf %lf\n",y.x,y.y);
+						
 			if(parking_complished_changed){
 				time_parking_complished = clock();
 				// if  accidently clock() == 0

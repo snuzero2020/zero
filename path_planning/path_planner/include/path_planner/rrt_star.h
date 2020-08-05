@@ -115,7 +115,7 @@ class RRT {
     public:
         std::vector<std::vector<double>> cost_map;
         int size = 1<<13; // intial tree size
-        const int map_length = 200; // map length
+        const int map_length = 300; // map length
         int iternum; // iteration number
         double radius; // radius to find near nodes
         double stepsize; // step size to check obstacle and steer (cost(), steer())

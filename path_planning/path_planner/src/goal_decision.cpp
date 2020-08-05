@@ -137,7 +137,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	int sz = goals.size();
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
-
+printf("goal decision iter : %d\n",i);
 		//int pose_flag = poseStamped.header.seq & 0xF;
 		int pose_flag = 0;
 		int pose_seq = poseStamped.header.seq>>4;
@@ -145,6 +145,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		// check flag
 		if(!flag[pose_flag]) continue;
 
+printf("pass flag check\n");
 		double goal_angle = poseStamped.pose.position.z;
 		double ang_diff = angle - goal_angle;
 		ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
@@ -160,11 +161,12 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(ang_diff < M_PI/2) continue;
 		}
 		
+printf("pass ang_diff check\n");
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
-		printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx+costmap.size()/2][(int)dy]);
+		printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx][(int)dy+costmap.size()/2]);
 		// check obstacle
-		if(costmap[(int)dx+costmap.size()/2][(int)dy] >= OBSTACLE) {
+		if(costmap[(int)dx][(int)dy+costmap.size()/2] >= OBSTACLE) {
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
 			continue;
 		}
@@ -211,7 +213,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			double dy = poseStamped.pose.position.y;
 
 			// check obstacle
-			if(costmap[(int)dx+costmap.size()/2][(int)dy] >= OBSTACLE) continue;
+			if(costmap[(int)dx][(int)dy+costmap.size()/2] >= OBSTACLE) continue;
 
 			// check closer than obstacle
 			if(pose_seq >= nearest_obs_seq) continue;
