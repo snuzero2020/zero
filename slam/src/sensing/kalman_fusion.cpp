@@ -129,19 +129,20 @@ class Kalman_fusion{
         this->t=t;
         Matrix<double,_ST,_ST> F;
         F << 1,0,dt,0,0 , 0,1,0,dt,0 , 0,0,1,0,0 , 0,0,0,1,0 , 0,0,0,0,1;
-        Matrix<double,_ST,_Q> B;
-        B << 0.5*(abs(dt)+time_noise_var)*(abs(dt)+time_noise_var),0,0 , 0,0.5*(abs(dt)+time_noise_var)*(abs(dt)+time_noise_var),0 , abs(dt)+time_noise_var,0,0 , 0,abs(dt)+time_noise_var,0 , 0,0,abs(dt)+time_noise_var;
         double th = st(4);
         st = F*st;
-        F(0,4)= 0.5*dt*dt*(-sin(th)*u(0) -cos(th)*u(1));
-        F(1,4)= 0.5*dt*dt*(+cos(th)*u(0) -sin(th)*u(1));
-        F(2,4)= dt*(-sin(th)*u(0) -cos(th)*u(1));
-        F(3,4)= dt*(+cos(th)*u(0) -sin(th)*u(1));
+        F(0,4) = 0.5*dt*dt*(-sin(th)*u(0) -cos(th)*u(1)) + (1.0/6.0)*dt*dt*dt*u(2)*(-cos(th)*u(0) +sin(th)*u(1));
+        F(1,4) = 0.5*dt*dt*(+cos(th)*u(0) -sin(th)*u(1)) + (1.0/6.0)*dt*dt*dt*u(2)*(-sin(th)*u(0) -cos(th)*u(1));
+        F(2,4) = dt*(-sin(th)*u(0) -cos(th)*u(1)) + 0.5*dt*dt*u(2)*(-cos(th)*u(0) +sin(th)*u(1));
+        F(3,4) = dt*(+cos(th)*u(0) -sin(th)*u(1)) + 0.5*dt*dt*u(2)*(-sin(th)*u(0) -cos(th)*u(1));
+        Matrix<double,_ST,_Q> B;
+        //B << 0.5*(abs(dt)+time_noise_var)*(abs(dt)+time_noise_var),0,0 , 0,0.5*(abs(dt)+time_noise_var)*(abs(dt)+time_noise_var),0 , abs(dt)+time_noise_var,0,0 , 0,abs(dt)+time_noise_var,0 , 0,0,abs(dt)+time_noise_var;
+        B << 0.5*dt*dt*cos(th),-0.5*dt*dt*sin(th),0 , 0.5*dt*dt*sin(th),0.5*dt*dt*cos(th),0 , dt*cos(th),-dt*sin(th),0 , dt*sin(th),dt*cos(th),0 , 0,0,dt;
         P = F*P*F.transpose()+B*Q*B.transpose();
-        st(0) += 0.5*dt*dt*(+cos(th)*u(0) -sin(th)*u(1));
-        st(1) += 0.5*dt*dt*(+sin(th)*u(0) +cos(th)*u(1));
-        st(2) += dt*(+cos(th)*u(0) -sin(th)*u(1));
-        st(3) += dt*(+sin(th)*u(0) +cos(th)*u(1));
+        st(0) += 0.5*dt*dt*(+cos(th)*u(0) -sin(th)*u(1)) + (1.0/6.0)*dt*dt*dt*u(2)*(-sin(th)*u(0) -cos(th)*u(1));
+        st(1) += 0.5*dt*dt*(+sin(th)*u(0) +cos(th)*u(1)) + (1.0/6.0)*dt*dt*dt*u(2)*(+cos(th)*u(0) -sin(th)*u(1));
+        st(2) += dt*(+cos(th)*u(0) -sin(th)*u(1)) + 0.5*dt*dt*u(2)*(-sin(th)*u(0) -cos(th)*u(1));
+        st(3) += dt*(+sin(th)*u(0) +cos(th)*u(1)) + 0.5*dt*dt*u(2)*(+cos(th)*u(0) -sin(th)*u(1));
         st(4) += dt*u(2);
         st(4)=remainder(st(4),2*PI);
     }
@@ -164,7 +165,7 @@ class Kalman_fusion{
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "kalman_controller");
+    ros::init(argc, argv, "kalman_fusion");
     Kalman_fusion<> kf;
     ros::spin();
     return 0;

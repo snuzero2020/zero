@@ -6,21 +6,25 @@
 #include "slam/Data.h"
 #include "nav_msgs/Path.h"
 #include <cmath>
+#include "ros/package.h"
 
 class Local_path{
 	private:
 		ros::NodeHandle nh;
 		ros::Publisher publisher;
 		ros::Subscriber subscriber;
+		std::stringstream path_stream;
 
 	public:
 		//A local path. It's coordinates origin set as car's position and y-axis set as car's heading
 		nav_msgs::Path local_path;
-
+		cv::Mat glob_path;
 		//Constructor for local_path_publisher
 		Local_path(){
 			publisher = nh.advertise<nav_msgs::Path>("/globpath_nearby", 1000);
 			subscriber = nh.subscribe("/filtered_data", 1000, &Local_path::callback, this);
+			path_stream << ros::package::getPath("slam") << "/src/global_path/glob_path.png";
+			glob_path = cv::imread(path_stream.str());
 		}
 		
 		
@@ -33,7 +37,7 @@ class Local_path{
 			int curr_pixel_x{}, curr_pixel_y{};
 			double pix_heading{};
 		       	if(data.theta >= 0) pix_heading = data.theta;
-			else pix_heading = data.theta + M_2_PI;
+			else pix_heading = data.theta + 2*M_PI;
 			double head_coor_x, head_coor_y;
 
 			/*

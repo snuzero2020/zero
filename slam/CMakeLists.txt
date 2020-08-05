@@ -84,9 +84,9 @@ target_link_libraries(BGRmap_to_costmap ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(BGRmap_to_costmap)
 
 #add_executable for global_path
-#add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYToPixel.cpp)
-#target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#add_dependencies(globpath_generator slam_generate_messages_cpp)
+add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYToPixel.cpp)
+target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(globpath_generator slam_generate_messages_cpp)
 
 add_executable(object_detector src/clustering/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
@@ -94,7 +94,7 @@ add_dependencies(object_detector slam_generate_messages_cpp)
 
 #add executable for local_costmap_publisher
 add_executable(local_costmap_publisher src/mapping/local_costmap_publisher.cpp lib/XYToPixel.cpp)
-target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
 
 #add_executable for local_costmap_publisher
@@ -110,8 +110,12 @@ add_executable(obstacle_image src/clustering/obstacle_image.cpp)
 target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(obstacle_image slam_generate_messages_cpp)
 
+add_executable(cone_detection src/clustering/find_cone.cpp)
+target_link_libraries(cone_detection ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(cone_detection slam_generate_messages_cpp)
+
 add_executable(gps_collector src/mapping/gps_collector.cpp)
-target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_collector slam_generate_messages_cpp)
 
 add_executable(convert_XY_To_Pixel src/mapping/convert_XY_To_Pixel.cpp)
