@@ -137,12 +137,7 @@ public:
 
 			if(goals.poses.empty()) return;
 			if(task == -1) return;
-			int iternum=500;
-			double radius=50.0;
-			double stepsize=1.0;
-			double threshold=100.0;
-			double threshold2=30.0;
-/*
+			
 			int iternum;
 			double radius;
 			double stepsize;
@@ -153,7 +148,6 @@ public:
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);		
-*/
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			int t = clock();
 
@@ -212,7 +206,7 @@ public:
 
 			y.y+=w/2;
 			
-			//rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
+			rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
 
 			for(Cor point :  path)
 				cout << point.x << "," << point.y << endl;
