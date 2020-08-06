@@ -37,7 +37,7 @@ class LocalPathPublisher{
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
 
-    string input_file_ = "/home/lee/catkin_ws/src/zero/slam/src/locpath_pubnode/global_path.txt";
+    string input_file_ = "/home/jeongwoooh/catkin_ws/a.txt";
 
     public:
     
@@ -74,7 +74,7 @@ class LocalPathPublisher{
     }
 
     void global_to_local(){
-	nav_msgs::Path local_path;
+	    nav_msgs::Path local_path;
         slam::Data pose;
         geometry_msgs::PoseStamped pose_change;
         for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
@@ -90,12 +90,10 @@ class LocalPathPublisher{
             pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
             pose_change.pose.position.z = pose.theta - current_pose.theta;
 
-            if (pose_change.pose.position.x < length){
-                if (pose_change.pose.position.y < length){
-                    pose_change.pose.position.x = int (pose_change.pose.position.x / length * pixel);
-                    pose_change.pose.position.y = int (pose_change.pose.position.y / length * pixel);
-                    local_path.poses.push_back(pose_change);
-                }
+            if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
+                pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
+                pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
+                local_path.poses.push_back(pose_change);   
             }
         }
 	printf("# of local path : %d\n", local_path.poses.size());

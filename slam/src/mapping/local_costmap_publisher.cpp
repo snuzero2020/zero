@@ -92,7 +92,7 @@ class Local_costmap_publisher{
                         cost_map.info.height = 300;
 
                         for (int i = 0; i < 300; i++){
-                                for (int j = 0; j < 300; j++) cost_map.data.push_back((int8_t)local_costmap.at<uchar>(300-j,300-i)); 
+                                for (int j = 0; j < 300; j++) cost_map.data.push_back((int8_t)local_costmap.at<uchar>(300-i,300-j)); 
                         }
 
                         cost_map_pub.publish(cost_map);
