@@ -1,9 +1,9 @@
 <launch>
-	<include file="/home/taekop/catkin_ws/src/zero/path_planning/launch/global_serial_communicator.launch" />
+	<include file="/home/snuzero/catkin_ws/src/zero/path_planning/launch/global_serial_communicator.launch" />
 
-	<include file="/home/taekop/catkin_ws/src/zero/path_planning/launch/global_tracker.launch" />
+	<include file="/home/snuzero/catkin_ws/src/zero/path_planning/launch/global_tracker.launch" />
 
-	<include file="/home/taekop/catkin_ws/src/zero/path_planning/launch/global_path_planner.launch" />
+	<include file="/home/snuzero/catkin_ws/src/zero/path_planning/launch/global_path_planner.launch" />
 
-	<rosparam file="/home/taekop/catkin_ws/src/zero/path_planning/zeroprac.yaml" />
+	<rosparam file="/home/snuzero/catkin_ws/src/zero/path_planning/zeroprac.yaml" />
 </launch>
