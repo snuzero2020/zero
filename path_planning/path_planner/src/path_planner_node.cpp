@@ -235,14 +235,35 @@ public:
 
 
 			// tracker use another coordinate system, heading = y axis!, right = x axis!
-			geometry_msgs::PoseStamped poseStamped;
 			int cnt = 0;
-			for(Cor cor : path){
-				poseStamped.header.seq = ++cnt;
-				poseStamped.pose.position.x = - (cor.y-w/2);
-				poseStamped.pose.position.y = cor.x;
-				local_path.poses.push_back(poseStamped);
+			double stepsz = 4.0;
+			Cor cor;
+			geometry_msgs::PoseStamped poseStamped;
+			for(int i = 0;i<path.size();i++){
+				cor = path[i];
+				if(i==path.size()-1){
+					poseStamped.header.seq = ++cnt;
+					poseStamped.pose.position.x = - (cor.y-w/2);
+					poseStamped.pose.position.y = cor.x;
+					local_path.poses.push_back(poseStamped);
+					continue;
+				}
+				Cor cor_next = path[i+1];
+				double ds = sqrt((cor.x-cor_next.x)*(cor.x-cor_next.x) + (cor.y-cor_next.y)*(cor.y-cor_next.y));
+				double dx = (cor_next.x - cor.x) * stepsz / ds;
+				double dy = (cor_next.y - cor.y) * stepsz / ds;
+				int stepcnt = 0;
+				while(stepsz*stepcnt<ds){
+					poseStamped.header.seq = ++cnt;
+					poseStamped.pose.position.x = - (cor.y-w/2);
+					poseStamped.pose.position.y = cor.x;
+					local_path.poses.push_back(poseStamped);
+					stepcnt++;
+					cor.x+=dx;
+					cor.y+=dy;
+				}
 			}
+
 			poseStamped.header.seq = 0;
 			local_path.poses.push_back(poseStamped);
 
