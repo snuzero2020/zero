@@ -178,16 +178,20 @@ Node RRT::chooseParent(std::vector<Node*>& Q_near, const Cor child)
 // near points들의 cost update
 void RRT::rewire(std::vector<Node*>& Q_near, Node* q_new_node, Tree& tree)
 {
+	cout << "rcheck1";
 	double temp_cost{0};
 	for(Node* node:Q_near)
 	{
+	cout << "rcheck2";
 		temp_cost = q_new_node->cost_sum + cost(node->location,q_new_node->location);
 		if (temp_cost < node->cost_sum)
 		{
+	cout << "rcheck3";
 			double diff{node->cost_sum-temp_cost};
 			cost_update(node,diff,tree);
 			node->parent = q_new_node;
 			q_new_node->insert_child(node);
+	cout << "rcheck4";
 		}
 	}
 	return;
@@ -196,16 +200,20 @@ void RRT::rewire(std::vector<Node*>& Q_near, Node* q_new_node, Tree& tree)
 // cost update
 void RRT::cost_update(Node* parent, const double diff, Tree& tree) // possibility of time cost reduction.
 {
+	cout << "cost_update start\n";
 	queue<Node*> q;
 	q.push(parent);
 	while (!q.empty()) {
+		cout << "cost_update check1\n";
 		Node* cur = q.front(); q.pop();
 		cur->cost_update(diff);
 		for (Node* child : cur->children) {
+			cout << "cur : " << cur << ", child : " << child << " cost : " << cost(cur->location,child->location) << endl;
 			if (child->parent != cur) continue;
 			q.push(child);
 		}
 	}
+	cout << "cost_update end\n";
 }
 
 
@@ -221,32 +229,44 @@ void RRT::pathOptimization(Node* q_cur, Tree& tree)
 	double curr_cost;
 	while (!path_optimization)
 	{
+		cout << "pcheck1\n;";
 		original_parent = curr->parent;
 		original_cost = curr->cost_sum;
 		curr_cost = curr->cost_sum;
 		if (!original_parent) break;
 		while (1)
 		{
+		cout << "pcheck2\n;";
 			temp_parent = curr->parent->parent;
 			if (!temp_parent) {
 				path_optimization = true;
+		cout << "pcheck3\n;";
 				break;
 			}
+		cout << "pcheck4\n;";
 			temp_cost = temp_parent->cost_sum + cost(curr->location, temp_parent->location);
 			if (temp_cost >= curr_cost)
 			{
+		cout << "pcheck5\n;";
 				if(curr->parent != original_parent)
+				{		cout << "pcheck6;";
 					cost_update(curr, original_cost - curr_cost, tree);
+				}
+		cout << "pcheck7\n;";
 				curr = curr->parent;
+		cout << "pcheck8\n;";
 				break;
 				
 			}
 			else
 			{
+		cout << "pcheck9\n;";
 				curr_cost = temp_cost;
+		cout << "pcheck10\n;";
 				curr->parent = temp_parent;
 			}
 		}
+		cout << "pcheck11\n;";
 		// move to next marching point
 		curr = curr->parent;
 	}
@@ -302,53 +322,53 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 		bool check_start = false, check_goal = false;
 
 		// rrt star for start_tree
-debug(true);
+debug(true); //0
 		Cor q_near_start = nearest(start_tree, q_rand);
-debug();
+debug();	//1
 		Cor q_new_start = steer(q_near_start, q_rand, check_start);
-debug();
+debug();	//2
 		std::vector<Node*> Q_near_start;
-debug();
+debug();	//3
 		Q_near_start.reserve(1000);
-debug();
+debug();	//4
 		near(Q_near_start, start_tree, q_new_start);
-debug();
+debug();	//5
 		Node q_newnode_start = chooseParent(Q_near_start, q_new_start);
-debug();
+debug();	//6
 		Node* q_newnode_ptr_start = start_tree.insert(q_newnode_start);
-debug();
+debug();	//7
 		q_newnode_ptr_start->parent->insert_child(q_newnode_ptr_start);
-debug();
+debug();	//8
 		rewire(Q_near_start, q_newnode_ptr_start, start_tree);
-debug();
+debug();	//9
 
 		// rrt star for goal_tree
 		Cor q_near_goal = nearest(goal_tree, q_rand);
-debug();
+debug();	//10
 		Cor q_new_goal = steer(q_near_goal, q_rand, check_goal);
-debug();
+debug();	//11
 		std::vector<Node*> Q_near_goal;
-debug();
+debug();	//12
 		Q_near_goal.reserve(1000);
-debug();
+debug();	//13
 		near(Q_near_goal, goal_tree, q_new_goal);
-debug();
+debug();	//14
 		Node q_newnode_goal = chooseParent(Q_near_goal, q_new_goal);
-debug();
+debug();	//15
 		Node* q_newnode_ptr_goal = goal_tree.insert(q_newnode_goal);
-debug();
+debug();	//16
 		q_newnode_ptr_goal->parent->insert_child(q_newnode_ptr_goal);
-debug();
+debug();	//17
 		rewire(Q_near_goal, q_newnode_ptr_goal, goal_tree);
-debug();
+debug();	//18
 
 		// if (q_rand == q_new_start == q_new_goal),then try connect = path found
 		if (check_start && check_goal) {
-debug();
+debug();	//19
 			pathOptimization(q_newnode_ptr_start,start_tree);
-debug();
+debug();	//20
 			pathOptimization(q_newnode_ptr_goal,goal_tree);
-debug();
+debug();	//21
 			if (find_path) {
 
 				double current_path_cost = middle_start->cost_sum + middle_goal->cost_sum;
