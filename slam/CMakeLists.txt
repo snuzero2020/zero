@@ -143,6 +143,10 @@ target_link_libraries(global_visual ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(global_visual slam_generate_messages_cpp)
 #set_target_properties(global_visual PROPERTIES COMPILE_FLAGS "pkg-config opencv --cflags --libs")
 
+add_executable(minimap_global_visual src/mini_map/minimap_global_visual.cpp lib/XYToPixel.cpp)
+target_link_libraries(minimap_global_visual ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(minimap_global_visual slam_generate_messages_cpp)
+
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
   src/mapping/transform_finder.py

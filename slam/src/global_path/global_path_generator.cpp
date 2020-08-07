@@ -37,7 +37,7 @@ class GlobalPathGenerator{
 
     void save(){
         ofstream out(save_path_);
-        for(slam::GlobalPathPoint point : points_) out<<to_string(point.x)+" "+to_string(point.y)+" "+to_string(point.theta)<<endl;
+        for(slam::GlobalPathPoint point : points_) out<<to_string(point.x)+" "+to_string(point.y)+" "+to_string(point.theta)+" "+to_string(point.flag)<<endl;
         out.close();
         printf("complete save\n");
     }
@@ -52,6 +52,7 @@ class GlobalPathGenerator{
         point.x = cur_.first;
         point.y = cur_.second;
         point.theta = msg->theta;
+        point.flag = 1;
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);

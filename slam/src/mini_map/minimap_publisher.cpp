@@ -25,7 +25,7 @@ class map_tracer{
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
 		map_tracer(){
 			path_stream1 << ros::package::getPath("slam") << "/src/mapping/map.png";
-			path_stream2 << ros::package::getPath("slam") << "/src/global_path/glob_path.png";
+			path_stream2 << ros::package::getPath("slam") << "/src/global_path/global_path.png";
 			glob_map = cv::imread(path_stream1.str());
 			flag_map = cv::imread(path_stream2.str());
 			ROS_INFO("global map loaded");

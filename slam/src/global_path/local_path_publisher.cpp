@@ -20,6 +20,7 @@
 #include<fstream>
 #include<sstream>
 #include<string>
+#include<nav_msgs/OccupancyGrid.h>
 using namespace std;
 
 class LocalPathPublisher{
@@ -69,19 +70,22 @@ class LocalPathPublisher{
             point.x = stod(result.at(0));
             point.y = stod(result.at(1));
             point.theta = stod(result.at(2));
+            point.flag = stod(result.at(3));
             global_path_.push_back(point);
         }
     }
 
     void global_to_local(){
 	    nav_msgs::Path local_path;
-        slam::Data pose;
+        slam::GlobalPathPoint pose;
         geometry_msgs::PoseStamped pose_change;
+        nav_msgs::OccupancyGrid local_goal;
         for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
 
             pose.x = (*iter).x;
             pose.y = (*iter).y;
             pose.theta = (*iter).theta;
+            pose.flag = (*iter).flag;
 
             double X = pose.x - current_pose.x - length/2.0 * sin(current_pose.theta);
             double Y = pose.y - current_pose.y + length/2.0 * cos(current_pose.theta);
@@ -89,6 +93,7 @@ class LocalPathPublisher{
             pose_change.pose.position.x = X * cos(current_pose.theta) + Y * sin(current_pose.theta);
             pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
             pose_change.pose.position.z = pose.theta - current_pose.theta;
+            pose_change.header.seq = pose.flag;
 
             if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
                 pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
@@ -96,7 +101,7 @@ class LocalPathPublisher{
                 local_path.poses.push_back(pose_change);   
             }
         }
-	printf("# of local path : %d\n", local_path.poses.size());
+	    printf("# of local path : %d\n", local_path.poses.size());
         local_path_pub.publish (local_path);
     }
 
