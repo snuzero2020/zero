@@ -159,7 +159,7 @@ public:
 			int w = map.info.width;
 			for(int i = 0; i<h; i++){
 				for(int j = 0; j<w;j++){
-					cost_map[i][j] = (double)(map.data[i*w+j]*cost_scale/100.0 + (101-cost_scale);
+					cost_map[i][j] = (double)(map.data[i*w+j]*cost_scale/100.0 + (101-cost_scale));
 				}
 			}
 
