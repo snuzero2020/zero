@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(slam)
 
+#add_compile_options(pkg-config opencv --cflags --libs)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -19,7 +21,9 @@ list(APPEND CMAK_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen REQUIRED)
 #
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV REQUIRED
+COMPONENTS
+)
 
 add_message_files(
   DIRECTORY msg 
@@ -134,6 +138,10 @@ add_executable(global_path_generator src/global_path/global_path_generator.cpp)
 target_link_libraries(global_path_generator ${catkin_LIBRARIES})
 add_dependencies(global_path_generator slam_generate_messages_cpp)
 
+add_executable(global_visual src/global_path/global_visual.cpp lib/XYToPixel.cpp)
+target_link_libraries(global_visual ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(global_visual slam_generate_messages_cpp)
+#set_target_properties(global_visual PROPERTIES COMPILE_FLAGS "pkg-config opencv --cflags --libs")
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
