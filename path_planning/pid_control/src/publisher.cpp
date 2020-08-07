@@ -58,8 +58,9 @@ void Publisher::time_callback(const std_msgs::Float64::ConstPtr msg){
 
 int main(int argc, char *argv[])
 {
-	double vel1{2.5};
-	double vel2{2.0};
+	double vel1{1.0};
+	double vel2{0.5};
+	int num{0};
 
 	ros::init(argc,argv,"pub_vel");
 	cout << "aloha1" << endl;
@@ -73,22 +74,43 @@ int main(int argc, char *argv[])
 	{
 		ros::NodeHandle nh;
 
-		if (publisher.start_time > 0){
+		// if (publisher.start_time > 0){
 			
-			//nh.getParam("/vel1", vel1);
-			publisher.recommend_vel.data = vel2;
-			cout << vel1 << endl;
-		}
+		// 	//nh.getParam("/vel1", vel1);
+		// 	publisher.recommend_vel.data = vel2;
+		// 	cout << vel1 << endl;
+		// }
 
-		else{
-			//nh.getParam("/vel2", vel2);
-			publisher.recommend_vel.data = vel1;
-			cout << vel2 << endl;
+		// else{
+		// 	//nh.getParam("/vel2", vel2);
+		// 	publisher.recommend_vel.data = vel1;
+		// 	cout << vel2 << endl;
+		// }
+		if(num>50)
+		{
+			publisher.recommend_vel.data = vel1 - (vel1-vel2)*2*count/100.0;
+			cout<< publisher.recommend_vel << endl;
+			
+			if(publisher.recommend_vel.data < vel2)
+			{
+				publisher.recommend_vel.data = vel2;
+			}
+			else
+			{
+				count++;
+			}
 		}
+		else
+		{
+
+			publisher.recommend_vel.data = vel1;
+			cout<< publisher.recommend_vel << endl;
+		}			
 
 		publisher.recommend_vel_pub.publish(publisher.recommend_vel);
 		loop_rate.sleep();
 		ros::spinOnce();
+		num++;
 	}
 
 	return 0;

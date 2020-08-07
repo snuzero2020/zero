@@ -291,7 +291,7 @@ int main(int argc, char **argv)
 			ros::spinOnce();
 			std_msgs::Float32 recommend_vel_msg;
 			//recommend_vel_msg.data = rosnode.recommend_vel_info[rosnode.sector_pass_checker.get_present_task()];
-			recommend_vel_msg.data = 3;
+			recommend_vel_msg.data = 2;
 			rosnode.recommend_vel_pub.publish(recommend_vel_msg);
 			std_msgs::UInt32 mission_state;
 			mission_state.data = 0;

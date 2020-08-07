@@ -1,7 +1,7 @@
 # tracker_node
 P_gain: 1.0
 I_gain: 10.0
-D_gain: 1
+D_gain: 1.0
 upper_radius: 160.0
 lower_radius: 50.0
 car_length: 105.0

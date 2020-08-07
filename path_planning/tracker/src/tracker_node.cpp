@@ -306,7 +306,7 @@ double Tracker::determind_major_axis_radius()
 // input : recommend_vel, curvature
 // output : desired_vel
 double Tracker::calculate_desired_vel(){
-	double look_ahead_multiplier{0};
+	double look_ahead_multiplier{1};
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
 	desired_vel_after =  recommend_vel *(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
@@ -463,7 +463,7 @@ void Tracker::vehicle_output_signal(){
 	if ( current_vel > desired_vel_after + 0.000001){
 		decel_check = 1;
 	}
-
+/*
 	if(decel_check == 1){
 		//if (desired_vel_before < 1.01){
 		if (current_vel < 1.01){
@@ -501,18 +501,37 @@ void Tracker::vehicle_output_signal(){
 	}
 	else if (decel_level == 1){
 		msg.brake = 0;
-		msg.speed = 0;
+		msg.speed = (pid_input>0)?pid_input:0;
 	}
 	else {
 		cout << "Someting wrong" << endl;
 		msg.brake = 100;
 		msg.speed = 0;
 	}
+*/
 
+	cout << "current_vel : " << current_vel << endl;
+//	cout << "decel_level : " << decel_level << endl;
+	cout << "decel_check : " << decel_check << endl;
+
+
+	if(decel_check == 1){
+		msg.brake = 0;
+		msg.speed = (pid_input>0)?pid_input:0;
+		decel_check = 0;
+	}
+	else {
+		cout << "acceleration\n" << endl;
+		msg.brake = 0;
+		msg.speed = (pid_input>0)?pid_input:0;
+	}
+
+
+/*
 	cout << "current_vel : " << current_vel << endl;
 	cout << "decel_level : " << decel_level << endl;
 	cout << "decel_check : " << decel_check << endl;
-
+*/
 	msg.is_auto = 1;
 	msg.estop = 0;
 
@@ -541,14 +560,8 @@ int main(int argc, char *argv[])
 	Tracker tracker{Tracker()};
 	ros::Rate loop_rate(10);
 
-	//ros::spin();
+	ros::spin();
 
-	while (ros::ok())
-	{
-		ros::spinOnce();
-		loop_rate.sleep();
-		//tracker.print_p();
-	}
 
 	return 0;
 }
