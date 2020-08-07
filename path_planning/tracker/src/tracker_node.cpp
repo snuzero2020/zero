@@ -154,6 +154,9 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		msg.speed = 0;
 		msg.steer = 0;
 
+		// while bracking, pid should be reset
+		integral_error = 0;
+
 		car_signal_pub.publish(msg);
 
 		return;
@@ -187,8 +190,6 @@ void Tracker::current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg)
 // output : look_ahead_point
 void Tracker::set_look_ahead_point()
 {
-	//current_vel = sqrt((curr_odom.twist.twist.linear.x)*(curr_odom.twist.twist.linear.x)+(curr_odom.twist.twist.linear.y)*(curr_odom.twist.twist.linear.y));
-
 	double major_axis_radius{determind_major_axis_radius()};
 	int idx{0};
 	double check_outside{0};
@@ -307,9 +308,11 @@ double Tracker::determind_major_axis_radius()
 // output : desired_vel
 double Tracker::calculate_desired_vel(){
 	double look_ahead_multiplier{1};
+	double curvature_multiplier{1};
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	desired_vel_after =  recommend_vel *(1 - 1.0 * curvature)*look_ahead_multiplier; // should be changed
+	curvature_multiplier = 1 - 1.0/pow((1.0/curvature-1.5),1);
+	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 	
 	if (abs(desired_vel_buff-desired_vel_after)>0.0001) //&& recommend_vel_change_check == false)
 	{
@@ -352,110 +355,6 @@ void Tracker::calculate_input_signal(){
 	cout << "pid_input : " << pid_input << endl; 
 }
 
-/*
-void Tracker::vehicle_output_signal(){
-	core_msgs::Control msg;
-
-	//if ( desired_vel_before > desired_vel_after){
-	if ( current_vel > desired_vel_after){
-		decel_check = 1;
-		integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
-	}
-
-	if(decel_check == 1){
-		if (desired_vel_before < 1.01){
-			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				decel_level = 1;
-			}
-			else {
-				decel_level = 0;
-				decel_check = 0;
-			}
-		}
-
-		else if(desired_vel_before <2.01){
-			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				decel_level = 2;
-			}
-			else {
-				decel_level = 0;
-				decel_check = 0;
-			}			
-		}
-		else if (desired_vel_before < 4.5){
-			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				decel_level = 3;
-			}
-			else {
-				decel_level = 0;
-				decel_check = 0;
-			}
-		}
-		else {
-			cout << "Someting wrong" << endl;
-			msg.brake = 100;
-			msg.speed = 0;
-			decel_check = 0;
-		}
-	}
-
-	else{
-		decel_level = 0;
-	}
-
-
-	if (decel_level == 0){
-		msg.brake = 0;
-		msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
-		cout << "real pid input : " << msg.speed << endl;
-	}
-
-	else if (decel_level == 1){
-		msg.brake = 0;
-		msg.speed = 0;
-		integral_error = 0.0;
-	}
-
-	else if (decel_level == 2){
-		msg.brake = 0;
-		msg.speed = 0;
-		integral_error = 0.0;
-	}
-
-	else if (decel_level == 3){
-		msg.brake = 0;
-		msg.speed = 0;
-		integral_error = 0.0;
-	}
-
-	else {
-		cout << "Someting wrong" << endl;
-		msg.brake = 100;
-		msg.speed = 0;
-	}
-
-	cout << "current_vel : " << current_vel << endl;
-	cout << "decel_level : " << decel_level << endl;
-	cout << "decel_check : " << decel_check << endl;
-
-	msg.is_auto = 1;
-	msg.estop = 0;
-
-	cout<<"curr seq : "<<curr_local_path.header.seq<<"\n\n"; 
-	// forward motion
-	if ((curr_local_path.header.seq & 0x10) != 0x10){
-		msg.gear = 0;
-	}
-	// backward motion
-	else{
-		msg.gear = 2;
-	}
-
-	msg.steer = get_steering_angle().data;
-	car_signal_pub.publish(msg);
-}
-*/
-
 void Tracker::vehicle_output_signal(){
 	core_msgs::Control msg;
 
@@ -463,75 +362,31 @@ void Tracker::vehicle_output_signal(){
 	if ( current_vel > desired_vel_after + 0.000001){
 		decel_check = 1;
 	}
-/*
-	if(decel_check == 1){
-		//if (desired_vel_before < 1.01){
-		if (current_vel < 1.01){
-			if( current_vel > (desired_vel_before - desired_vel_after) * 0.6 + desired_vel_after){
-				decel_level = 1;
-				integral_error = desired_vel_after + (desired_vel_before - desired_vel_after)*0.5;
-			}
-			else {
-				decel_level = 0;
-				decel_check = 0;
-			}
-		}
-		else if (desired_vel_before < 4.5){
-			decel_level = 0;
-			decel_check = 0;
-		}
-		else {
-			cout << "Someting wrong" << endl;
-			msg.brake = 100;
-			msg.speed = 0;
-			decel_check = 0;
-		}
-	}
-
-	else{
-		decel_level = 0;
-	}
-
-
-	if (decel_level == 0){
-		msg.brake = 0;
-		msg.speed = (pid_input>0)?pid_input:0;
-		//msg.speed = (pid_input>desired_vel_after)?pid_input:desired_vel_after;
-		cout << "real pid input : " << msg.speed << endl;
-	}
-	else if (decel_level == 1){
-		msg.brake = 0;
-		msg.speed = (pid_input>0)?pid_input:0;
-	}
-	else {
-		cout << "Someting wrong" << endl;
-		msg.brake = 100;
-		msg.speed = 0;
-	}
-*/
-
+	
 	cout << "current_vel : " << current_vel << endl;
 //	cout << "decel_level : " << decel_level << endl;
 	cout << "decel_check : " << decel_check << endl;
 
-
 	if(decel_check == 1){
-		msg.brake = 0;
-		msg.speed = (pid_input>0)?pid_input:0;
-		decel_check = 0;
+		cout << "decceleration\n";
+		if (desired_vel_after < 0.1){
+			msg.brake = 10;
+			integral_error = 0;
+			msg.speed = 0;
+			decel_check = 0;
+		}
+		else{
+			msg.brake = 0;
+			msg.speed = (pid_input>0)?pid_input:0;
+			decel_check = 0;
+		}
 	}
 	else {
-		cout << "acceleration\n" << endl;
+		cout << "acceleration\n";
 		msg.brake = 0;
 		msg.speed = (pid_input>0)?pid_input:0;
 	}
 
-
-/*
-	cout << "current_vel : " << current_vel << endl;
-	cout << "decel_level : " << decel_level << endl;
-	cout << "decel_check : " << decel_check << endl;
-*/
 	msg.is_auto = 1;
 	msg.estop = 0;
 
