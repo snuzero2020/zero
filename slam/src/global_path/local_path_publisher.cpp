@@ -38,7 +38,7 @@ class LocalPathPublisher{
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
 
-    string input_file_ = "/home/jeongwoooh/catkin_ws/a.txt";
+    string input_file_ = "/home/lee/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
 
     public:
     
@@ -71,6 +71,7 @@ class LocalPathPublisher{
             point.y = stod(result.at(1));
             point.theta = stod(result.at(2));
             point.flag = stod(result.at(3));
+            cout << point.x << " " << point.y << " " << point.theta << " " << point.flag << endl; 
             global_path_.push_back(point);
         }
     }
