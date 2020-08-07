@@ -8,8 +8,9 @@ car_length: 105.0
 # rrt_star.h
 iternum: 1000
 threshold: 100.0
-threshold2: 50.0
+threshold2: 80.0
 radius: 30.0
+cost_scale: 60
 stepsize_rrt: 1.0
 # path_planner_node
 stepsize_pp: 5.0

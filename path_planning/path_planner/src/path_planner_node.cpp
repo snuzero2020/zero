@@ -143,11 +143,13 @@ public:
 			double stepsize;
 			double threshold;
 			double threshold2;
+			double cost_ratio;
 			n.getParam("/iternum", iternum);
 			n.getParam("/radius", radius);
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
-			n.getParam("/threshold2", threshold2);		
+			n.getParam("/threshold2", threshold2);
+			n.getParam("/cost_scale", cost_scale); // 66-> 100 to 66
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			int t = clock();
 
@@ -157,7 +159,7 @@ public:
 			int w = map.info.width;
 			for(int i = 0; i<h; i++){
 				for(int j = 0; j<w;j++){
-					cost_map[i][j] = (double)(map.data[i*w+j]+ 1);
+					cost_map[i][j] = (double)(map.data[i*w+j]*cost_scale/100.0 + (101-cost_scale);
 				}
 			}
 
