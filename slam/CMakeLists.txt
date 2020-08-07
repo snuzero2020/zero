@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   cmake_modules #for eigen used in sensing/kalman_fusion
 )
 #for eigen used in sensing/kalman_fusion
-list(APPEND CMAK_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen REQUIRED)
 #
 
@@ -72,6 +72,11 @@ target_link_libraries(map_cost_spreader ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_executable(locpath_publisher src/locpath_pubnode/locpath_publisher.cpp lib/XYToPixel.cpp)
 target_link_libraries(locpath_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(locpath_publisher slam_generate_messages_cpp)
+
+#add_executable for localpath publishing
+add_executable(slam_visualizer src/visualizer/slam_visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(slam_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(slam_visualizer slam_generate_messages_cpp)
 
 #add_executable for minimap publisher
 add_executable(minimap_publisher src/mini_map/minimap_publisher.cpp lib/XYToPixel.cpp)
