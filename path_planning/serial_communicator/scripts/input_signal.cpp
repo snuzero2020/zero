@@ -19,6 +19,7 @@ class Signal {
         int gear = 0;
         float speed = 0;
         float steer = 0;
+	float call_steer = 0;
 
         void callback (const core_msgs::Control& msg){
             is_auto = msg.is_auto;
@@ -26,7 +27,14 @@ class Signal {
             brake = msg.brake;
             gear = msg.gear;
             speed = msg.speed;
-            steer = msg.steer - 2.5; //3.1 is offset angle of steering.            //steer = msg.steer;
+            call_steer = msg.steer - 2.5; //3.1 is offset angle of steering.
+	    if (call_steer < -27)
+		    steer = -27;
+	    else if (call_steer > 27)
+		    steer = 27;
+	    else
+		    steer = call_steer;
+	    //steer = msg.steer;
         }
 };
 
