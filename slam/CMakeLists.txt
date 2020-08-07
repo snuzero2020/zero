@@ -98,9 +98,9 @@ target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRA
 add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
 
 #add_executable for local_costmap_publisher
-add_executable(pp_visualizer src/pp_visualizer/pp_visualizer.cpp lib/XYToPixel.cpp)
-target_link_libraries(pp_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-add_dependencies(pp_visualizer slam_generate_messages_cpp)
+add_executable(visualizer src/visualizer/visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(visualizer slam_generate_messages_cpp)
 
 add_executable(lidar_pose_estimator src/clustering/lidar_pose_estimator.cpp)
 target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})

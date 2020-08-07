@@ -15,7 +15,7 @@
 #include <nav_msgs/Path.h>
 
 
-class pp_visualizer{
+class visualizer{
 	private:
 		ros::NodeHandle nh;
 		ros::Publisher pub;
@@ -28,11 +28,11 @@ class pp_visualizer{
 		boost::shared_ptr<Sync> sync_;
 	
 	public:
-		pp_visualizer(){
+		visualizer(){
 			local_costmap.subscribe(nh, "local_costmap", 10);
 			globpath_nearby.subscribe(nh, "globpath_nearby", 10);
 			sync_.reset(new Sync(sync_policy(10), local_costmap, globpath_nearby));
-			sync_->registerCallback(boost::bind(&pp_visualizer::callback, this, _1, _2));
+			sync_->registerCallback(boost::bind(&visualizer::callback, this, _1, _2));
 			pub = nh.advertise<sensor_msgs::Image>("visualized_img", 100);
 		}
 		
@@ -69,7 +69,7 @@ class pp_visualizer{
 };
 
 int main(int argc, char**argv){
-	ros::init(argc, argv, "pp_visualizer");
-	pp_visualizer pp_visualizer;
+	ros::init(argc, argv, "visualizer");
+	visualizer visualizer;
 	ros::spin();
 }
