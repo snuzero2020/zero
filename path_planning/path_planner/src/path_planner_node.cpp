@@ -143,7 +143,7 @@ public:
 			double stepsize;
 			double threshold;
 			double threshold2;
-			double cost_ratio;
+			double cost_scale;
 			n.getParam("/iternum", iternum);
 			n.getParam("/radius", radius);
 			n.getParam("/stepsize_rrt", stepsize);
