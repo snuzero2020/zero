@@ -60,9 +60,9 @@ int main(int argc, char** argv){
         point.flag = stod(result.at(3));
         points.push_back(point);
         count ++;
-        if(!(count%100)) printf("loading global path points : %5d\n", count);    
+        printf("\rloading global path points : %5d", count);    
     }
-    printf("completed loading point, # of global path points : %5d\n", count);
+    printf("\ncomplete to load points, # of global path points : %5d\n", count);
 
     // build edge adjacent matrix
     for(int i=0; i<count;i++){
@@ -74,8 +74,9 @@ int main(int argc, char** argv){
             }
         }
         edges.push_back(edge);
+        printf("\rgenerating edges : %5d/%5d", i+1,count);
     }
-
+    printf("\ncompleted to generate edges\n");
     // save global path graph info
     ofstream out(output_stream.str());
     out << to_string(count) << endl;
@@ -85,4 +86,5 @@ int main(int argc, char** argv){
         out << endl;
     }
     out.close();
+    printf("completed to save global path graph\n");
 }
