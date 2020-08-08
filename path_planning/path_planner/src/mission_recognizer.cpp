@@ -66,7 +66,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[6] = {1,2,2,2,1,3};
+		float recommend_vel_info[6] = {2,2,2,2,2,2};
 
 		RosNode(){
 			light_state_sub = n.subscribe("light_state", 50, &RosNode::lightstateCallback, this);
@@ -76,12 +76,32 @@ class RosNode{
 			recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 50);
 			light_state = 15;
 
+			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
 			vector<int> B_task{INTERSECTION_RIGHT,INTERSECTION_STRAIGHT,INTERSECTION_LEFT};
 			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
 			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
 			vector<int> E_task{PARKING};
+			*/
+			
+			
+			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
+						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
+			vector<int> B_task{INTERSECTION_STRAIGHT_UNSIGNED,INTERSECTION_LEFT_UNSIGNED};
+			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED};
+			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
+			vector<int> E_task{PARKING};
+
+
+			/*
+			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
+						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
+			vector<int> B_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_STRAIGHT_UNSIGNED,INTERSECTION_LEFT_UNSIGNED};
+			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
+			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
+			vector<int> E_task{PARKING};
+*/
 
 			checker_container.resize(6, Checker());
 
@@ -97,7 +117,8 @@ class RosNode{
 			checker_container[E] = Checker(E_task.size());
 			checker_container[E].state_list = E_task;
 
-			vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
+			vector<int> sector_order{X,A,D,A,B,A,C,A,B,A,D,A,E};
+			//vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
 			sector_pass_checker = Checker(sector_order.size());
 			sector_pass_checker.state_list = sector_order;
 
@@ -281,8 +302,9 @@ int main(int argc, char **argv)
 	RosNode rosnode;
 	ROS_INFO("start");
 	
-	//ros::spin();
+	ros::spin();
 
+/*
 	// code for first global way point driving
 	/////////////////////////////////////////////////////
 	ros::Rate loop(100);
@@ -299,5 +321,6 @@ int main(int argc, char **argv)
 		loop.sleep();
 	}
 	/////////////////////////////////////////////////////
+*/
 	return 0;
 }

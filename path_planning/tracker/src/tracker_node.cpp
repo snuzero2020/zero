@@ -129,10 +129,15 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	curr_local_path = Path();
 	curr_local_path.header = msg->header;
 	curr_local_path.header.seq = 0;
+
 	int i{0};
 	while(1)
 	{
-		if(msg->poses[i].header.seq != 0)
+		if(msg->poses.size()==0)
+		{
+			break;
+		}
+		else if(msg->poses[i].header.seq != 0)
 		{
 			curr_local_path.poses.push_back(msg->poses[i]);
 		}
@@ -143,10 +148,11 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		}
 		i++;
 	}
-
+	
 	if (curr_local_path.poses.size()==0){
 		core_msgs::Control msg;
 
+		cout << "no path!!!!\n";
 		msg.is_auto = 1;
 		msg.estop = 0;
 		msg.gear = 0;

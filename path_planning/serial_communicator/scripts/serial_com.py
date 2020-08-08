@@ -14,7 +14,7 @@ from core_msgs.msg import Control
 alive = 0
 enc = []
 
-sudoPassword = 'snuzero123'
+sudoPassword = '123'
 command = 'chmod 777 /dev/ttyUSB0'
 p= os.system('echo %s|sudo -S %s' % (sudoPassword, command))
 

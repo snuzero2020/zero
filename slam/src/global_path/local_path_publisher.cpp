@@ -38,7 +38,7 @@ class LocalPathPublisher{
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
 
-    string input_file_ = "/home/lee/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
+    string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
 
     public:
     
