@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "ros/time.h"
+#include "ros/package.h"
 #include "slam/Imu.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
@@ -21,14 +22,15 @@
 #include<sstream>
 #include<string>
 #include<nav_msgs/OccupancyGrid.h>
+
 using namespace std;
 
 class LocalPathPublisher{
-    
     private:
     ros::NodeHandle nh;
     ros::Publisher local_path_pub;
     ros::Subscriber filter_data_sub;
+    stringstream path_stream;
 
     slam::Data current_pose;
 
@@ -38,7 +40,7 @@ class LocalPathPublisher{
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
 
-    string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
+//    string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
 
     public:
     
@@ -46,6 +48,7 @@ class LocalPathPublisher{
     LocalPathPublisher(){
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
         filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
+        path_stream << ros::package::getPath("slam") << "/src/global_path/global_path.txt";
         load_global_path();
     }
     
@@ -58,7 +61,7 @@ class LocalPathPublisher{
 
     void load_global_path(){
         string in_line;
-        ifstream in(input_file_);
+        ifstream in(path_stream.str());
         while(getline(in, in_line)){
             stringstream ss(in_line);
             string token;
@@ -110,7 +113,7 @@ class LocalPathPublisher{
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "local_path_publisher");
-    LocalPathPublisher localpathpublisher;
+    LocalPathPublisher local_path_publisher;
     ros::spin();
     return 0;
 }

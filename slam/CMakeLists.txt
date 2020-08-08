@@ -139,6 +139,10 @@ add_executable(global_path_generator src/global_path/global_path_generator.cpp)
 target_link_libraries(global_path_generator ${catkin_LIBRARIES})
 add_dependencies(global_path_generator slam_generate_messages_cpp)
 
+add_executable(global_path_graph_generator src/global_path/global_path_graph_generator.cpp)
+target_link_libraries(global_path_graph_generator ${catkin_LIBRARIES})
+add_dependencies(global_path_graph_generator slam_generate_messages_cpp)
+
 
 catkin_install_python(PROGRAMS 
   src/sensing/gps_decoder.py src/sensing/imu_visualizer.py src/sensing/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
