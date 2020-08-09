@@ -27,9 +27,11 @@ class map_tracer{
 			path_stream1 << ros::package::getPath("slam") << "/src/mapping/map.png";
 			path_stream2 << ros::package::getPath("slam") << "/src/global_path/glob_path.png";
 			glob_map = cv::imread(path_stream1.str());
+			if(glob_map.empty()) ROS_INFO("no global map");
+			else ROS_INFO("global map loaded");
 			flag_map = cv::imread(path_stream2.str());
-			ROS_INFO("global map loaded");
-			ROS_INFO("flag map loaded");
+			if(flag_map.empty()) ROS_INFO("no flag map");
+			else ROS_INFO("flag map loaded");
 
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
 			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
