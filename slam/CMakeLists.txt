@@ -93,6 +93,12 @@ add_executable(globpath_generator src/global_path/globpath_generator.cpp lib/XYT
 target_link_libraries(globpath_generator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(globpath_generator slam_generate_messages_cpp)
 
+#add_executable for outlier_eliminator
+add_executable(outlier_eliminator src/global_path/outlier_eliminator.cpp)
+target_link_libraries(outlier_eliminator ${catkin_LIBRARIES})
+add_dependencies(outlier_eliminator slam_generate_messages_cpp)
+
+
 add_executable(object_detector src/obstacle_cost_map/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(object_detector slam_generate_messages_cpp)
