@@ -24,8 +24,11 @@ class velocity_publisher{
         std::stringstream path_stream;
     	cv::Mat velocity_map;
         velocity_publisher(){
-            path_stream << ros::package::getPath("slam") << "/config/velocity_map.png";
-		    cv::Mat color_map = cv::imread(path_stream.str());
+            
+
+	    path_stream << ros::package::getPath("slam") << "/config/velocity_map.png";
+	    //cv::Mat velocity_map = cv::imread(path_stream.str()); 
+	    velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/velocity_map.png");
             ROS_INFO("Image loaded");
             pub = nh.advertise<std_msgs::UInt32>("/recommended_velocity", 2);
             sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
