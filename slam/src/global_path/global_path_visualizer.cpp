@@ -2,10 +2,10 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <math.h>
-#include<iostream>
-#include<fstream>
-#include<sstream>
-#include<string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <cmath>
 #include "slam/GlobalPathPoint.h"
 #include <sensor_msgs/Image.h>
@@ -25,26 +25,30 @@ class GlobalVisual{
     
     private:
         const char delimiter_ = ' '; 
-        string input_global_path = "/home/lee/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
-        string input_global_map = "/home/lee/catkin_ws/src/zero/slam/src/mapping/costmap.png";
         ros::NodeHandle nh;
 		ros::Publisher pub;
 
     public:
-        cv::Mat img = imread(input_global_map, IMREAD_COLOR);
+		stringstream in_path_stream, in_map_stream, out_visual_stream;
 
         GlobalVisual(){
-            pub = nh.advertise<sensor_msgs::Image>("/global_map_with_path", 2);
+			in_path_stream << ros::package::getPath("slam") << "/config/global_path.txt";
+			in_map_stream << ros::package::getPath("slam") << "/config/costmap.png";
+			out_visual_stream << ros::package::getPath("slam")<< "/config/global_path_visual.png";
+			pub = nh.advertise<sensor_msgs::Image>("/global_map_with_path", 2);
             global_path_visual();
         }
 
+		
+
         void global_path_visual(){
-            if (img.empty()){
+            cv::Mat img = imread(in_map_stream.str(), IMREAD_COLOR);
+			if (img.empty()){
                 cout << "fuck" << endl;
             }
             cout  << 1 << endl;
             string in_line;
-            ifstream in(input_global_path);
+            ifstream in(in_path_stream.str());
 
             while(getline(in, in_line)){
                 stringstream ss(in_line);
@@ -70,8 +74,9 @@ class GlobalVisual{
                 auto arrow_start = cv::Point(pixel_x, pixel_y);
                 auto arrow_end = cv::Point(end_pixel_x,end_pixel_y);
 
-                //cv::line(img, cv::Point(1,1), cv::Point(1000, 1000), (255, 255, 255), 10 );
-                cv::arrowedLine(img, arrow_start, arrow_end, (255, 255, 255), 1, 1, 0, 1);
+                cv::circle(img, arrow_start, 3, cv::Scalar(255,0,0), -1);
+				//cv::line(img, cv::Point(1,1), cv::Point(1000, 1000), (255, 255, 255), 10 );
+                //cv::arrowedLine(img, arrow_start, arrow_end, (255, 255, 255), 1, 1, 0, 1);
             }
             
             //cv_bridge::CvImage img_bridge;
@@ -81,7 +86,7 @@ class GlobalVisual{
             //img_bridge.toImageMsg(img_msg);
             //pub.publish(img_msg);
 
-            cv::imwrite("/home/lee/catkin_ws/src/zero/slam/src/global_path/global_path.png", img);
+            cv::imwrite(out_visual_stream.str(), img);
             //cv::waitKey(1);
             cout << 2 << endl;
         }

@@ -58,6 +58,10 @@ add_executable(local_path_publisher src/global_path/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher ${catkin_LIBRARIES})
 add_dependencies(local_path_publisher slam_generate_messages_cpp)
 
+add_executable(global_visual src/global_path/global_path_visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(global_visual ${catkin_LIBRARIES})
+add_dependencies(global_visual slam_generate_messages_cpp)
+
 ##add_executable for map_calibration
 add_executable(gps_collector src/map_calibration/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
