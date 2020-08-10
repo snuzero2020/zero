@@ -143,6 +143,10 @@ add_executable(global_path_graph_generator src/global_path/global_path_graph_gen
 target_link_libraries(global_path_graph_generator ${catkin_LIBRARIES})
 add_dependencies(global_path_graph_generator slam_generate_messages_cpp)
 
+add_executable(color_velocity src/map_layer/color_velocity.cpp)
+target_link_libraries(color_velocity ${catkin_LIBRARIES})
+add_dependencies(color_velocity slam_generate_messages_cpp)
+
 
 catkin_install_python(PROGRAMS 
   src/visualizer/imu_visualizer.py src/visualizer/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
