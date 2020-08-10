@@ -24,7 +24,7 @@ find_package(OpenCV REQUIRED)
 add_message_files(
   DIRECTORY msg 
   FILES 
-  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Pixel.msg GlobalPathPoint.msg
+  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Clusters.msg Pixel.msg GlobalPathPoint.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
 
@@ -111,13 +111,13 @@ add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.c
 target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
 
-add_executable(obstacle_image src/obstacle_cost_map/obstacle_image.cpp)
-target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-add_dependencies(obstacle_image slam_generate_messages_cpp)
+#add_executable(obstacle_image src/obstacle_cost_map/obstacle_image.cpp)
+#target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+#add_dependencies(obstacle_image slam_generate_messages_cpp)
 
-add_executable(cone_detection src/obstacle_cost_map/find_cone.cpp)
-target_link_libraries(cone_detection ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-add_dependencies(cone_detection slam_generate_messages_cpp)
+#add_executable(cone_detection src/obstacle_cost_map/find_cone.cpp)
+#target_link_libraries(cone_detection ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+#add_dependencies(cone_detection slam_generate_messages_cpp)
 
 add_executable(gps_collector src/map_calibration/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
@@ -147,6 +147,5 @@ add_dependencies(global_path_graph_generator slam_generate_messages_cpp)
 catkin_install_python(PROGRAMS 
   src/visualizer/imu_visualizer.py src/visualizer/kalman_fusion_visualizer.py src/sensing/lidar_decoder.py
   src/map_calibration/transform_finder.py
-  src/obstacle_cost_map/object_visualizer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

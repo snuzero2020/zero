@@ -8,6 +8,7 @@
 #include <set>
 #include "slam/Lidar.h"
 #include "slam/Cluster.h"
+#include "slam/Clusters.h"
 #include "geometry_msgs/Point.h"
 #include "Eigen/Eigen"
 
@@ -17,9 +18,8 @@ using namespace Eigen;
 class ObjectDetector{
     public:
     ObjectDetector(){
-        pub_ = nh_.advertise<slam::Cluster>("/2d_obstacle_clouds", 10);
+        pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
         sub_ = nh_.subscribe("/points", 1, &ObjectDetector::callback, this);
-        iteration_ = 200;
         plane_tolerance_ = 0.05;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
@@ -89,82 +89,14 @@ class ObjectDetector{
     }
 
     void ransac_plane(){
-        /*
-        set<int> inliers_result;
-        plane_config_[0] =0.0;
-        plane_config_[1] =0.0;
-        plane_config_[2] =0.0;
-        plane_config_[3] =0.0;
-        int iter = iteration_;
-        while(iter>0){
-            set<int> inliers;
-            while(inliers.size()<3) inliers.insert(candidate_points_[rand()%candidate_points_.size()]);
-            //check if they have same channel
-            set<int>::iterator check_channels = inliers.begin();
-            check_channels++;
-            int ch1 = cloud_channels_[*check_channels];
-            check_channels++;
-            int ch2 = cloud_channels_[*check_channels];
-            check_channels++;
-            int ch3 = cloud_channels_[*check_channels];
-            if(ch1==ch2 && ch2==ch3) continue;
-            double x1,y1,z1,x2,y2,z2,x3,y3,z3;
-            set<int>::iterator inliers_iter = inliers.begin();
-            inliers_iter++;
-            x1 = cloud_points_.at(*inliers_iter).x;
-            y1 = cloud_points_.at(*inliers_iter).y;
-            z1 = cloud_points_.at(*inliers_iter).z;
-            inliers_iter++;
-            x2 = cloud_points_.at(*inliers_iter).x;
-            y2 = cloud_points_.at(*inliers_iter).y;
-            z2 = cloud_points_.at(*inliers_iter).z;
-            inliers_iter++;
-            x3 = cloud_points_.at(*inliers_iter).x;
-            y3 = cloud_points_.at(*inliers_iter).y;
-            z3 = cloud_points_.at(*inliers_iter).z;
-            double a,b,c,d;
-            a = ((y2-y1)*(z3-z1) - (y3-y1)*(z2-z1));
-            b = ((z2-z1)*(x3-x1) - (x2-x1)*(z3-z1));
-            c = ((x2-x1)*(y3-y1) - (x3-x1)*(y2-y1));
-            d = -(a*x1 + b*y1 + c*z1);
-            if(c<0) continue;
-            double angle = acos(c/sqrt(a*a+b*b+c*c))*180/M_PI;
-            if(angle < lidar_angle_ - 5.0 || angle > lidar_angle_ + 5.0) {
-                iter--;
-                continue;
-            }
-            int index = 0;
-            for(geometry_msgs::Point point : cloud_points_){
-                if(inliers.find(index) != inliers.end()) {
-                    index ++;
-                    continue;
-                }
-                double x4,y4,z4;
-                x4 = cloud_points_[index].x;
-                y4 = cloud_points_[index].y;
-                z4 = cloud_points_[index].z;
-                double dist = abs(a*x4+b*y4+c*z4+d)/sqrt(a*a+b*b+c*c);
-                if (dist < plane_tolerance_) inliers.insert(index);
-                index++;
-            }
-            if (inliers.size() > inliers_result.size()){
-                inliers_result = inliers;
-                plane_config_[0] = a;
-                plane_config_[1] = b;
-                plane_config_[2] = c;
-                plane_config_[3] = d;
-            }
-            iter --;
-        }
-        */
-        plane_config_[0]=-sin(18*M_PI/180);
+        plane_config_[0]=-sin(lidar_angle_*M_PI/180);
         plane_config_[1]=0.0;
-        plane_config_[2]=cos(18*M_PI/180);
-        plane_config_[3]=-1.25;
+        plane_config_[2]=cos(lidar_angle_*M_PI/180);
+        plane_config_[3]=-lidar_height_;
         set<int> inliers_result;
         for(int i =0;i<cloud_points_.size();i++){
             geometry_msgs::Point point = cloud_points_.at(i);
-            if (-point.x*sin(lidar_angle_*M_PI/180)+point.z*cos(lidar_angle_*M_PI/180) < -lidar_height_ + plane_tolerance_*4){
+            if (-point.x*plane_config_[0]+point.z*plane_config_[2] < plane_config_[3] + plane_tolerance_*4){
                 inliers_result.insert(i);
             }
         }
@@ -249,26 +181,21 @@ class ObjectDetector{
         vector<vector<int>> clusters = clustering();
 
         //Publish Data
-        slam::Cluster rt;
+        slam::Clusters rt;
+        vector<slam::Cluster> rt_clusters;
         vector<geometry_msgs::Point> rt_points;
-        vector<int> rt_channels;
-        vector<int> rt_clusters;
         rt.header.stamp = ros::Time::now();
-        rt.count = projected_points_.size();
-        int cluster_index = 0;
         for(vector<int> cluster : clusters){
+            slam::Cluster rt_cluster;
+            rt_cluster.count = 0;
             for(int index : cluster){
-                rt_points.push_back(projected_points_.at(index));
-                rt_channels.push_back(filtered_channels_.at(index));
-                rt_clusters.push_back(cluster_index);
+                rt_cluster.points_2d.push_back(projected_points_.at(index));
+                rt_cluster.points_3d.push_back(filtered_points_.at(index));
+                rt_cluster.count ++;
             }
-            cluster_index ++;
+            rt_clusters.push_back(rt_cluster);
         }
-        rt.points = rt_points;
-        rt.channels = rt_channels;
         rt.clusters = rt_clusters;
-        //rt.points = projected_points_;
-        //rt.channels = filtered_channels_;
         pub_.publish(rt);
         clock_t end = clock();
         ROS_INFO("# of filtered points : %d", projected_points_.size());
@@ -288,7 +215,6 @@ class ObjectDetector{
     vector<int> filtered_channels_;
     vector<geometry_msgs::Point> projected_points_;
     vector<int> clustering_helper_;
-    int iteration_;
     double plane_config_[4]; // 
     double lidar_angle_;
     double lidar_height_;
