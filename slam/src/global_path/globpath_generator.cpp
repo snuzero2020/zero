@@ -25,7 +25,7 @@ class Global_path_gen{
 
 		Global_path_gen(){
 			sub = nh.subscribe("/filtered_data", 1000, &Global_path_gen::callback, this);
-			path_stream << ros::package::getPath("slam") << "/src/global_path/glob_path.png";	
+			path_stream << ros::package::getPath("slam") << "/config/glob_path.png";	
 			path_map = cv::imread(path_stream.str());
 			if(path_map.empty()){
 				path_map = cv::Mat(15000, 15000, CV_8UC3, cv::Scalar(255,255,255));

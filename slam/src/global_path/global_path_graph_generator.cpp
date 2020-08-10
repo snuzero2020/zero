@@ -40,8 +40,8 @@ int main(int argc, char** argv){
     double distance_tolerance = 21.0;
     int count = 0;
 
-    input_stream << ros::package::getPath("slam") << "/src/global_path/global_path.txt";
-    output_stream << ros::package::getPath("slam") << "/src/global_path/global_path_graph.txt";
+    input_stream << ros::package::getPath("slam") << "/config/global_path.txt";
+    output_stream << ros::package::getPath("slam") << "/config/global_path_graph.txt";
 
     // load global path points
     string in_line;
