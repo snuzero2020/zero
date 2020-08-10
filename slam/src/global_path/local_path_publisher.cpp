@@ -4,6 +4,7 @@
 #include "slam/Imu.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
+#include "std_msgs/UInt32.h"
 #include "geometry_msgs/Vector3Stamped.h"
 #include "geometry_msgs/Quaternion.h"
 #include "slam/GlobalPathPoint.h"
@@ -17,11 +18,11 @@
 #include <math.h>
 #include <vector>
 #include <cmath>
-#include<iostream>
-#include<fstream>
-#include<sstream>
-#include<string>
-#include<nav_msgs/OccupancyGrid.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <nav_msgs/OccupancyGrid.h>
 
 using namespace std;
 
@@ -30,7 +31,8 @@ class LocalPathPublisher{
     ros::NodeHandle nh;
     ros::Publisher local_path_pub;
     ros::Subscriber filter_data_sub;
-    stringstream path_stream;
+    ros::Subscriber gear_state_sub;
+	stringstream path_stream;
 
     slam::Data current_pose;
 
@@ -44,14 +46,20 @@ class LocalPathPublisher{
 
     public:
     
+	int gear_state{0};
 
     LocalPathPublisher(){
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
-        filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
+        gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
+		filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
         path_stream << ros::package::getPath("slam") << "/src/global_path/global_path.txt";
         load_global_path();
     }
     
+	void gs_callback(const std_msgs::UInt32 state){
+		gear_state = state.data;
+	}
+
     void filter_data_callback(const slam::Data::ConstPtr& msg){
         current_pose.x = msg->x;
         current_pose.y = msg->y;
@@ -98,13 +106,21 @@ class LocalPathPublisher{
             pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
             pose_change.pose.position.z = pose.theta - current_pose.theta;
             pose_change.header.seq = pose.flag;
-
-            if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
-                pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
-                pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
-                local_path.poses.push_back(pose_change);   
+			if(!gear_state){	
+            	if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
+               		pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
+                	pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
+                	local_path.poses.push_back(pose_change);   
+            	}
+        	}
+			else{
+				if(pose_change.pose.position.x<-1.05 && pose_change.pose.position.x>-1.05-length && pose_change.pose.position.y > 0 && pose_change.pose.position.y < length){
+                    pose_change.pose.position.x = int((-pose_change.pose.position.x-1.05)/length*pixel);
+                    pose_change.pose.position.y = (-1) * (int(pose_change.pose.position.y/length*pixel) - pixel/2);
+                    local_path.poses.push_back(pose_change);
+                }
             }
-        }
+		}
 	    printf("# of local path : %d\n", local_path.poses.size());
         local_path_pub.publish (local_path);
     }
