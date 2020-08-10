@@ -47,7 +47,7 @@ int main(int argc, char**argv){
     }
     imwrite(path_stream2.str(), velocity_map);
     ROS_INFO("discontinous velocity map is saved");
-    Gaussianblur(velocity_map, velocity_map, Size(60,60), 1.5, 0);
+    GaussianBlur(velocity_map, velocity_map, Size(60,60), 1.5, 0);
     path_stream2 << ros::package::getPath("slam") << "/config/velocity_map.png";
     imwrite(path_stream2.str(), velocity_map);
 }

@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     ros::param::get("/spread_pixel_radius", spread_pixel_radius);
     ros::param::get("/color_threshold", color_threshold);
     stringstream path_stream;
-    path_stream << ros::package::getPath("slam") << "/src/mapping/map.png";
+    path_stream << ros::package::getPath("slam") << "/src/config/map.png";
     Mat img_input = imread(path_stream.str(),IMREAD_COLOR);
     ROS_INFO("Image loaded");
     uchar* data_input = img_input.data;
