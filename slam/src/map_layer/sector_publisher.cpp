@@ -21,11 +21,11 @@ class sector_publisher{
 
     public:
         std::stringstream path_stream;
-        cv::Mat color_map;
-	    //cv::Mat color_map = cv::imread("/home/snuzero/catkin_ws/src/zero/slam/src/mapping/color_map.png");
+        //cv::Mat color_map;
+	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/color_map.png");
         sector_publisher(){
-            path_stream << ros::package::getPath("slam") << "/src/config/color_map.png";
-		    color_map = cv::imread(path_stream.str());
+            //path_stream << ros::package::getPath("slam") << "/src/config/color_map.png";
+		    //color_map = cv::imread(path_stream.str());
             ROS_INFO("Image loaded");
             pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
@@ -47,7 +47,7 @@ class sector_publisher{
                 nGreen = color_map.at<cv::Vec3b>(pixel_x,pixel_y)[1];
                 nRed = color_map.at<cv::Vec3b>(pixel_x,pixel_y)[2];
                 
-            std::cout<<nBlue<<" "<<nGreen<<" "<<nRed<<std::endl;
+                std::cout<<nBlue<<" "<<nGreen<<" "<<nRed<<std::endl;
 
                 //publish
                 // in sector A ==> pub 0
@@ -58,22 +58,30 @@ class sector_publisher{
                 std_msgs::UInt32 rt;
                 if(nBlue==0&&nGreen==0&&nRed==0)
                 {
-                    rt.data = 0;
+                    rt.data = 1;
                     ROS_INFO("Sector A");
                 }
-                if(nBlue==0&&nGreen==255&&nRed==0)
+                if(nGreen>=200)
                 {
-                    rt.data = 1;
-                    ROS_INFO("Sector B");
+                    if(nBlue==55){
+                        rt.data = 1 << 1;
+                        ROS_INFO("Sector B'");
+
+                    }
+                    else{
+                        rt.data = (1<<1)|(1<<7);
+                        ROS_INFO("Sector B");
+
+                    }
                 }
-                if(nBlue==255&&nGreen==0&&nRed==0)
+                if(nBlue==255)
                 {
-                    rt.data = 2;
+                    rt.data = 1 << 2;
                     ROS_INFO("Sector C");
                 }
-                if(nBlue==0&&nGreen==0&&nRed==255)
+                if(nRed==255)
                 {
-                    rt.data = 3;
+                    rt.data = 1 << 3;
                     ROS_INFO("Sector D");
                 }
                 pub.publish(rt);

@@ -72,6 +72,15 @@ add_executable(sector_publisher src/map_layer/sector_publisher.cpp lib/XYToPixel
 target_link_libraries(sector_publisher ${catkin_LIBRARIES})
 add_dependencies(sector_publisher slam_generate_messages_cpp)
 
+add_executable(color_velocity src/map_layer/color_velocity.cpp)
+target_link_libraries(color_velocity ${catkin_LIBRARIES})
+add_dependencies(color_velocity slam_generate_messages_cpp)
+
+add_executable(velocity_publisher src/map_layer/velocity_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(velocity_publisher ${catkin_LIBRARIES})
+add_dependencies(velocity_publisher slam_generate_messages_cpp)
+
+
 ##add_executable for obstacle_cost_map
 add_executable(object_detector src/obstacle_cost_map/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
@@ -106,10 +115,6 @@ add_dependencies(minimap_publisher slam_generate_messages_cpp)
 add_executable(slam_visualizer src/visualizer/slam_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(slam_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(slam_visualizer slam_generate_messages_cpp)
-
-add_executable(color_velocity src/map_layer/color_velocity.cpp)
-target_link_libraries(color_velocity ${catkin_LIBRARIES})
-add_dependencies(color_velocity slam_generate_messages_cpp)
 
 add_executable(visualizer src/visualizer/visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})

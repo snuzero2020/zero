@@ -4,6 +4,8 @@
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <slam/Pixel.h>
+#include <slam/Data.h>
+#include "XYToPixel.h"
 #include "std_msgs/UInt32.h"
 
 
@@ -15,7 +17,7 @@ class velocity_publisher{
         ros::Subscriber sub;
         int pixel_x, pixel_y;
         bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
-        int recommend_velocity;
+        int recommended_velocity;
 
 
     public:
@@ -26,7 +28,7 @@ class velocity_publisher{
 		    cv::Mat color_map = cv::imread(path_stream.str());
             ROS_INFO("Image loaded");
             pub = nh.advertise<std_msgs::UInt32>("/recommended_velocity", 2);
-            sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
+            sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
         }
 
         void callback(const slam::Data::ConstPtr& msg){
@@ -38,7 +40,7 @@ class velocity_publisher{
              //publish the information of a pixel
              recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
              std_msgs::UInt32 rt;
-             rt = recommended_velocity;
+             rt.data = recommended_velocity;
              pub.publish(rt);
          }
         }
@@ -47,6 +49,6 @@ class velocity_publisher{
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "velocity_publisher");
-    velocty_publisher velocity_publisher;
+    velocity_publisher velocity_publisher;
     ros::spin();
 }
