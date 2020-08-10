@@ -31,7 +31,7 @@ class GlobalPathGenerator{
         prev_.first = 0.0;
         prev_.second = 0.0;
         threshold_distance_ = 0.3;
-        save_path_ = "/home/parallels/catkin_ws/7.txt";
+        save_path_ = "/home/parallels/catkin_ws/1.txt";
     }
     
 
@@ -52,7 +52,7 @@ class GlobalPathGenerator{
         point.x = cur_.first;
         point.y = cur_.second;
         point.theta = msg->theta;
-		point.flag = 0;
+		point.flag = 1;
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);

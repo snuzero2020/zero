@@ -4,7 +4,6 @@
 #include "slam/Imu.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
-#include "std_msgs/UInt32.h"
 #include "geometry_msgs/Vector3Stamped.h"
 #include "geometry_msgs/Quaternion.h"
 #include "slam/GlobalPathPoint.h"
@@ -18,21 +17,97 @@
 #include <math.h>
 #include <vector>
 #include <cmath>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <nav_msgs/OccupancyGrid.h>
+#include<iostream>
+#include<fstream>
+#include<sstream>
+#include<string>
+#include<nav_msgs/OccupancyGrid.h>
 
 using namespace std;
+
+class LocalPathPublisher{
+    private:
+    ros::NodeHandle _nh;
+    ros::Publisher _pub;
+    ros::Subscriber _sub;
+    
+    stringstream _global_path_stream;
+    vector<slam::GlobalPathPoint> _points;
+    vector<vector<int>> _edges;
+    int _count;
+    
+    double _max_distance = 9.0;
+    int _max_pixel = 300;
+    const char _delimiter = ' ';
+
+    slam::Data _cur;
+    int _cur_node;
+    bool _is_far;
+
+    public:
+    LocalPathPublisher(){
+        _pub = nh.advertise<nav_msgs::Path>("/goals", 2);
+        _sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::callback, this);
+        _global_path_stream << ros::package::getPath("slam") << "/src/global_path/global_path_graph.txt";
+        _is_far = true;
+        load_global_path();
+    }
+
+
+    void load_global_path(){
+        ifstream in(_global_path_stream.str());
+        string in_line;
+        stringstream count_info(in_line);
+        string token;
+        vector<string> result;
+        getline(in, in_line);
+        while(getline(count_info, token, delimiter_)) result.push_back(token);
+        _count = stoi(result.at(0));
+        for(int i = 0 ; i<_count;i++){
+            getline(in, in_line);
+            stringstream point_info(in_line);
+            result.clear();
+            while(getline(point_info, token, _delimiter)) result.push_back(token);
+            slam::GlobalPathPoint point;
+            point.x = stod(result.at(0));
+            point.y = stod(result.at(1));
+            point.theta = stod(result.at(2));
+            point.flag = stod(result.at(3));
+            _points.push_back(point);
+            printf("\rloading global path points : %5d/%5d",i+1, _count);
+        }
+        for(int i=0;i<_count;i++){
+            getline(in, in_line);
+            stringstream edge_info(in_line);
+            vector<int> edge;
+            while(getline(edge_info,token,_delimiter)) edge.push_back(stoi(token));
+            _edges.push_back(edge);
+            printf("\rloading edges of the global path graph : %5d/%5d", i+1, _count);
+        }
+        printf("\ncompleted to load the edges of the global path graph : %5d\n",_count);
+    }
+
+
+    void callback(const slam::Data::ConstPtr& msg){
+        _cur.x = msg->x;
+        _cur.y = msg->y;
+        _cur.theta = msg->theta;
+        if(_is_far) {
+            find_nearest();
+            _is_far = false;
+        }
+    }
+}
+
+
 
 class LocalPathPublisher{
     private:
     ros::NodeHandle nh;
     ros::Publisher local_path_pub;
     ros::Subscriber filter_data_sub;
-    ros::Subscriber gear_state_sub;
-	stringstream path_stream;
+    stringstream path_stream;
+    int count_ = 0;
 
     slam::Data current_pose;
 
@@ -42,24 +117,14 @@ class LocalPathPublisher{
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
 
-//    string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
-
     public:
-    
-	int gear_state{0};
-
     LocalPathPublisher(){
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
-        gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
-		filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
-        path_stream << ros::package::getPath("slam") << "/src/global_path/global_path.txt";
+        filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
+        path_stream << ros::package::getPath("slam") << "/src/global_path/global_path_graph.txt";
         load_global_path();
     }
     
-	void gs_callback(const std_msgs::UInt32 state){
-		gear_state = state.data;
-	}
-
     void filter_data_callback(const slam::Data::ConstPtr& msg){
         current_pose.x = msg->x;
         current_pose.y = msg->y;
@@ -70,6 +135,31 @@ class LocalPathPublisher{
     void load_global_path(){
         string in_line;
         ifstream in(path_stream.str());
+        stringstream ss(in_line);
+        string token;
+        vector<string> result;    
+        getline(in, in_line);
+        while(getline(ss, token, delimiter_)) result.push_back(token);
+        count_ = stoi(result.at(0));
+        for(int i = 0 ;i<count_;i++){
+            getline(in, in_line);
+            stringstream point_info(in_line);
+            result.clear();
+            while(getline(point_info, token, delimiter_)) result.push_back(token);
+            slam::GlobalPathPoint point;
+            point.x = stod(result.at(0));
+            point.y = stod(result.at(1));
+            point.theta = stod(result.at(2));
+            point.flag = stod(result.at(3));
+            global_path_.push_back(point);
+            printf("\rloading global path points : %5d/%5d",i+1, count_);
+        }
+        printf("\ncompleted to load global path points : %5d\n", count_);
+        for(int i = 0 ;i<count_;i++){
+            getline(in, in_line);
+            stringstream edge_info(in_line);
+            result.clear();
+        }
         while(getline(in, in_line)){
             stringstream ss(in_line);
             string token;
@@ -106,21 +196,13 @@ class LocalPathPublisher{
             pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
             pose_change.pose.position.z = pose.theta - current_pose.theta;
             pose_change.header.seq = pose.flag;
-			if(!gear_state){	
-            	if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
-               		pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
-                	pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
-                	local_path.poses.push_back(pose_change);   
-            	}
-        	}
-			else{
-				if(pose_change.pose.position.x<-1.05 && pose_change.pose.position.x>-1.05-length && pose_change.pose.position.y > 0 && pose_change.pose.position.y < length){
-                    pose_change.pose.position.x = int((-pose_change.pose.position.x-1.05)/length*pixel);
-                    pose_change.pose.position.y = (-1) * (int(pose_change.pose.position.y/length*pixel) - pixel/2);
-                    local_path.poses.push_back(pose_change);
-                }
+
+            if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
+                pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
+                pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
+                local_path.poses.push_back(pose_change);   
             }
-		}
+        }
 	    printf("# of local path : %d\n", local_path.poses.size());
         local_path_pub.publish (local_path);
     }
