@@ -37,7 +37,7 @@ int main(int argc, char** argv){
     vector<slam::GlobalPathPoint> points;
     vector<vector<int>> edges;
     const char delimiter = ' ';
-    double distance_tolerance = 10.5;
+    double distance_tolerance = 21.0;
     int count = 0;
 
     input_stream << ros::package::getPath("slam") << "/src/global_path/global_path.txt";
