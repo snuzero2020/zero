@@ -76,18 +76,6 @@ class ObjectDetector{
         clustering_helper_[b] = a;
     }
 
-    void select_candidate(){
-        candidate_points_.clear();
-        int index = 0;
-        for(geometry_msgs::Point point : cloud_points_){
-            if (-point.x*sin(lidar_angle_*M_PI/180)+point.z*cos(lidar_angle_*M_PI/180) < -lidar_height_ + plane_tolerance_*0){
-                candidate_points_.push_back(index);
-            }
-            index++;
-        }
-        ROS_INFO("# of candidate points : %d",index);
-    }
-
     void ransac_plane(){
         plane_config_[0]=-sin(lidar_angle_*M_PI/180);
         plane_config_[1]=0.0;
@@ -169,13 +157,11 @@ class ObjectDetector{
         clock_t begin = clock();
         cloud_points_ = msg->points;
         cloud_channels_ = msg->channels;
-        candidate_points_.clear();
         filtered_points_.clear();
         filtered_channels_.clear();
         projected_points_.clear();
         clustering_helper_.clear();
 
-        select_candidate();
         ransac_plane();
         projecting_points();
         vector<vector<int>> clusters = clustering();
@@ -210,7 +196,6 @@ class ObjectDetector{
     ros::Subscriber sub_;
     vector<geometry_msgs::Point> cloud_points_;
     vector<int> cloud_channels_;
-    vector<int> candidate_points_;
     vector<geometry_msgs::Point> filtered_points_;
     vector<int> filtered_channels_;
     vector<geometry_msgs::Point> projected_points_;

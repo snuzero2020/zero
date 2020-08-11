@@ -17,7 +17,7 @@ using namespace Eigen;
 class LidarPoseEstimator{
     public:
     LidarPoseEstimator(){
-        sub_ = nh_.subscribe("/points", 1, &ObjectDetector::callback, this);
+        sub_ = nh_.subscribe("/points", 1, &LidarPoseEstimator::callback, this);
         iteration_ = 200;
         plane_tolerance_ = 0.05;
         cluster_tolerance_ = 0.10;
