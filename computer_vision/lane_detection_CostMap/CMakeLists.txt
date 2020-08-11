@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(OpenCV 3 REQUIRED)
+#find_package(Eigen REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
@@ -18,8 +19,11 @@ catkin_package(
 	opencv_highgui opencv_imgproc
 )
 
+#catkin_package(CATKIN_DEPENDS message_runtime DEPENDS Eigen)
+
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${catkin_INCLUDE_DIRS})
+#include_directories(${Eigen_INCLUDE_DIRS})
 include_directories(include)
 
 
@@ -46,5 +50,4 @@ set (HEADERS
 add_executable(cv_main src/main.cpp ${HEADERS} ${SOURCES})
 add_dependencies(cv_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(cv_main ${catkin_LIBRARIES} ${OpenCV_LIBS})
-
-
+#add_dependencies(cone_detection slam_generate_messages_cpp)
