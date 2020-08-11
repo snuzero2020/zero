@@ -14,9 +14,9 @@
 using namespace std;
 using namespace Eigen;
 
-class ObjectDetector{
+class LidarPoseEstimator{
     public:
-    ObjectDetector(){
+    LidarPoseEstimator(){
         sub_ = nh_.subscribe("/points", 1, &ObjectDetector::callback, this);
         iteration_ = 200;
         plane_tolerance_ = 0.05;
@@ -281,7 +281,7 @@ class ObjectDetector{
 };
 
 int main(int argc, char **argv){
-    ros::init(argc, argv, "object_detector");
-    ObjectDetector object_detector;
+    ros::init(argc, argv, "lidar_pose_estimator");
+    LidarPoseEstimator lidar_pose_estimator;
     ros::spin();
 }
