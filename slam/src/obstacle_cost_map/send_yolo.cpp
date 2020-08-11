@@ -49,10 +49,10 @@ class YoloSender{
         for(int i=0; i<label.size(); i++){
             slam::Yoloinfo yolo;
             rt_yolo.push_back(yolo);
-            rt_yolo[i].label.push_back(label.at(i));
-            rt_yolo[i].width.push_back(width.at(i));
-            rt_yolo[i].height.push_back(height.at(i));
-            rt_yolo[i].points.push_back(points.at(i));
+            rt_yolo[i].label = label[i];
+            rt_yolo[i].width = width[i];
+            rt_yolo[i].height = height[i];
+            rt_yolo[i].points = points[i];
             // rt_label.push_back(label.at(i));
             // rt_width.push_back(width.at(i));
             // rt_height.push_back(height.at(i));
@@ -70,13 +70,13 @@ class YoloSender{
 
         //imshow("hello", image);
         //waitKey(0);
-        rt.yolomaster = rt_yolo;
         // rt.points = rt_points;
         // rt.label = rt_label;
         // rt.width = rt_width;
         // rt.height = rt_height;
         
-        cout << "Width" << rt.yolomaster[0].width.at(0) << "Height" << rt.yolomaster[0].height.at(0) << endl;
+        rt.yolomaster = rt_yolo;
+        cout << "Width" << rt.yolomaster[0].width << "Height" << rt.yolomaster[0].height << endl;
         pub_.publish(rt);
         cout << "Sended" << endl;
     }

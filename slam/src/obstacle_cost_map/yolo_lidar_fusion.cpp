@@ -3,10 +3,13 @@
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <vector>
+#include "slam/Yolomaster.h"
 #include "slam/Yoloinfo.h"
+#include "slam/Clustermaster.h"
 #include "slam/imgCluster.h"
 #include "geometry_msgs/Point.h"
 #include "math.h"
+#include <algorithm>
 
 using namespace std;
 using namespace cv;
@@ -18,42 +21,62 @@ class YoloFusion{
         yolo_sub_ = nh_.subscribe("/yolo_info",1, &YoloFusion::yolocallback, this);
     }
 
-    void lidarcallback(const slam::imgCluster::ConstPtr& msg){
-        vector_initializer();
-        cluster_lidar = msg->clusters;
-        points_lidar = msg->points;
-    }
-
-    void yolocallback(const slam::Yoloinfo::ConstPtr& msg){
-        label_box = msg->label;
-        width_box = msg->width;
-        height_box = msg->height;
-        points_box = msg->points;
-
-        // for(int i=0; i<label_box.size(); i++){
-        //     for(int j; j<msg->count; j++)
-        // }
-    }
-
-    bool isIncluded(int x, int y, int index){
-        int w = width_box.at(index);
-        int h = height_box.at(index);
-        int px = points_box.at(index).x;
-        int py = points_box.at(index).y;
-        if((x <= px + w/2) && (x >= px - w/2) && (y <= py + h/2) && (y >= py - h/2)){
-            is_included.push_back(true);
+    void lidarcallback(const slam::Clustermaster::ConstPtr& msg){
+        for(int i = 0; i < pcl_master.size(); i++){
+            pcl_master[i].points.clear();
         }
+        pcl_master.clear();
+        pcl_master = msg -> clusters;
+    }
+
+    void yolocallback(const slam::Yolomaster::ConstPtr& msg){
+        vector_initializer();
+        vector<slam::imgCluster> pcl = pcl_master;
+        yolo_master = msg->yolomaster;
+        //Box iteration
+        for(slam::Yoloinfo box : yolo_master){
+            int cluster_num = 0; // Cluster Number Initialization
+            vector<double> box_prob; // 2D Array of Probabilities:: Row(Label)/ Column(Cluster)
+            probabilities.push_back(box_prob); // New Yolo Box probability
+            label_candidate.push_back(box.label); // Record Label Used
+            //Cluster Iteration
+            for(slam::imgCluster cluster : pcl){
+                int count = 0; // Count the # of the cluster
+                // Point Iteration
+                for(geometry_msgs::Point point : cluster.points){
+                    if(isIncluded(box, point) == true) 
+                        count += 1;
+                }
+                probabilities.at(cluster_num).push_back((1.0*count)/cluster.count);
+                cluster_num ++;
+            }
+        }
+
+        for(auto row : probabilities){
+            int max_index = max_element(row.begin(), row.end())- row.begin();
+            cluster_candidate.push_back(max_index);
+        }
+
+        // For Validation
+        for(int i = 0; i < cluster_candidate.size(); i++){
+            cout << label_candidate[i] << "might be" << cluster_candidate[i] << "th cluster in" << probabilities[i].at(cluster_candidate[i]) << "% possibility" << endl;
+        }
+
+        sort(cluster_candidate.begin(), cluster_candidate.end());
+    }
+
+    bool isIncluded(slam::Yoloinfo box_, geometry_msgs::Point point_){
+        int w =  box_.width;
+        int h = box_.height;
+        geometry_msgs::Point pt = box_.points;
+        if((point_.x <= pt.x + w/2) && (point_.x >= pt.x + w/2) && (point_.y <= pt.y + h/2) && (point_.y >= pt.y - h/2)) return true;
     }
 
     //Initialize all the vectors
     void vector_initializer(){
-        points_lidar.clear();
-        cluster_lidar.clear();
-        label_box.clear();
-        width_box.clear();
-        height_box.clear();
-        points_box.clear();
-        is_included.clear();
+        yolo_master.clear();
+        label_candidate.clear();
+        cluster_candidate.clear();
     }
 
     private:
@@ -62,24 +85,16 @@ class YoloFusion{
     ros::Subscriber yolo_sub_;
     ros::Subscriber pcl_sub_;
 
-    //PROJECTED_LIDAR_VECTORS
-    vector<geometry_msgs::Point> points_lidar; // points of projected LiDar
-    vector<int> cluster_lidar; // cluster of projected LiDar
-    vector<bool> is_included; // Existence of projected LiDar
-
-    //YOLO_BOX_VECTORS
-    vector<int> label_box; // label of yolo box
-    vector<int> width_box; // width of yolo box
-    vector<int> height_box; // height of yolo box
-    vector<geometry_msgs::Point> points_box; // center of yolo box
-
-    //SORTED_BY_CLUSTER_NUMBER
-    vector<double> p_cluster; // Possibility that cluster be included in yolo box
-    vector<int> combi_cluster; // cluster's architecture
+    // NEW, NEAT, SEXY, OH MY GOD!!
+    vector<slam::Yoloinfo> yolo_master; // Array of YoloInfo[]  :: Point points, int width, int height, int label
+    vector<slam::imgCluster> pcl_master; // Array of imgCluster[] :: Point[] points, int count
+    vector<vector<double>> probabilities; // Cluster - Label Matching vectors
+    vector<int> label_candidate;
+    vector<int> cluster_candidate;
 };
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "yolo_lidar");
-    //YoloFusion yolofusion;
+    YoloFusion yolofusion;
     ros::spin();
 }

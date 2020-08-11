@@ -8,8 +8,7 @@
 #include "ros/ros.h"
 #include "ros/time.h"
 #include "math.h"
-#include "slam/Cluster.h"
-#include "slam/"
+#include "slam/imgCluster.h"
 
 using namespace std;
 using namespace cv;
@@ -21,28 +20,37 @@ class Calibration{
     public:
     Calibration(){
         //camera internal, external parameter Measurement
-        fx = 1138.58088;
-        fy = 1140.27068;
-        cx = 970.443632;
-        cy = 486.062255;
+        //Calibration.py (Mean_error= 0.0755)
+        fx = 499.65625392;
+        fy = 499.80873551;
+        cx = 317.92637171;
+        cy = 227.12706437;
         roll = 0.0, pitch = 19.0, yaw = 0.0;
-        x = 0, y = 0.4, z = 0.1; // Unit[m] => Camera to Lidar
+        x = 0, y = 0.37, z = 0.2; // Unit[m] => Camera to Lidar
 
         //Publish, Subscribe
-        pub_ = nh_.advertise<slam::Cluster>("/pcl_on_image", 10);
+        pub_ = nh_.advertise<slam::imgCluster>("/pcl_on_image", 10);
         sub_ = nh_.subscribe("/points", 1, &Calibration::callback, this);
     }
 
-    void callback(const slam::Cluster::ConstPtr& msg){
+    void callback(const slam::Clusters::ConstPtr& msg){
         internal = getInternalMatrix(fx, fy, cx, cy);
         external = getExternalMatrix(roll, pitch, yaw, x, y, z);
         calibration_matrix = internal * external; // final_calibration_matrix
         cout << "Calibration_matrix" << endl;
         cout << calibration_matrix << endl;
-        lid_x = msg->x;
-        lid_y = msg->y;
-        lid_z = msg->z;
-        lidartoImage(
+        vector<slam::imgCluster> temp;
+        for(slam::Cluster clust : msg->clusters){
+            slam::imgCluster tempCluster;
+            temp.push_back(tempCluster);
+            for(geometry_msgs::Point pt : clust.point_3d){
+                tempCluster.push_back(lidartoImage(pt));
+            }
+        }
+        slam::Clustermaster rt;
+        rt.header = msg->header;
+        rt.clusters = temp;
+        pub_.publish(rt)
     }
 
     Matrix3d getInternalMatrix(double fx, double fy, double cx, double cy){
@@ -80,18 +88,22 @@ class Calibration{
         return rot;
     }
 
-    void lidartoImage(double x, double y, double z){
+    geometry_msgs::Point lidartoImage(geometry_msgs::Point pt){
         Vector4d lidar_pt;
         Vector3d image_pt, camera_world;
-        lidar_pt << x, y, z, 1.0;
+        lidar_pt << pt.x, pt.y, pt.z, 1.0;
         image_pt = calibration_matrix * lidar_pt;
-        camera_world = external * lidar_pt;
+        //camera_world = external * lidar_pt;
         cout << image_pt(0) << "<" << image_pt(1) << "<" << image_pt(2) << endl;
-        cout << camera_world(0) << "<" << camera_world(1) << "<" << camera_world(2) << endl;
+        //cout << camera_world(0) << "<" << camera_world(1) << "<" << camera_world(2) << endl;
+        geometry_msgs::Point rt;
         for(int i=0; i<3 ; i++){
             image_pt(i) /= image_pt(2);
         }
-        cout << image_pt(0) << "," << image_pt(1) << endl;        
+        rt.x = image_pt(0);
+        rt.y = image_pt(1);
+
+        return rt;
     }
 
     private:
@@ -107,6 +119,9 @@ class Calibration{
     vector<int> lidar_clusters;
     vector<geometry_msgs::Point> lidar_points;
 };
+
+//imgCluster :: Cluster[], Header 
+//Cluster :: Point[], int count
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "calib_matrix");
