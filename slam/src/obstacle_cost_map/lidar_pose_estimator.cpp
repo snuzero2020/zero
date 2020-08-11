@@ -17,7 +17,6 @@ using namespace Eigen;
 class ObjectDetector{
     public:
     ObjectDetector(){
-        pub_ = nh_.advertise<slam::Cluster>("/2d_obstacle_clouds", 10);
         sub_ = nh_.subscribe("/points", 1, &ObjectDetector::callback, this);
         iteration_ = 200;
         plane_tolerance_ = 0.05;
@@ -86,7 +85,6 @@ class ObjectDetector{
             }
             index++;
         }
-        //ROS_INFO("# of candidate points : %d",index);
     }
 
     void ransac_plane(){
@@ -156,20 +154,6 @@ class ObjectDetector{
             }
             iter --;
         }
-        /*
-        plane_config_[0]=-sin(18*M_PI/180);
-        plane_config_[1]=0.0;
-        plane_config_[2]=cos(18*M_PI/180);
-        plane_config_[3]=-1.25;
-        set<int> inliers_result;
-        for(int i =0;i<cloud_points_.size();i++){
-            geometry_msgs::Point point = cloud_points_.at(i);
-            if (-point.x*sin(lidar_angle_*M_PI/180)+point.z*cos(lidar_angle_*M_PI/180) < -lidar_height_ + plane_tolerance_*4){
-                inliers_result.insert(i);
-            }
-        }
-        */
-        //ROS_INFO("# of inliers : %d", inliers_result.size());
         vector<bool> check_points;
         for(int i=0;i<cloud_points_.size();i++) check_points.push_back(false);
         for(int index : inliers_result) check_points.at(index) = true;
@@ -247,36 +231,9 @@ class ObjectDetector{
         select_candidate();
         ransac_plane();
         projecting_points();
-        //vector<vector<int>> clusters = clustering();
         
-        //Publish Data
-        //slam::Cluster rt;
-        //vector<geometry_msgs::Point> rt_points;
-        //vector<int> rt_channels;
-        //vector<int> rt_clusters;
-        //rt.header.stamp = ros::Time::now();
-        //rt.count = projected_points_.size();
-        /*
-        int cluster_index = 0;
-        for(vector<int> cluster : clusters){
-            for(int index : cluster){
-                rt_points.push_back(projected_points_.at(index));
-                rt_channels.push_back(filtered_channels_.at(index));
-                rt_clusters.push_back(cluster_index);
-            }
-            cluster_index ++;
-        }
-        */
-        //rt.points = rt_points;
-        //rt.channels = rt_channels;
-        //rt.clusters = rt_clusters;
-        //rt.points = projected_points_;
-        //rt.channels = filtered_channels_;
-        //pub_.publish(rt);
         clock_t end = clock();
         
-        //ROS_INFO("# of filtered points : %d", projected_points_.size());
-        //ROS_INFO("elapsed time : %lf",double(end-begin)/CLOCKS_PER_SEC);
         count_ ++;
         theta_.push_back(acos(plane_config_[2]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
         height_.push_back(plane_config_[3]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]));
@@ -301,7 +258,6 @@ class ObjectDetector{
 
     private:
     ros::NodeHandle nh_;
-    ros::Publisher pub_;
     ros::Subscriber sub_;
     vector<geometry_msgs::Point> cloud_points_;
     vector<int> cloud_channels_;
