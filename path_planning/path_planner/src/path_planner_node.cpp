@@ -52,6 +52,7 @@ public:
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
 		//parking_space = (data>>12) & mask;
+		cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 	}
 
 	void goalsCallback(const nav_msgs::Path & msg){
@@ -133,7 +134,7 @@ public:
 		}
 		else {
 			///////////////////
-			task = light = motion = 0;
+			//task = light = motion = 0;
 
 			if(goals.poses.empty()) return;
 			if(task == -1) return;

@@ -70,7 +70,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[6] = {2,2,2,2,2,2};
+		float recommend_vel_info[6] = {1,1,1,1,1,1};
 		int buff_length{10};
 		vector<int> light_state_buff;
 		RosNode(){
@@ -83,16 +83,16 @@ class RosNode{
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
 
-			/*
+			
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
 			vector<int> B_task{INTERSECTION_RIGHT,INTERSECTION_STRAIGHT,INTERSECTION_LEFT};
 			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
 			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
 			vector<int> E_task{PARKING};
-			*/
 			
 			
+			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
 			vector<int> B_task{INTERSECTION_STRAIGHT_UNSIGNED,INTERSECTION_LEFT_UNSIGNED};
@@ -100,7 +100,7 @@ class RosNode{
 			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
 			vector<int> E_task{PARKING};
 
-
+*/
 			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
@@ -124,8 +124,9 @@ class RosNode{
 			checker_container[E] = Checker(E_task.size());
 			checker_container[E].state_list = E_task;
 
-			vector<int> sector_order{X,A,D,A,B,A,C,A,B,A,D,A,E};
-			//vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
+			//vector<int> sector_order{X,A,D,A,B,A,C,A,B,A,D,A,E};
+			//vector<int> sector_order{X,A,B,A,B,A,B,A,B,A,B,A};
+			vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
 			sector_pass_checker = Checker(sector_order.size());
 			sector_pass_checker.state_list = sector_order;
 
@@ -135,7 +136,7 @@ class RosNode{
 		inline int isSign(int _light_state, int sign_num) {return ((_light_state)>>sign_num)&1;}
 
 		void lightstateCallback(const std_msgs::UInt32 & msg){
-			for(int i{0}; i<light_state_buff.size()-1; i++) light_state_buff[i]=light_state_buff[i-1];
+			for(int i{0}; i<light_state_buff.size()-1; i++) light_state_buff[i]=light_state_buff[i+1];
 			light_state_buff[light_state_buff.size()-1] = (int)msg.data;
 			if(debug) ROS_INFO("light_state : %d",msg.data);
 		}
@@ -342,6 +343,8 @@ class RosNode{
 				if(cnt == 20){
 					checker_container[sector_pass_checker.get_present_task()].check_prior_task();
 					sector_pass_checker.check_prior_task();
+					cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+					cout << "!!!!!!!!!1!!!!!check!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 				}
 			}
 

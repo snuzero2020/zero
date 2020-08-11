@@ -205,6 +205,11 @@ void Tracker::set_look_ahead_point()
 		if (curr_local_path.poses[idx].header.seq == 0)
 		{
 			if (major_axis_radius < 5){
+				if(major_axis_radius <  1.1) {
+					look_ahead_point.x = 0;
+					look_ahead_point.y = 1; 
+					break;
+				}
 				major_axis_radius = 1;
 			}
 			else
