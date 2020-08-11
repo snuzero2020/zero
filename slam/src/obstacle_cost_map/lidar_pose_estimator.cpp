@@ -31,6 +31,7 @@ class ObjectDetector{
         x_position_.x = 1.0;
         x_position_.y = 0.0;
         x_position_.z = 0.0;
+        count_ = 0;
     }
 
     geometry_msgs::Point projection(geometry_msgs::Point point){
@@ -247,14 +248,14 @@ class ObjectDetector{
         ransac_plane();
         projecting_points();
         //vector<vector<int>> clusters = clustering();
-
+        
         //Publish Data
-        slam::Cluster rt;
-        vector<geometry_msgs::Point> rt_points;
-        vector<int> rt_channels;
-        vector<int> rt_clusters;
-        rt.header.stamp = ros::Time::now();
-        rt.count = projected_points_.size();
+        //slam::Cluster rt;
+        //vector<geometry_msgs::Point> rt_points;
+        //vector<int> rt_channels;
+        //vector<int> rt_clusters;
+        //rt.header.stamp = ros::Time::now();
+        //rt.count = projected_points_.size();
         /*
         int cluster_index = 0;
         for(vector<int> cluster : clusters){
@@ -266,20 +267,36 @@ class ObjectDetector{
             cluster_index ++;
         }
         */
-        rt.points = rt_points;
-        rt.channels = rt_channels;
-        rt.clusters = rt_clusters;
+        //rt.points = rt_points;
+        //rt.channels = rt_channels;
+        //rt.clusters = rt_clusters;
         //rt.points = projected_points_;
         //rt.channels = filtered_channels_;
-        pub_.publish(rt);
+        //pub_.publish(rt);
         clock_t end = clock();
         
         //ROS_INFO("# of filtered points : %d", projected_points_.size());
         //ROS_INFO("elapsed time : %lf",double(end-begin)/CLOCKS_PER_SEC);
+        count_ ++;
+        theta_.push_back(acos(plane_config_[2]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
+        height_.push_back(plane_config_[3]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]));
         ROS_INFO("cosine value between z and normal : %lf", acos(plane_config_[2]
         /sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
         ROS_INFO("estimate height of lidar : %lf", plane_config_[3]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]));
-        
+        if(count_ % 100 == 0){
+            int n = count_ / 100;
+            sort(theta_.begin(),theta_.end());
+            sort(height_.begin(), height_.end());
+            double sum_theta = 0, sum_height = 0;
+            for(int i =10*n;i<90*n;i++){
+                sum_theta += theta_.at(i);
+                sum_height += height_.at(i);
+            }
+            sum_theta = sum_theta /(80*n);
+            sum_height = sum_height /(80*n);
+
+            ROS_INFO("Average theta : %.5lf, height : %.5lf (%5d step)", sum_theta, sum_height, count_);
+        }
     }
 
     private:
@@ -302,6 +319,9 @@ class ObjectDetector{
     int cluster_threshold_;
     geometry_msgs::Point zero_position_;
     geometry_msgs::Point x_position_;
+    vector<double> theta_;
+    vector<double> height_;
+    int count_;
 };
 
 int main(int argc, char **argv){

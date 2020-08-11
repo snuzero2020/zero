@@ -23,7 +23,7 @@ class Map_Marker{
         sub_gps = n_.subscribe("/gps", 2, &Map_Marker::callback_gps, this);
         sub_filtered = n_.subscribe("/filtered_data", 2, &Map_Marker::callback_filtered, this);
         sub_imu = n_.subscribe("/imu", 2, &Map_Marker::callback_imu, this);
-        path_stream << ros::package::getPath("slam") << "/config/FMTC 지도_전체_rotated.png";
+        path_stream << ros::package::getPath("slam") << "/src/config/map.png";
         img = cv::imread(path_stream.str(), 1);
         ROS_INFO("Image loaded");
     }
@@ -33,12 +33,12 @@ class Map_Marker{
 
         XYToPixel(pixel_x, pixel_y, msg->x, msg->y);
         if (n != 1) {
-            cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 2);
+            //cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(0, 0, 255), 2);
             cv::circle(img, cv::Point(filtered_pixel_x, filtered_pixel_y), 2, cv::Scalar(255, 0, 0), -1);
             if( n % int(2*INTER*10.0) == 0){
                 //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+INTER*filtered_pixel_vx, filtered_pixel_y+INTER*filtered_pixel_vy), cv::Scalar(255, 0, 255), 4, 8, 0, 0.4);
-                cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+INTER*filtered_pixel_thx, filtered_pixel_y+INTER*filtered_pixel_thy), cv::Scalar(255, 255, 0), 4, 8, 0, 0.4);
-                cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+INTER*mag_pixel_thx, pixel_y+INTER*mag_pixel_thy), cv::Scalar(255, 0, 255), 4, 8, 0, 0.4);
+                //cv::arrowedLine(img, cv::Point(filtered_pixel_x, filtered_pixel_y), cv::Point(filtered_pixel_x+INTER*filtered_pixel_thx, filtered_pixel_y+INTER*filtered_pixel_thy), cv::Scalar(255, 255, 0), 4, 8, 0, 0.4);
+                //cv::arrowedLine(img, cv::Point(pixel_x, pixel_y), cv::Point(pixel_x+INTER*mag_pixel_thx, pixel_y+INTER*mag_pixel_thy), cv::Scalar(255, 0, 255), 4, 8, 0, 0.4);
             }
         }
         t = ros::Time::now();
