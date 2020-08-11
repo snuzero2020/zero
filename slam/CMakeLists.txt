@@ -25,7 +25,7 @@ add_message_files(
   DIRECTORY msg
   FILES 
   Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Pixel.msg GlobalPathPoint.msg 
-  Yolomaster.msg Yoloinfo.msg Clustermaster.msg imgCluster.msg
+  Yolomaster.msg Yoloinfo.msg Clustermaster.msg imgCluster.msg Clusters.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
 
@@ -132,6 +132,10 @@ add_dependencies(yolo_lidar slam_generate_messages_cpp)
 add_executable(calib_matrix src/obstacle_cost_map/calib_mtx.cpp)
 target_link_libraries(calib_matrix ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(calib_matrix slam_generate_messages_cpp)
+
+add_executable(lidar_visualizer src/obstacle_cost_map/lidar_visualizer.cpp)
+target_link_libraries(lidar_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(lidar_visualizer slam_generate_messages_cpp)
 
 
 catkin_install_python(PROGRAMS 
