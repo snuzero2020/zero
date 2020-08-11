@@ -51,7 +51,7 @@ double RRT::cost(Cor start, Cor dest)
 	marcher.x += dx;
 	marcher.y += dy;
     }
-    return ds * ret / step_times;
+    return ds * ret / step_times + 1E-6;
 }
 
 // pick random point in map
@@ -297,7 +297,7 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 	// iteration start
 	int t = clock();
 	srand(t); ROS_INFO("srand %d",t);
-	for (int i = 0; (!find_path || i < iternum) && i < 5000 ; i++) {
+	for (int i = 0; (!find_path || i < iternum) && i < 1000 ; i++) {
 		Cor q_rand = random_point();
 		bool check_start = false, check_goal = false;
 
