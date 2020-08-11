@@ -32,7 +32,7 @@ class Calibration{
 
         //Publish, Subscribe
         pub_ = nh_.advertise<slam::imgCluster>("/pcl_on_image", 10);
-        sub_ = nh_.subscribe("/points", 1, &Calibration::callback, this);
+        sub_ = nh_.subscribe("/point_cloud_clusters", 1, &Calibration::callback, this);
     }
 
     void callback(const slam::Clusters::ConstPtr& msg){
