@@ -49,6 +49,7 @@ class GlobalVisual{
             cout  << 1 << endl;
             string in_line;
             ifstream in(in_path_stream.str());
+			int i{1};
 
             while(getline(in, in_line)){
                 stringstream ss(in_line);
@@ -75,6 +76,10 @@ class GlobalVisual{
                 auto arrow_end = cv::Point(end_pixel_x,end_pixel_y);
 
                 cv::circle(img, arrow_start, 3, cv::Scalar(255,0,0), -1);
+				/*if(i%2 != 0) cv::putText(img, std::to_string(i++), arrow_start, 1, 0.5, cv::Scalar::all(255));
+				else i++;
+				-----------for checking num of outliers by visualizing-------------------------
+				*/
 				//cv::line(img, cv::Point(1,1), cv::Point(1000, 1000), (255, 255, 255), 10 );
                 //cv::arrowedLine(img, arrow_start, arrow_end, (255, 255, 255), 1, 1, 0, 1);
             }
