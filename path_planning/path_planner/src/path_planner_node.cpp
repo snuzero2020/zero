@@ -46,7 +46,7 @@ public:
 	}
 
 	void missionstateCallback(const std_msgs::UInt32 & msg){
-		int mask = 0xF;
+		int mask = 0b1111;
 		int data = msg.data;
 		motion = data & mask;
 		light = (data>>4) & mask;
@@ -272,9 +272,9 @@ public:
 
 			local_path.header.seq = 0;
 			if (motion == HALT_MOTION)
-				local_path.header.seq |= 0x1;
+				local_path.header.seq |= 0b1;
 			if (gear_state == 1)
-				local_path.header.seq |= 0x10;
+				local_path.header.seq |= 0b10;
 
 			// publish
 			path_pub.publish(local_path);

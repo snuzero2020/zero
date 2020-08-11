@@ -187,18 +187,18 @@ class RosNode{
 				if (determinant > go_sign_threshold){
 					switch (task_state){
 						case INTERSECTION_STRAIGHT:
-							light_state = 0x0001;
+							light_state = 0b0001;
 							break;
 						case INTERSECTION_LEFT:
-							light_state = 0x0010;
+							light_state = 0b0010;
 							break;
 						case INTERSECTION_RIGHT:
-							light_state = 0x0001;
+							light_state = 0b0001;
 							break;
 					}
 				}
 				else
-					light_state = 0x1100;
+					light_state = 0b1100;
 			}
 			else
 				light_state = 0;
