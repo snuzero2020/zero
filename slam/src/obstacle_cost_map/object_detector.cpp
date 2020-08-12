@@ -51,6 +51,10 @@ class ObjectDetector{
         return rt;
     }
 
+    double dot_product(geometry_msgs::Point p1, geometry_msgs::Point p2){
+        return p1.x*p2.x + p1.y*p2.y + p1.z*p2.z;
+    }
+
     geometry_msgs::Point normalization(geometry_msgs::Point v){
         double t = sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
         v.x = v.x/t;
@@ -112,6 +116,7 @@ class ObjectDetector{
         geometry_msgs::Point lidar_y = cross_product(normal_vector,lidar_x);
         lidar_x = normalization(lidar_x);
         lidar_y = normalization(lidar_y);
+        /*
         Matrix<double,3,2> A;
         A<<lidar_x.x,lidar_y.x, lidar_x.y,lidar_y.y, lidar_x.z,lidar_y.z;
         for(geometry_msgs::Point point : filtered_points_){
@@ -122,6 +127,19 @@ class ObjectDetector{
             geometry_msgs::Point rt;
             rt.x = solution(0);
             rt.y = solution(1);
+            rt.z = 0;
+            projected_points_.push_back(rt);
+        }
+        */
+        for(geometry_msgs::Point point : filtered_points_){
+            geometry_msgs::Point projected_point = projection(point);
+            projected_point.x -= lidar_position.x;
+            projected_point.y -= lidar_position.y;
+            projected_point.z -= lidar_position.z;
+            
+            geometry_msgs::Point rt;
+            rt.x = dot_product(lidar_x, projected_point);
+            rt.y = dot_product(lidar_x, projected_point);
             rt.z = 0;
             projected_points_.push_back(rt);
         }
