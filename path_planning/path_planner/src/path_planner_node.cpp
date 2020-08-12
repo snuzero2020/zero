@@ -46,12 +46,13 @@ public:
 	}
 
 	void missionstateCallback(const std_msgs::UInt32 & msg){
-		int mask = 0xF;
+		int mask = 0b1111;
 		int data = msg.data;
 		motion = data & mask;
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
 		//parking_space = (data>>12) & mask;
+		cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 	}
 
 	void goalsCallback(const nav_msgs::Path & msg){
@@ -133,7 +134,7 @@ public:
 		}
 		else {
 			///////////////////
-			task = light = motion = 0;
+			//task = light = motion = 0;
 
 			if(goals.poses.empty()) return;
 			if(task == -1) return;
@@ -271,9 +272,9 @@ public:
 
 			local_path.header.seq = 0;
 			if (motion == HALT_MOTION)
-				local_path.header.seq |= 0x1;
+				local_path.header.seq |= 0b1;
 			if (gear_state == 1)
-				local_path.header.seq |= 0x10;
+				local_path.header.seq |= 0b10;
 
 			// publish
 			path_pub.publish(local_path);
