@@ -52,7 +52,7 @@ class LocalPathPublisher{
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
         gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
 		filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
-        path_stream << ros::package::getPath("slam") << "/config/global_path.txt";
+        path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
         load_global_path();
     }
     

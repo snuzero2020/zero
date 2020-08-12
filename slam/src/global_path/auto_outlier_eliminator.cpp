@@ -27,8 +27,8 @@ class Outlier_eliminator{
 		Outlier_eliminator(){
 			threshold_error_ = 0.2;
 			threshold_heading_error_ = 5.0;
-			in_path_stream << ros::package::getPath("slam") << "/config/global_path.txt";
-			out_path_stream << ros::package::getPath("slam") << "/config/refined_global_path.txt";
+			in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
+			out_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_refined_global_path.txt";
 			eliminate_outliers();
 		}
 

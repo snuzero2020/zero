@@ -13,8 +13,8 @@ int main(int argc, char**argv){
     Mat velocity_map = Mat(15000,15000,CV_8UC3, Scalar(0,0,0));
     stringstream path_stream1;
     stringstream path_stream2;
-    path_stream1 << ros::package::getPath("slam") << "/config/color_map.png";
-    path_stream2 << ros::package::getPath("slam") << "/config/discontinous_velocity_map.png";
+    path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
+    path_stream2 << ros::package::getPath("slam") << "/config/FMTC/FMTC_discontinous_velocity_map.png";
     color_map = imread(path_stream1.str());
     ROS_INFO("color map loaded");
 
@@ -48,6 +48,6 @@ int main(int argc, char**argv){
     imwrite(path_stream2.str(), velocity_map);
     ROS_INFO("discontinous velocity map is saved");
     GaussianBlur(velocity_map, velocity_map, Size(60,60), 1.5, 0);
-    path_stream2 << ros::package::getPath("slam") << "/config/velocity_map.png";
+    path_stream2 << ros::package::getPath("slam") << "/config/FMTC/FMTC_velocity_map.png";
     imwrite(path_stream2.str(), velocity_map);
 }

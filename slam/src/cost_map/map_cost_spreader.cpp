@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     ros::param::get("/spread_pixel_radius", spread_pixel_radius);
     ros::param::get("/color_threshold", color_threshold);
     stringstream path_stream;
-    path_stream << ros::package::getPath("slam") << "/src/config/map.png";
+    path_stream << ros::package::getPath("slam") << "/src/config/FMTC/FMTC_map.png";
     Mat img_input = imread(path_stream.str(),IMREAD_COLOR);
     ROS_INFO("Image loaded");
     uchar* data_input = img_input.data;
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     img_spreaded.convertTo(img_output, CV_8UC1, 1.0/USHORT_FACTOR);
 
     path_stream.str(std::string());
-    path_stream << ros::package::getPath("slam") << "/src/mapping/costmap.png";
+    path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
     cv::imwrite(path_stream.str(),img_output);
     ROS_INFO("Image saved");
 }

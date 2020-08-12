@@ -24,12 +24,12 @@ class YoloSender{
     Mat image;
     int img_row;
     int img_col;
-
-    public:
+	std::stringstream in_path_stream;
+    
+	public:
     YoloSender(){
         pub_ = nh_.advertise<slam::Yolomaster>("/yolo_info", 10);
         //get_picture();
-
     }
 
     void send_info(){

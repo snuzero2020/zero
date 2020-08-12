@@ -23,7 +23,7 @@ class Slam_visualizer{
         cv::Mat glob_map;
 
         Slam_visualizer(){
-            path_stream << ros::package::getPath("slam") << "/config/global_path_visual.png";
+            path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path_visual.png";
             glob_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);
 
             ROS_INFO("Image Loaded");

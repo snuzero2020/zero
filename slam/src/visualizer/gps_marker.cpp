@@ -23,7 +23,7 @@ class Map_Marker{
         sub_gps = n_.subscribe("/gps", 2, &Map_Marker::callback_gps, this);
         sub_filtered = n_.subscribe("/filtered_data", 2, &Map_Marker::callback_filtered, this);
         sub_imu = n_.subscribe("/imu", 2, &Map_Marker::callback_imu, this);
-        path_stream << ros::package::getPath("slam") << "/config/map.png";
+        path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_map.png";
         img = cv::imread(path_stream.str(), 1);
 
         if (img.empty()) {ROS_ERROR("The map image is empty! check the path of the map!");}
