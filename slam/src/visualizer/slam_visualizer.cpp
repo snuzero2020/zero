@@ -23,11 +23,12 @@ class Slam_visualizer{
         cv::Mat glob_map;
 
         Slam_visualizer(){
-            path_stream << ros::package::getPath("slam") << "/config/global_path.png";
+            path_stream << ros::package::getPath("slam") << "/config/global_path_visual.png";
             glob_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);
 
             ROS_INFO("Image Loaded");
-            sub = nh.subscribe("/filtered_data", 2, &Slam_visualizer::callback, this);
+            cv::namedWindow("local_map");
+			sub = nh.subscribe("/filtered_data", 2, &Slam_visualizer::callback, this);
         }
 
         void callback(const slam::Data data){
@@ -47,9 +48,8 @@ class Slam_visualizer{
 
             local_map = rotated_map(cv::Rect(x, y, map_size, map_size));
 
-            cv::namedWindow("local_map");
             cv::imshow("local_map", local_map);
-            cv::waitKey(1);
+            cv::waitKey(0);
         }
 };
 
@@ -57,5 +57,4 @@ int main(int argc, char **argv){
     ros::init(argc, argv, "Slam_visualizer");
     Slam_visualizer slam_visualizer;
     ros::spin();
-	cv::destroyWindow("local_map");
 }
