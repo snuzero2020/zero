@@ -281,6 +281,15 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 	// initialize
 	cost_map = _cost_map;
 
+	// in case present position or goal is on obstacle
+	if(isobstacle(start)){
+		threshold = 120;
+	}
+	else if(isobstacle(goal)){
+		threshold = 120;
+	}
+	else threshold = 100;
+
 	// straight check
 	if(straightCheck(start, goal)){
 		path.push_back(start);
