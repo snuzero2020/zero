@@ -29,12 +29,13 @@ class YoloSender{
 	public:
     YoloSender(){
         pub_ = nh_.advertise<slam::Yolomaster>("/yolo_info", 10);
+	in_path_stream << ros::package::getPath("slam") << "/config/test_lidar.jpg";
         //get_picture();
     }
 
     void send_info(){
         initialize_info();
-        image = imread("/home/jungwonsuhk/vision/signa10586.jpg",IMREAD_COLOR);
+        image = imread(in_path_stream.str(),IMREAD_COLOR);
         img_col = image.cols;
         img_row = image.rows;
         push_info(); // Need to be revised
@@ -118,5 +119,9 @@ int main(int argc, char **argv){
         ros::spinOnce();
         loop.sleep();
     }
+<<<<<<< HEAD
     //ros::spin();
 }
+=======
+}
+>>>>>>> 0f13b29e14bbacadc89683fd3ea52849eb7b0798
