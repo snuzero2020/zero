@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-from cv_bridge import CvBridge
 import cv2
 import torch
 import numpy as np
 import time
-from sensor_msgs.msg import Image
+from std_msgs.msg import UInt16MultiArray
 from torchvision.transforms import transforms
 import rospy
 
@@ -23,9 +22,7 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(weight_path))
     model.eval()
 
-    bridge = CvBridge()
-
-    seg_pub = rospy.Publisher('/lane_seg_topic', Image, queue_size = 10)
+    seg_pub = rospy.Publisher('/lane_seg_topic', UInt16MultiArray, queue_size = 10)
     rospy.init_node('LaneNet_publisher_node', anonymous = True)
     rate = rospy.Rate(100)
 
@@ -54,9 +51,11 @@ if __name__ == "__main__":
                 seg_img = np.zeros_like(img)
 
                 seg_img[binary_seg_pred == 1] = (255, 255, 255)
-                seg_message = bridge.cv2_to_imgmsg(seg_img, "bgr8")
+                seg_img = seg_img.tolist()
+                seg_msg = UInt16MultiArray()
+                seg_msg.data = seg_img
 
-                seg_pub.publish(seg_message)
+                seg_pub.publish(seg_msg)
                 rate.sleep()
             else:
                 break
