@@ -11,32 +11,25 @@
 using namespace std;
 using namespace cv;
 
-<<<<<<< HEAD
-class YoloSender{ 
-    public:
-    YoloSender(){
-        pub_ = nh_.advertise<slam::Yolomaster>("/yolo_info", 10);
-=======
 class YoloSender{
     
-    private:
-    ros::NodeHandle nh_;
-    ros::Publisher pub_;
-    ros::Subscriber sub_;
-    vector<int> label;
-    vector<double> width;
-    vector<double> height;
-    vector<geometry_msgs::Point> points;
-    Mat image;
-    int img_row;
-    int img_col;
-	std::stringstream in_path_stream;
+    // private:
+    // ros::NodeHandle nh_;
+    // ros::Publisher pub_;
+    // ros::Subscriber sub_;
+    // vector<int> label;cm
+    // vector<double> width;
+    // vector<double> height;
+    // vector<geometry_msgs::Point> points;
+    // Mat image;
+    // int img_row;
+    // int img_col;
+	// std::stringstream in_path_stream;
     
 	public:
     YoloSender(){
         pub_ = nh_.advertise<slam::Yolomaster>("/yolo_info", 10);
         //get_picture();
->>>>>>> 833582f198bc8eb17e67be92024d3aaab4a47405
     }
 
     void send_info(){
@@ -125,9 +118,5 @@ int main(int argc, char **argv){
         ros::spinOnce();
         loop.sleep();
     }
-<<<<<<< HEAD
-}
-=======
     //ros::spin();
 }
->>>>>>> 833582f198bc8eb17e67be92024d3aaab4a47405
