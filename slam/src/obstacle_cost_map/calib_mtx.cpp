@@ -12,6 +12,7 @@
 #include "slam/Clusters.h"
 #include "slam/Clustermaster.h"
 
+
 using namespace std;
 using namespace cv;
 using namespace Eigen;

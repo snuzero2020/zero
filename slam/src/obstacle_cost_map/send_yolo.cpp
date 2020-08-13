@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "ros/time.h"
+#include "ros/package.h"
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <vector>
@@ -105,6 +106,7 @@ class YoloSender{
     int img_row;
     int img_col;
     Mat image;
+    std::stringstream in_path_stream;
 };
 
 
@@ -119,9 +121,4 @@ int main(int argc, char **argv){
         ros::spinOnce();
         loop.sleep();
     }
-<<<<<<< HEAD
-    //ros::spin();
 }
-=======
-}
->>>>>>> 0f13b29e14bbacadc89683fd3ea52849eb7b0798
