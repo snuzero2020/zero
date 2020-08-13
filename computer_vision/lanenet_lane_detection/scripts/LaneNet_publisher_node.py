@@ -12,7 +12,7 @@ from model import *
 from utils import *
 
 video_path = "/home/snuzero/Pictures/vision_lane_data/lane_video/lane_detection_1/front_lane_detection_1/front_lane_detection_1.avi"
-weight_path = "/home/snuzero/catkin_ws/src/zero/computer_vision/LaneNet_LaneDetection/ldln_ckpt_7.pth"
+weight_path = "/home/snuzero/catkin_ws/src/zero/computer_vision/lanenet_lane_detection/ldln_ckpt_7.pth"
 
 if __name__ == "__main__":
     
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     bridge = CvBridge()
 
     seg_pub = rospy.Publisher('/lane_seg_topic', Image, queue_size = 10)
-    rospy.init_node('LaneNet_seg_publishser_node', anonymous = True)
+    rospy.init_node('LaneNet_publisher_node', anonymous = True)
     rate = rospy.Rate(100)
 
     cap = cv2.VideoCapture(video_path)
@@ -53,8 +53,8 @@ if __name__ == "__main__":
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
                 seg_img = np.zeros_like(img)
 
-                seg_img[binary_seg_pred == 1] = 255
-                seg_message = bridge.cv2_to_imgmsg(seg_img, encoding = "passthrough")
+                seg_img[binary_seg_pred == 1] = (255, 255, 255)
+                seg_message = bridge.cv2_to_imgmsg(seg_img, "bgr8")
 
                 seg_pub.publish(seg_message)
                 rate.sleep()
