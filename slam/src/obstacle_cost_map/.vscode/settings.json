@@ -2,6 +2,7 @@
     "files.associations": {
         "vector": "cpp",
         "bitset": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "iostream": "cpp"
     }
 }

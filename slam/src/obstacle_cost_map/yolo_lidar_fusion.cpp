@@ -17,7 +17,7 @@ using namespace cv;
 class YoloFusion{
     public:
     YoloFusion(){
-        pcl_sub_ = nh_.subscribe("/image_lidar",1, &YoloFusion::lidarcallback, this);
+        pcl_sub_ = nh_.subscribe("/pcl_on_image",1, &YoloFusion::lidarcallback, this);
         yolo_sub_ = nh_.subscribe("/yolo_info",1, &YoloFusion::yolocallback, this);
     }
 

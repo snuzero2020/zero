@@ -11,39 +11,21 @@
 using namespace std;
 using namespace cv;
 
-class YoloSender{
-    
-    private:
-    ros::NodeHandle nh_;
-    ros::Publisher pub_;
-    ros::Subscriber sub_;
-    vector<int> label;
-    vector<double> width;
-    vector<double> height;
-    vector<geometry_msgs::Point> points;
-    Mat image;
-    int img_row;
-    int img_col;
-
+class YoloSender{ 
     public:
     YoloSender(){
         pub_ = nh_.advertise<slam::Yolomaster>("/yolo_info", 10);
-        //get_picture();
-
     }
 
     void send_info(){
         initialize_info();
-        Mat image = imread("/home/jungwonsuhk/vision/signa10586.jpg",IMREAD_COLOR);
+        image = imread("/home/jungwonsuhk/vision/signa10586.jpg",IMREAD_COLOR);
         img_col = image.cols;
         img_row = image.rows;
         push_info(); // Need to be revised
         
         slam::Yolomaster rt;
         vector<slam::Yoloinfo> rt_yolo;
-        // vector<int> rt_label;
-        // vector<int> rt_width;
-        // vector<int> rt_height;
         vector<geometry_msgs::Point> rt_points;
         rt.header.stamp = ros::Time::now();
         for(int i=0; i<label.size(); i++){
@@ -53,28 +35,19 @@ class YoloSender{
             rt_yolo[i].width = width[i];
             rt_yolo[i].height = height[i];
             rt_yolo[i].points = points[i];
-            // rt_label.push_back(label.at(i));
-            // rt_width.push_back(width.at(i));
-            // rt_height.push_back(height.at(i));
-            // rt_points.push_back(points.at(i));
         }
-        //cout << rt_label.at(0) << "<" << rt_width.at(0) << "<" << rt_height.at(0) << endl;
 
-        // for(int j=0; j<label.size(); j++){
-        //     int start_x = rt_points.at(j).x - rt_width.at(j)/2;
-        //     int start_y = rt_points.at(j).y - rt_height.at(j)/2;
-        //     int end_x = rt_points.at(j).x + rt_width.at(j)/2;
-        //     int end_y = rt_points.at(j).y + rt_height.at(j)/2;
-        //     rectangle(image, Point(start_x, start_y), Point(end_x, end_y), Scalar(255,0,0), 3);
-        // }
+        for(int j=0; j<label.size(); j++){
+            int start_x = rt_yolo[j].points.x - rt_yolo[j].width/2;
+            int start_y = rt_yolo[j].points.y - rt_yolo[j].height/2;
+            int end_x = rt_yolo[j].points.x + rt_yolo[j].width/2;
+            int end_y = rt_yolo[j].points.y + rt_yolo[j].height/2;
+            rectangle(image, Point(start_x, start_y), Point(end_x, end_y), Scalar(255,0,0), 3);
+        }
 
-        //imshow("hello", image);
-        //waitKey(0);
-        // rt.points = rt_points;
-        // rt.label = rt_label;
-        // rt.width = rt_width;
-        // rt.height = rt_height;
-        
+        imshow("hello", image);
+        waitKey(0);
+
         rt.yolomaster = rt_yolo;
         cout << "Width" << rt.yolomaster[0].width << "Height" << rt.yolomaster[0].height << endl;
         pub_.publish(rt);
@@ -105,6 +78,17 @@ class YoloSender{
         height.push_back(int(0.083611 * img_row));
     }
 
+    private:
+    ros::NodeHandle nh_;
+    ros::Publisher pub_;
+    ros::Subscriber sub_;
+    vector<int> label;
+    vector<double> width;
+    vector<double> height;
+    vector<geometry_msgs::Point> points;
+    int img_row;
+    int img_col;
+    Mat image;
 };
 
 
@@ -119,5 +103,4 @@ int main(int argc, char **argv){
         ros::spinOnce();
         loop.sleep();
     }
-    //ros::spin();
 }

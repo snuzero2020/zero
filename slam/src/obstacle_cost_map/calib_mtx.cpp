@@ -32,26 +32,36 @@ class Calibration{
 
         //Publish, Subscribe
         pub_ = nh_.advertise<slam::imgCluster>("/pcl_on_image", 10);
-        sub_ = nh_.subscribe("/points", 1, &Calibration::callback, this);
+        sub_ = nh_.subscribe("/point_cloud_clusters", 1, &Calibration::callback, this);
     }
 
     void callback(const slam::Clusters::ConstPtr& msg){
         internal = getInternalMatrix(fx, fy, cx, cy);
         external = getExternalMatrix(roll, pitch, yaw, x, y, z);
         calibration_matrix = internal * external; // final_calibration_matrix
-        cout << "Calibration_matrix" << endl;
-        cout << calibration_matrix << endl;
+
+        // cluster_array = msg->clusters;
+        // for(slam::Cluster cluster : msg->clusters){
+        //     for(geometry_msgs::Point pt : cluster.points_3d){
+        //         pt = external * static_cast<Vector3d>()
+        //     }
+        // }
+        // vector<Point3d> points = (msg->clusters).points;
+
+
         vector<slam::imgCluster> temp;
-        for(slam::Cluster clust : msg->clusters){
+        for(slam::Cluster cluster : msg->clusters){
             slam::imgCluster tempCluster;
             temp.push_back(tempCluster);
-            for(geometry_msgs::Point pt : clust.points_3d){
+            for(geometry_msgs::Point pt : cluster.points_3d){
                 tempCluster.points.push_back(lidartoImage(pt));
+                tempCluster.count = cluster.count;
             }
         }
         slam::Clustermaster rt;
         rt.header = msg->header;
         rt.clusters = temp;
+        cout << rt.clusters.at(0).count << endl;
         pub_.publish(rt);
     }
 
@@ -60,8 +70,8 @@ class Calibration{
         internal_<< fx, 0.0f, cx,
                     0.0f, fy, cy,
                     0.0f, 0.0f, 1.0f;
-        cout << "Internal Matrix: " << endl;
-        cout << internal_ << endl;
+        // cout << "Internal Matrix: " << endl;
+        // cout << internal_ << endl;
         return internal_; 
     }
 
@@ -85,8 +95,8 @@ class Calibration{
         rot = rotd * rotx * roty * rotz;
         rot.conservativeResize(rot.rows(), rot.cols()+1);
         rot.col(rot.cols()-1) = trans;
-        cout << "External Matrix: " << endl;
-        cout << rot << endl;
+        // cout << "External Matrix: " << endl;
+        // cout << rot << endl;
         return rot;
     }
 
@@ -104,7 +114,7 @@ class Calibration{
         }
         rt.x = image_pt(0);
         rt.y = image_pt(1);
-
+        cout << "Converted Coordinate: " << rt.x << " , " << rt.y << endl;
         return rt;
     }
 

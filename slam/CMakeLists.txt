@@ -122,7 +122,7 @@ target_link_libraries(visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen
 add_dependencies(visualizer slam_generate_messages_cpp)
 
 add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
-target_link_libraries(yolo_sender ${catkin_LIBRARIES})
+target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(yolo_sender slam_generate_messages_cpp)
 
 add_executable(yolo_lidar src/obstacle_cost_map/yolo_lidar_fusion.cpp)
