@@ -10,6 +10,7 @@
 //boseol code
 int centerline_cost;
 int line_cost;
+int parkingline_cost;
 int dilate_pixel_radius;
 int spread_pixel_radius;
 int color_threshold;
@@ -17,6 +18,7 @@ int color_threshold;
 //This function determines how cost will spread
 //return * USHORT_FACTOR should be <= 255
 inline double spread_ratio(double r){
+    //return (spread_pixel_radius-r)*(spread_pixel_radius-r) / ( (spread_pixel_radius-dilate_pixel_radius)*(spread_pixel_radius-dilate_pixel_radius) );
     return (spread_pixel_radius-r)/(spread_pixel_radius-dilate_pixel_radius);
     //return 10/(r+10-dilate_pixel_radius);
 }
@@ -28,24 +30,42 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "map_cost_spreader");
     ros::param::get("/centerline_cost", centerline_cost);
     ros::param::get("/line_cost", line_cost);
+    ros::param::get("/parkingline_cost", parkingline_cost);
     ros::param::get("/dilate_pixel_radius", dilate_pixel_radius);
     ros::param::get("/spread_pixel_radius", spread_pixel_radius);
     ros::param::get("/color_threshold", color_threshold);
     stringstream path_stream;
-    path_stream << ros::package::getPath("slam") << "/src/config/map.png";
+    path_stream << ros::package::getPath("slam") << "/config/FMTC/rotated/FMTC_map_for_costmap.png";
     Mat img_input = imread(path_stream.str(),IMREAD_COLOR);
-    ROS_INFO("Image loaded");
-    uchar* data_input = img_input.data;
-    int rows = img_input.rows;
-    int cols = img_input.cols;
+    if(img_input.empty()){
+        ROS_WARN("No image");
+    }else{
+        ROS_INFO("Image loaded");
+    }
+    Mat img_hsv;
+    cvtColor(img_input, img_hsv, CV_BGR2HSV);
+    uchar* data_hsv = img_hsv.data;
+    int rows = img_hsv.rows;
+    int cols = img_hsv.cols;
     Mat img_gray = Mat::zeros(rows, cols, CV_16UC1);
     ushort* data_gray = (ushort*)img_gray.data;
     for(int i=0; i<rows; i++){
         for(int j=0; j<cols; j++){
-            if(data_input[3*(i*cols+j)+1] < color_threshold){    //not blue : black(outer line), red(center line)
-                data_gray[i*cols+j] = centerline_cost;
-            }else if(data_input[3*(i*cols+j)+2] < color_threshold){  //not red : green(ordinary line)
-                data_gray[i*cols+j] = line_cost;
+            int nHue = data_hsv[3*(i*cols+j)];
+            int nSaturation = data_hsv[3*(i*cols+j)+1];
+            int nValue = data_hsv[3*(i*cols+j)+2];
+            if(nSaturation<color_threshold){
+                if(nValue<128){
+                    data_gray[i*cols+j] = centerline_cost;  //black : borderline    
+                }
+            }else if(nSaturation>128 && nValue>128){
+                if(nHue<color_threshold/2 || nHue>180-color_threshold/2){
+                    data_gray[i*cols+j] = centerline_cost;  //red : centerline
+                }else if(nHue>65-color_threshold/2 && nHue<65+color_threshold/2){
+                    data_gray[i*cols+j] = line_cost;  //green : line
+                }else if(nHue>120-color_threshold/2 && nHue<120+color_threshold/2){
+                    data_gray[i*cols+j] = parkingline_cost;  //blue : parkingline
+                }
             }
         } 
     }
@@ -112,7 +132,7 @@ int main(int argc, char** argv) {
     img_spreaded.convertTo(img_output, CV_8UC1, 1.0/USHORT_FACTOR);
 
     path_stream.str(std::string());
-    path_stream << ros::package::getPath("slam") << "/src/mapping/costmap.png";
+    path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
     cv::imwrite(path_stream.str(),img_output);
     ROS_INFO("Image saved");
 }

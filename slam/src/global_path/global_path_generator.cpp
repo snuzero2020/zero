@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "ros/time.h"
+#include "ros/package.h"
 #include "slam/Data.h"
 #include "slam/GlobalPathPoint.h"
 #include <iostream>
@@ -19,11 +20,11 @@ class GlobalPathGenerator{
     ros::NodeHandle nh_;
     ros::Subscriber sub_;
     vector<slam::GlobalPathPoint> points_;
-    string save_path_;
     pdd prev_;
     pdd cur_;
     double threshold_distance_;
-    
+    std::stringstream save_path_stream;
+
     public:
     GlobalPathGenerator(){
         sub_ = nh_.subscribe("/filtered_data", 2, &GlobalPathGenerator::callback, this);
@@ -31,12 +32,13 @@ class GlobalPathGenerator{
         prev_.first = 0.0;
         prev_.second = 0.0;
         threshold_distance_ = 0.3;
-        save_path_ = "/home/parallels/catkin_ws/1.txt";
+		//change the number in save_path_stream into the bag sequence
+		save_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_1.txt";
     }
     
 
     void save(){
-        ofstream out(save_path_);
+        ofstream out(save_path_stream.str());
         for(slam::GlobalPathPoint point : points_) out<<to_string(point.x)+" "+to_string(point.y)+" "+to_string(point.theta)+" "+to_string(point.flag)<<endl;
         out.close();
         printf("complete save\n");

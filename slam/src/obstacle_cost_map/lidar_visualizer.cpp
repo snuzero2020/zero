@@ -21,7 +21,7 @@ class Visualizer{
     }
 
     void callback(const slam::Clustermaster::ConstPtr& msg){
-        Mat img = imread("/home/jungwonsuhk/vision/signa100557.jpg",IMREAD_COLOR);
+        Mat img = imread("/home/jeongwoooh/vision/signa100557.jpg",IMREAD_COLOR);
         lidar_on_image = msg->clusters;
         for(slam::imgCluster cluster : lidar_on_image){
             int color_flag = 0;
@@ -33,7 +33,8 @@ class Visualizer{
             }
             color_flag += 1;
         }
-        imwrite("lidar_projected.jpg", img);
+        imwrite("/home/jeongwoooh/vision/lidar_projected.jpg", img);
+	printf("completed to save img, img size : %d \n", img.size());
     }
 
     void color_randomizer(){

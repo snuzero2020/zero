@@ -61,7 +61,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	// flag info : main(0), sub (1, = other lane), left(2), right(3), halt(4), parking(5~10)
 	bool flag[12];
-	for(int i = 0;i<5;i++) flag[i] = false;
+	for(int i = 0;i<12;i++) flag[i] = false;
 	switch(motion){
 		case FORWARD_MOTION :
 		case FORWARD_SLOW_MOTION :
@@ -113,6 +113,9 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		//////////////////////////////
 	}
 
+	for(bool flag_check : flag) cout << flag_check << " ";
+	cout << endl;
+
 	double look_ahead_radius;
 	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 100;
 	else if(motion == FORWARD_SLOW_MOTION) look_ahead_radius = 50;
@@ -137,8 +140,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	int sz = goals.size();
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
-		//int pose_flag = poseStamped.header.seq & 0xF;
-		int pose_flag = 0;
+		int pose_flag = poseStamped.header.seq & 0b1111;
+		//int pose_flag = 0;
 		int pose_seq = poseStamped.header.seq>>4;
 
 		// check flag
@@ -161,7 +164,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
-		printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx][(int)dy+costmap.size()/2]);
+		//printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx][(int)dy+costmap.size()/2]);
 		// check obstacle
 		if(costmap[(int)dx][(int)dy+costmap.size()/2] >= OBSTACLE) {
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
@@ -193,7 +196,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		for(int i = 0; i<sz; i++){
 			geometry_msgs::PoseStamped poseStamped = goals[i];		
 
-			int pose_flag = poseStamped.header.seq & 0xF;
+			int pose_flag = poseStamped.header.seq & 0b1111;
 			int pose_seq = poseStamped.header.seq>>4;
 
 			// check flag
@@ -237,6 +240,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	if(value != -1){
 		double gx = goals[value].pose.position.x;
 		double gy = goals[value].pose.position.y;
+		cout << "current goal flag : " << (goals[value].header.seq & 0b1111) << endl;
 		return Cor(gx,gy);
 	}
 
@@ -250,6 +254,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		// else return sub path
 		double gx = goals[value_sub].pose.position.x;
 		double gy = goals[value_sub].pose.position.y;
+		cout << "current goal flag : " << (goals[value_sub].header.seq & 0b1111) << endl;
 		return Cor(gx,gy);
 	}
 	else if(task == OBSTACLE_SUDDEN){

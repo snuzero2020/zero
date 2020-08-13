@@ -59,7 +59,7 @@ add_executable(local_path_publisher src/global_path/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher ${catkin_LIBRARIES})
 add_dependencies(local_path_publisher slam_generate_messages_cpp)
 
-add_executable(global_visual src/global_path/global_path_visualizer.cpp lib/XYToPixel.cpp)
+add_executable(global_visual src/visualizer/global_path_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(global_visual ${catkin_LIBRARIES})
 add_dependencies(global_visual slam_generate_messages_cpp)
 
@@ -117,9 +117,9 @@ add_executable(slam_visualizer src/visualizer/slam_visualizer.cpp lib/XYToPixel.
 target_link_libraries(slam_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(slam_visualizer slam_generate_messages_cpp)
 
-add_executable(visualizer src/visualizer/visualizer.cpp lib/XYToPixel.cpp)
-target_link_libraries(visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-add_dependencies(visualizer slam_generate_messages_cpp)
+add_executable(pp_visualizer src/visualizer/pp_visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(pp_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(pp_visualizer slam_generate_messages_cpp)
 
 add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
 target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})

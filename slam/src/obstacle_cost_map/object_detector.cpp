@@ -51,6 +51,10 @@ class ObjectDetector{
         return rt;
     }
 
+    double dot_product(geometry_msgs::Point p1, geometry_msgs::Point p2){
+        return p1.x*p2.x + p1.y*p2.y + p1.z*p2.z;
+    }
+
     geometry_msgs::Point normalization(geometry_msgs::Point v){
         double t = sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
         v.x = v.x/t;
@@ -74,18 +78,6 @@ class ObjectDetector{
         b = find(b);
         if(a==b) return;
         clustering_helper_[b] = a;
-    }
-
-    void select_candidate(){
-        candidate_points_.clear();
-        int index = 0;
-        for(geometry_msgs::Point point : cloud_points_){
-            if (-point.x*sin(lidar_angle_*M_PI/180)+point.z*cos(lidar_angle_*M_PI/180) < -lidar_height_ + plane_tolerance_*0){
-                candidate_points_.push_back(index);
-            }
-            index++;
-        }
-        ROS_INFO("# of candidate points : %d",index);
     }
 
     void ransac_plane(){
@@ -124,6 +116,7 @@ class ObjectDetector{
         geometry_msgs::Point lidar_y = cross_product(normal_vector,lidar_x);
         lidar_x = normalization(lidar_x);
         lidar_y = normalization(lidar_y);
+        /*
         Matrix<double,3,2> A;
         A<<lidar_x.x,lidar_y.x, lidar_x.y,lidar_y.y, lidar_x.z,lidar_y.z;
         for(geometry_msgs::Point point : filtered_points_){
@@ -134,6 +127,19 @@ class ObjectDetector{
             geometry_msgs::Point rt;
             rt.x = solution(0);
             rt.y = solution(1);
+            rt.z = 0;
+            projected_points_.push_back(rt);
+        }
+        */
+        for(geometry_msgs::Point point : filtered_points_){
+            geometry_msgs::Point projected_point = projection(point);
+            projected_point.x -= lidar_position.x;
+            projected_point.y -= lidar_position.y;
+            projected_point.z -= lidar_position.z;
+            
+            geometry_msgs::Point rt;
+            rt.x = dot_product(lidar_x, projected_point);
+            rt.y = dot_product(lidar_x, projected_point);
             rt.z = 0;
             projected_points_.push_back(rt);
         }
@@ -169,13 +175,11 @@ class ObjectDetector{
         clock_t begin = clock();
         cloud_points_ = msg->points;
         cloud_channels_ = msg->channels;
-        candidate_points_.clear();
         filtered_points_.clear();
         filtered_channels_.clear();
         projected_points_.clear();
         clustering_helper_.clear();
 
-        select_candidate();
         ransac_plane();
         projecting_points();
         vector<vector<int>> clusters = clustering();
@@ -210,7 +214,6 @@ class ObjectDetector{
     ros::Subscriber sub_;
     vector<geometry_msgs::Point> cloud_points_;
     vector<int> cloud_channels_;
-    vector<int> candidate_points_;
     vector<geometry_msgs::Point> filtered_points_;
     vector<int> filtered_channels_;
     vector<geometry_msgs::Point> projected_points_;
