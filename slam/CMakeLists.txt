@@ -81,7 +81,6 @@ add_executable(velocity_publisher src/map_layer/velocity_publisher.cpp lib/XYToP
 target_link_libraries(velocity_publisher ${catkin_LIBRARIES})
 add_dependencies(velocity_publisher slam_generate_messages_cpp)
 
-
 ##add_executable for obstacle_cost_map
 add_executable(object_detector src/obstacle_cost_map/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
@@ -143,5 +142,6 @@ catkin_install_python(PROGRAMS
   src/sensing/lidar_decoder.py
   src/visualizer/imu_visualizer.py 
   src/visualizer/kalman_fusion_visualizer.py
+  src/obstacle_cost_map/object_visualizer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

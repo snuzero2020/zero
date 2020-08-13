@@ -23,8 +23,8 @@ class ObjectDetector{
         plane_tolerance_ = 0.05;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
-        lidar_angle_ = 18;
-        lidar_height_ = 1.25;
+        lidar_angle_ = 18.97246;
+        lidar_height_ = 1.24935;
         zero_position_.x = 0.0;
         zero_position_.y = 0.0;
         zero_position_.z = 0.0;
@@ -139,7 +139,7 @@ class ObjectDetector{
             
             geometry_msgs::Point rt;
             rt.x = dot_product(lidar_x, projected_point);
-            rt.y = dot_product(lidar_x, projected_point);
+            rt.y = dot_product(lidar_y, projected_point);
             rt.z = 0;
             projected_points_.push_back(rt);
         }
