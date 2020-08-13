@@ -32,9 +32,15 @@ class GlobalVisual{
 		stringstream in_path_stream, in_map_stream, out_visual_stream;
 
         GlobalVisual(){
+			/*
 			in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
 			in_map_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
 			out_visual_stream << ros::package::getPath("slam")<< "/config/FMTC/FMTC_global_path_visual.png";
+			*/
+			in_path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
+			in_map_stream << ros::package::getPath("slam") << "/config/KCity/KCity.png";
+			out_visual_stream << ros::package::getPath("slam")<< "/config/KCity/KCity_global_path_visual.png";
+
 			pub = nh.advertise<sensor_msgs::Image>("/global_map_with_path", 2);
             global_path_visual();
         }
