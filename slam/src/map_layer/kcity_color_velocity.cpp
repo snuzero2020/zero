@@ -29,11 +29,11 @@ int main(int argc, char**argv){
 
              if(nBlue==0&&nGreen==0&&nRed==0)
              {
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 170;
              }
 
              else{
-                discrete_velocity_map.at<cv::Vec3b>(i,j)[0] = 170;
+                discrete_velocity_map.at<cv::Vec3b>(i,j)[0] = 85;
              }
 
              /*

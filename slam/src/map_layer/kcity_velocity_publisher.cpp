@@ -25,7 +25,7 @@ class velocity_publisher{
     public:
         std::stringstream path_stream;
         //cv::Mat velocity_map;
-        cv::Mat velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_velocity_map1.png");
+        cv::Mat velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_velocity_map2.png");
 
         velocity_publisher(){
 	    //path_stream << ros::package::getPath("slam") << "/config/FMTC/velocity_map.png";
