@@ -161,6 +161,23 @@ class RosNode{
 		}
 
 		void light_state_determiner(int task_state){
+			if(task_state & 0b10000){
+				task_state = (task_state & 0b1111);
+				if(task_state == INTERSECTION_STRAIGHT){
+					light_state = 0b0001;
+				}
+				else if(task_state == INTERSECTION_LEFT){
+					light_state = 0b0010;
+				}
+				else if(task_state == INTERSECTION_RIGHT){
+					light_state = 0b0001;
+				}
+				else{
+					light_state = 0b0000;
+				}
+				return;
+			}
+			
 			double determinant{0};
 			bool go_sign{false};
 			if (task_state == INTERSECTION_STRAIGHT || task_state == INTERSECTION_LEFT || task_state == INTERSECTION_RIGHT){
