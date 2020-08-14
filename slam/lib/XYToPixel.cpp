@@ -26,23 +26,23 @@ double a2 = -0.041049840938208966;
 double b2 = -33.349818513399164;
 double c2 = 138011335.78259039;
 */
-/* New FMTC map
+// New FMTC map
 double a1 = 33.35682000061858;
 double b1 = -0.6892112032054343;
 double c1 = -7095938.941479745;
 double a2 = -0.6892112032054311;
 double b2 = -33.35682000061859;
 double c2 = 138233386.34684;
-*/
 
 
+/*
 double a1 = 33.30845062530643;
 double b1 = 0.006115022759639878;
 double c1 = -10098174.098572133;
 double a2 = 0.006115022759636954;
 double b2 = -33.30845062530642;
 double c2 = 137371264.71873185;
-
+*/
 
 void XYToPixel(int& pixel_x, int& pixel_y, double x, double y) {
     pixel_x = int(a1*x+b1*y+c1);
