@@ -60,17 +60,17 @@ class sector_publisher{
                     rt.data = 0;
                     ROS_INFO("Sector A");
                 }
-                if(nRed==255)
+                if(nRed==255&&nGreen==0&&nBlue==0)
                 {
                     rt.data = 1;
                     ROS_INFO("Sector B");
                 }
-                if(nGreen==255)
+                if(nGreen==255&&nRed==0&&nBlue==0)
                 {
                     rt.data = 2;
                     ROS_INFO("Sector C");
                 }
-                if(nBlue==255){
+                if(nBlue==255&&nRed==0&&nGreen==0){
                     rt.data = 3;
                     ROS_INFO("Sector D");
                 }

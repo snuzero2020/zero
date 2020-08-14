@@ -7,8 +7,6 @@
 #include <slam/Data.h>
 #include "XYToPixel.h"
 #include "std_msgs/Float64.h"
-//#include <opencv2/core/persistence.hpp>
-//#include <fstream>
 #include <string>
 
 class velocity_publisher{
@@ -30,15 +28,7 @@ class velocity_publisher{
         velocity_publisher(){
 	    //path_stream << ros::package::getPath("slam") << "/config/FMTC/velocity_map.png";
         //cv::Mat velocity_map = cv::imread(path_stream.str());
-        /*
-        fs.open(path_stream.str(), cv::FileStorage::READ); 
-        if(!fs.isOpened())
-        {
-            std::cout<<"Failed to open"<<std::endl;
-        }
-        ROS_INFO("2");
-        fs["velocity_map"] >> velocity_map;
-        */
+
         ROS_INFO("Image loaded");
 
         pub = nh.advertise<std_msgs::Float64>("/recommended_velocity", 2);
