@@ -22,12 +22,12 @@ class sector_publisher{
     public:
         std::stringstream path_stream;
         //cv::Mat color_map;
-	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/FMTC_color_map.png");
+	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png");
         sector_publisher(){
-            //path_stream << ros::package::getPath("slam") << "/src/config/color_map.png";
+            //path_stream << ros::package::getPath("slam") << "/src/config/KCity/KCity_color_map.png";
 		    //color_map = cv::imread(path_stream.str());
             ROS_INFO("Image loaded");
-            pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
+            pub = nh.advertise<std_msgs::UInt32>("/kcity_sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
             //sub = nh.subscribe("/position/pixel", 1000, &sector_publisher::callback, this);
           //  nBlue = 0; nGreen = 0; nRed = 0;
@@ -51,38 +51,60 @@ class sector_publisher{
 
                 //publish
                 // in sector A ==> pub 0
-                //           B ==> pub 1
-                //           C ==> pub 2
-                //           D ==> pub 3
+                //           ...
+                //           L ==> pub 
 
                 std_msgs::UInt32 rt;
                 if(nBlue==0&&nGreen==0&&nRed==0)
                 {
-                    rt.data = 1;
+                    rt.data = 0;
                     ROS_INFO("Sector A");
-                }
-                if(nGreen>=200)
-                {
-                    if(nBlue==55){
-                        rt.data = 1 << 1;
-                        ROS_INFO("Sector B");
-
-                    }
-                    else{
-                        rt.data = (1<<1)|(1<<5);
-                        ROS_INFO("Sector B'");
-
-                    }
-                }
-                if(nBlue==255)
-                {
-                    rt.data = 1 << 2;
-                    ROS_INFO("Sector C");
                 }
                 if(nRed==255)
                 {
-                    rt.data = 1 << 3;
+                    rt.data = 1;
+                    ROS_INFO("Sector B");
+                }
+                if(nGreen==255)
+                {
+                    rt.data = 2;
+                    ROS_INFO("Sector C");
+                }
+                if(nBlue==255){
+                    rt.data = 3;
                     ROS_INFO("Sector D");
+                }
+                if(nRed==200&&nGreen==55){
+                    rt.data = 4;
+                    ROS_INFO("Sector E");
+                }
+                if(nGreen==200&&nBlue==55){
+                    rt.data = 5;
+                    ROS_INFO("Sector F");
+                }                
+                if(nRed==200&&nBlue==55){
+                    rt.data = 6;
+                    ROS_INFO("Sector G");
+                }                
+                if(nBlue==200&&nRed==55){
+                    rt.data = 7;
+                    ROS_INFO("Sector H");
+                }                
+                if(nBlue==200&&nGreen==55){
+                    rt.data = 8;
+                    ROS_INFO("Sector I");
+                }                
+                if(nBlue==200&&nRed==55){
+                    rt.data = 9;
+                    ROS_INFO("Sector J");
+                }                
+                if(nRed==150&&nGreen==105){
+                    rt.data = 10;
+                    ROS_INFO("Sector K");
+                }
+                if(nBlue==105&&nGreen==150){
+                    rt.data = 11;
+                    ROS_INFO("Sector L");
                 }
                 pub.publish(rt);
             }

@@ -35,12 +35,14 @@ double b2 = -33.35682000061859;
 double c2 = 138233386.34684;
 */
 
+
 double a1 = 33.30845062530643;
 double b1 = 0.006115022759639878;
 double c1 = -10098174.098572133;
 double a2 = 0.006115022759636954;
 double b2 = -33.30845062530642;
 double c2 = 137371264.71873185;
+
 
 void XYToPixel(int& pixel_x, int& pixel_y, double x, double y) {
     pixel_x = int(a1*x+b1*y+c1);

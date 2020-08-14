@@ -6,8 +6,10 @@
 #include <slam/Pixel.h>
 #include <slam/Data.h>
 #include "XYToPixel.h"
-#include "std_msgs/UInt32.h"
-
+#include "std_msgs/Float32.h"
+#include <opencv2/core/persistence.hpp>
+#include <fstream>
+#include <string>
 
 class velocity_publisher{
 
@@ -17,21 +19,38 @@ class velocity_publisher{
         ros::Subscriber sub;
         int pixel_x, pixel_y;
         bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
-        int recommended_velocity;
+        float recommended_velocity;
 
 
     public:
         std::stringstream path_stream;
-    	cv::Mat velocity_map;
+        cv::Mat velocity_map;
+       
         velocity_publisher(){
-            
+        ROS_INFO("0");
+	    path_stream << ros::package::getPath("slam") << "/config/test.xml";
+        ROS_INFO("1");
+        cv::FileStorage fs;
+        fs.open(path_stream.str(), cv::FileStorage::READ); 
+        if(!fs.isOpened())
+        {
+            std::cout<<"Failed to open"<<std::endl;
+        }
+        ROS_INFO("2");
+        fs["velocity_map"] >> velocity_map;
+        ROS_INFO("Image loaded");
+        cv::FileNode n = fs.root();
+        for(cv::FileNodeIterator current = n.begin(); current !=n.end(); current++){
+            cv::FileNode item = *current;
+            cv::Mat v;
+            item["test"] >>v;
+            std::cout<<"1"<<std::endl;
+            std::cout<<v<<std::endl;
+        }
+        std::cout<<velocity_map<<std::endl;
 
-	    path_stream << ros::package::getPath("slam") << "/config/velocity_map.png";
-	    //cv::Mat velocity_map = cv::imread(path_stream.str()); 
-	    velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/velocity_map.png");
-            ROS_INFO("Image loaded");
-            pub = nh.advertise<std_msgs::UInt32>("/recommended_velocity", 2);
-            sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
+        pub = nh.advertise<std_msgs::Float32>("/recommended_velocity", 2);
+        sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
         }
 
         void callback(const slam::Data::ConstPtr& msg){
@@ -41,13 +60,12 @@ class velocity_publisher{
          if(x_inRange&&y_inRange){
              std::cout<<"on map"<<std::endl;
              //publish the information of a pixel
-             recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
-             std_msgs::UInt32 rt;
+             recommended_velocity = velocity_map.at<float>(pixel_x, pixel_y);
+             std_msgs::Float32 rt;
              rt.data = recommended_velocity;
              pub.publish(rt);
          }
         }
-
 };
 
 int main(int argc, char **argv){
@@ -55,3 +73,4 @@ int main(int argc, char **argv){
     velocity_publisher velocity_publisher;
     ros::spin();
 }
+
