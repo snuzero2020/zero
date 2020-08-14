@@ -74,35 +74,35 @@ class sector_publisher{
                     rt.data = 3;
                     ROS_INFO("Sector D");
                 }
-                if(nRed==200&&nGreen==55){
+                if(nRed==255&&nGreen==140){
                     rt.data = 4;
                     ROS_INFO("Sector E");
                 }
-                if(nGreen==200&&nBlue==55){
+                if(nGreen==255&&nBlue==140){
                     rt.data = 5;
                     ROS_INFO("Sector F");
                 }                
-                if(nRed==200&&nBlue==55){
+                if(nRed==255&&nBlue==140){
                     rt.data = 6;
                     ROS_INFO("Sector G");
                 }                
-                if(nBlue==200&&nRed==55){
+                if(nGreen==255&&nRed==140){
                     rt.data = 7;
                     ROS_INFO("Sector H");
                 }                
-                if(nBlue==200&&nGreen==55){
+                if(nBlue==255&&nGreen==140){
                     rt.data = 8;
                     ROS_INFO("Sector I");
                 }                
-                if(nBlue==200&&nRed==55){
+                if(nBlue==255&&nRed==140){
                     rt.data = 9;
                     ROS_INFO("Sector J");
                 }                
-                if(nRed==150&&nGreen==105){
+                if(nRed==255&&nGreen==255){
                     rt.data = 10;
                     ROS_INFO("Sector K");
                 }
-                if(nBlue==105&&nGreen==150){
+                if(nBlue==255&&nGreen==255){
                     rt.data = 11;
                     ROS_INFO("Sector L");
                 }
