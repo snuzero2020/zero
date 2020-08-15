@@ -1,6 +1,6 @@
 <launch>
   <node name="local_costmap_publisher" pkg="slam" type="local_costmap_publisher" output="screen"/>
   <node name="local_path_publisher" pkg="slam" type="local_path_publisher" output="screen"/>
-  <node name="sector_publisher" pkg="slam" type="local_path_publisher" output="screen"/>
+  <node name="sector_publisher" pkg="slam" type="sector_publisher" output="screen"/>
 </launch>
 
