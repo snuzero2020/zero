@@ -25,8 +25,6 @@ class Movement{
     ros::NodeHandle nh_;
     ros::Publisher pub_;
     ros::Subscriber sub_;
-
-
 };
 
 

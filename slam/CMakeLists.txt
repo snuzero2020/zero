@@ -130,12 +130,16 @@ target_link_libraries(yolo_lidar ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(yolo_lidar slam_generate_messages_cpp)
 
 add_executable(calib_matrix src/obstacle_cost_map/calib_mtx.cpp)
-target_link_libraries(calib_matrix ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+target_link_libraries(calib_matrix ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(calib_matrix slam_generate_messages_cpp)
 
 add_executable(lidar_visualizer src/obstacle_cost_map/lidar_visualizer.cpp)
 target_link_libraries(lidar_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(lidar_visualizer slam_generate_messages_cpp)
+
+add_executable(video_capture src/obstacle_cost_map/video_capture.cpp)
+target_link_libraries(video_capture ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(video_capture slam_generate_messages_cpp)
 
 
 catkin_install_python(PROGRAMS 

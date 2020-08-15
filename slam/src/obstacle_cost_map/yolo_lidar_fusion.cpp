@@ -22,13 +22,16 @@ class YoloFusion{
     }
 
     void lidarcallback(const slam::Clustermaster::ConstPtr& msg){
+        pcl_master = msg -> clusters;
+        cout << pcl_master.size() << endl;
         for(int i = 0; i < pcl_master.size(); i++){
             pcl_master[i].points.clear();
         }
         pcl_master.clear();
         pcl_master = msg -> clusters;
     }
-
+    
+    //Need to be synchronized
     void yolocallback(const slam::Yolomaster::ConstPtr& msg){
         vector_initializer();
         vector<slam::imgCluster> pcl = pcl_master;
@@ -37,19 +40,23 @@ class YoloFusion{
         for(slam::Yoloinfo box : yolo_master){
             int cluster_num = 0; // Cluster Number Initialization
             vector<double> box_prob; // 2D Array of Probabilities:: Row(Label)/ Column(Cluster)
-            probabilities.push_back(box_prob); // New Yolo Box probability
             label_candidate.push_back(box.label); // Record Label Used
+            cout << "Box # " << box.label << " pushed" << endl;
             //Cluster Iteration
             for(slam::imgCluster cluster : pcl){
-                int count = 0; // Count the # of the cluster
+                int yolo_true = 0; // Count the # of the cluster
                 // Point Iteration
                 for(geometry_msgs::Point point : cluster.points){
                     if(isIncluded(box, point) == true) 
-                        count += 1;
+                        yolo_true += 1;
                 }
-                probabilities.at(cluster_num).push_back((1.0*count)/cluster.count);
+                cout << "Cluster num: " << cluster_num << endl;
+                cout << "In yolo box: " << yolo_true << endl;
+                cout << "Total point: " << cluster.count << endl;
+                box_prob.push_back(1.0*yolo_true/cluster.count);
                 cluster_num ++;
             }
+            probabilities.push_back(box_prob);
         }
 
         for(auto row : probabilities){
@@ -57,9 +64,11 @@ class YoloFusion{
             cluster_candidate.push_back(max_index);
         }
 
-        // For Validation
+        cout << "Cluster candidate size: " << cluster_candidate.size() << endl;
+        cout << "Label candidate size: " << label_candidate.size() << endl;
+        //For Validation
         for(int i = 0; i < cluster_candidate.size(); i++){
-            cout << label_candidate[i] << "might be" << cluster_candidate[i] << "th cluster in" << probabilities[i].at(cluster_candidate[i]) << "% possibility" << endl;
+            cout << label_candidate[i] << "might be " << cluster_candidate[i] << "th cluster in " << 100 * probabilities[i].at(cluster_candidate[i]) << "% possibility" << endl;
         }
 
         sort(cluster_candidate.begin(), cluster_candidate.end());
@@ -69,7 +78,11 @@ class YoloFusion{
         int w =  box_.width;
         int h = box_.height;
         geometry_msgs::Point pt = box_.points;
-        if((point_.x <= pt.x + w/2) && (point_.x >= pt.x + w/2) && (point_.y <= pt.y + h/2) && (point_.y >= pt.y - h/2)) return true;
+        // cout << "box: " << pt.x << "," << pt.y << endl;
+        // cout << "width: " << w << "height: " << h << endl;
+        // cout << "POint:" << point_.x << "," << point_.y << endl;
+        if((point_.x <= pt.x + w/2) && (point_.x >= pt.x - w/2) && (point_.y <= pt.y + h/2) && (point_.y >= pt.y - h/2)) return true;
+        else return false;
     }
 
     //Initialize all the vectors
@@ -77,6 +90,10 @@ class YoloFusion{
         yolo_master.clear();
         label_candidate.clear();
         cluster_candidate.clear();
+        for(int i=0; i< probabilities.size(); i++){
+            probabilities[i].clear();
+        }
+        probabilities.clear();
     }
 
     private:
