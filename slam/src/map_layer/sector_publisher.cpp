@@ -22,22 +22,19 @@ class sector_publisher{
     public:
         std::stringstream path_stream;
         //cv::Mat color_map;
-	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/color_map.png");
+	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/FMTC_color_map.png");
         sector_publisher(){
             //path_stream << ros::package::getPath("slam") << "/src/config/color_map.png";
 		    //color_map = cv::imread(path_stream.str());
             ROS_INFO("Image loaded");
             pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
-            //sub = nh.subscribe("/position/pixel", 1000, &sector_publisher::callback, this);
-          //  nBlue = 0; nGreen = 0; nRed = 0;
         }
 
         //void callback(const slam::Pixel Data){
         void callback(const slam::Data::ConstPtr& msg){
             XYToPixel(pixel_y, pixel_x, msg->x, msg->y); // pixel_y here is x in cv graphics and column in cv Mat
-            //pixel_x = Data.y;
-            //pixel_y = Data.x;
+
             std::cout<<"Pixel information is loaded: "<<pixel_x<<", "<<pixel_y<<std::endl;
 
             if(x_inRange&&y_inRange){
@@ -61,25 +58,24 @@ class sector_publisher{
                     rt.data = 1;
                     ROS_INFO("Sector A");
                 }
-                if(nGreen>=200)
+                if(nBlue==55&&nGreen==200&&nRed==0)
                 {
-                    if(nBlue==55){
-                        rt.data = 1 << 1;
-                        ROS_INFO("Sector B'");
+                    rt.data = 1 << 1;
+                    ROS_INFO("Sector B");
 
-                    }
-                    else{
-                        rt.data = (1<<1)|(1<<7);
-                        ROS_INFO("Sector B");
-
-                    }
                 }
-                if(nBlue==255)
+                if(nBlue==0&&nGreen==255&&nRed==0){
+                    rt.data = (1<<1)|(1<<5);
+                    ROS_INFO("Sector B'");
+
+                }
+                
+                if(nBlue==255&nRed==0&&nBlue==0)
                 {
                     rt.data = 1 << 2;
                     ROS_INFO("Sector C");
                 }
-                if(nRed==255)
+                if(nRed==255&&nBlue==0&&nGreen==0)
                 {
                     rt.data = 1 << 3;
                     ROS_INFO("Sector D");

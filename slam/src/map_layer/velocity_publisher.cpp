@@ -6,8 +6,8 @@
 #include <slam/Pixel.h>
 #include <slam/Data.h>
 #include "XYToPixel.h"
-#include "std_msgs/UInt32.h"
-
+#include "std_msgs/Float64.h"
+#include <string>
 
 class velocity_publisher{
 
@@ -17,21 +17,22 @@ class velocity_publisher{
         ros::Subscriber sub;
         int pixel_x, pixel_y;
         bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
-        int recommended_velocity;
+        double recommended_velocity;
 
 
     public:
         std::stringstream path_stream;
-    	cv::Mat velocity_map;
-        velocity_publisher(){
-            
+        //cv::Mat velocity_map;
+        cv::Mat velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/velocity_map.png");
 
-	    path_stream << ros::package::getPath("slam") << "/config/velocity_map.png";
-	    //cv::Mat velocity_map = cv::imread(path_stream.str()); 
-	    velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/velocity_map.png");
-            ROS_INFO("Image loaded");
-            pub = nh.advertise<std_msgs::UInt32>("/recommended_velocity", 2);
-            sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
+        velocity_publisher(){
+	    //path_stream << ros::package::getPath("slam") << "/config/FMTC/velocity_map.png";
+        //cv::Mat velocity_map = cv::imread(path_stream.str());
+
+        ROS_INFO("Image loaded");
+
+        pub = nh.advertise<std_msgs::Float64>("/recommended_velocity", 2);
+        sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
         }
 
         void callback(const slam::Data::ConstPtr& msg){
@@ -42,12 +43,11 @@ class velocity_publisher{
              std::cout<<"on map"<<std::endl;
              //publish the information of a pixel
              recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
-             std_msgs::UInt32 rt;
-             rt.data = recommended_velocity;
+             std_msgs::Float64 rt;
+             rt.data = recommended_velocity/85;
              pub.publish(rt);
          }
         }
-
 };
 
 int main(int argc, char **argv){
@@ -55,3 +55,4 @@ int main(int argc, char **argv){
     velocity_publisher velocity_publisher;
     ros::spin();
 }
+

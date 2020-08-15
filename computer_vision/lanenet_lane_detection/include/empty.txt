@@ -1,0 +1,1 @@
+빈 폴더는 git이 추적을 안해서 push가 안됩니다. 다른 사람들이 catkin_make 할 때 폴더가 없어 오류가 발생하므로 폴더를 push 하기 위해 의미없는 파일을 추가합니다. 이 폴더에 다른 파일을 추가하거나 CMakeLists의 catkin_package에서 INCLUDE_DIRS include 를 제거하면 이 파일을 삭제해도 됩니다.
