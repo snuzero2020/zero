@@ -25,16 +25,17 @@ class sector_publisher{
 
         sector_publisher(){
         
-        if (is_kcity==true){
-            cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png");
-        }
-        if(!color_map.empty()){
-            ROS_INFO("KCity loaded");
-        }
+        //if (is_kcity==true){
+            cv::Mat color_map = cv::imread("/home/dongha/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png");
+        //}
 
-        else if(is_kcity==false){
-            cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/FMTC_color_map.png");
-        }
+        //if(!color_map.empty()){
+        //    ROS_INFO("KCity loaded");
+        //}
+
+        //else if(is_kcity==false){
+        //    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/FMTC_color_map.png");
+        //}
         
         /*
             if(is_kcity==true){
