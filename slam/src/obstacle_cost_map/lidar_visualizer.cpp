@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "ros/time.h"
+#include "ros/package.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "Eigen/Eigen"
@@ -16,25 +17,44 @@ using namespace std;
 class Visualizer{
     public:
     Visualizer(){
-        sub_ = nh_.subscribe("/pcl_on_image", 1, &Visualizer::callback, this);
         color_randomizer();
+        in_path_stream << ros::package::getPath("slam") << "/config/capture1.jpg";
+        sub_ = nh_.subscribe("/pcl_on_image", 1, &Visualizer::callback, this);
     }
 
     void callback(const slam::Clustermaster::ConstPtr& msg){
-        Mat img = imread("/home/jeongwoooh/vision/signa100557.jpg",IMREAD_COLOR);
+        //img = Mat::zeros()
+        img = imread(in_path_stream.str(),IMREAD_COLOR);
+        cout << "Size:" << img.rows << "<" << img.cols << endl;
         lidar_on_image = msg->clusters;
+        int color_flag = 0;
         for(slam::imgCluster cluster : lidar_on_image){
-            int color_flag = 0;
             for(geometry_msgs::Point pt : cluster.points){
-                if(pt.x <= img.rows && pt.y <= img.cols && pt.x >=0 && pt.y >= 0){
-                    img.at<Vec3b>(pt.y, pt.x) = color_list.at(color_flag % 3); 
+                if(pt.x <= img.cols && pt.y <= img.rows && pt.x >=0 && pt.y >= 0){
+                    cout << pt.x << " & " << pt.y << endl;
+                    //img.at<Vec3b>(pt.y, pt.x) = color_list.at(color_flag % 3);
+                    circle(img, Point(pt.x,pt.y),2,color_list.at(color_flag % 3),-1);
                 }
-                else cout << "Out of range" << endl;
+                //else cout << "Out of range" << endl;
             }
             color_flag += 1;
         }
-        imwrite("/home/jeongwoooh/vision/lidar_projected.jpg", img);
-	printf("completed to save img, img size : %d \n", img.size());
+
+        imshow("test", img);
+        char c = waitKey(25);
+        // if(c == 's'){
+        //     imwrite("/home/jungwonsuhk/test.jpg",img)
+        // }
+        
+        //imwrite("/home/jeongwoooh/vision/lidar_projected.jpg", img);
+        //printf("completed to save img, img size : %d \n", img.size());
+        mainclock = ros::Time::now();
+    }
+
+    void quit_if_end(){
+        if((ros::Time::now() - mainclock).sec > 2){
+            destroyAllWindows();
+        }
     }
 
     void color_randomizer(){
@@ -49,10 +69,17 @@ class Visualizer{
     ros::Subscriber sub_;
     vector<Vec3b> color_list;
     vector<slam::imgCluster> lidar_on_image;
+    stringstream in_path_stream;
+    Mat img;
+    ros::Time mainclock;
 };
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "lidar_visualizer");
     Visualizer visualizer;
-    ros::spin();
+    while(ros::ok()){
+        visualizer.quit_if_end();
+        ros::spinOnce();
+    }
+    return 0;
 }

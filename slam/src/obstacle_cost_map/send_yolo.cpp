@@ -30,7 +30,7 @@ class YoloSender{
 	public:
     YoloSender(){
         pub_ = nh_.advertise<slam::Yolomaster>("/yolo_info", 10);
-	in_path_stream << ros::package::getPath("slam") << "/config/test_lidar.jpg";
+	    in_path_stream << ros::package::getPath("slam") << "/config/capture1.jpg";
         //get_picture();
     }
 
@@ -63,7 +63,7 @@ class YoloSender{
         }
 
         imshow("hello", image);
-        waitKey(0);
+        waitKey(1);
 
         rt.yolomaster = rt_yolo;
         cout << "Width" << rt.yolomaster[0].width << "Height" << rt.yolomaster[0].height << endl;
@@ -90,9 +90,9 @@ class YoloSender{
         points.push_back(pt1);
         points.push_back(pt2);
         width.push_back(int(0.059375 * img_col));
-        width.push_back(int(0.069375 * img_col));
+        width.push_back(int(0.269375 * img_col));
         height.push_back(int(0.073611 * img_row));
-        height.push_back(int(0.083611 * img_row));
+        height.push_back(int(0.283611 * img_row));
     }
 
     private:
