@@ -7,6 +7,7 @@
 #include <slam/Data.h>
 #include "XYToPixel.h"
 #include "std_msgs/UInt32.h"
+bool is_kcity;
 
 
 class sector_publisher{
@@ -20,12 +21,34 @@ class sector_publisher{
 
     public:
         std::stringstream path_stream;
-        //cv::Mat color_map;
-	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/FMTC_color_map.png");
+        cv::Mat color_map;
+
         sector_publisher(){
-            //path_stream << ros::package::getPath("slam") << "/src/config/color_map.png";
-		    //color_map = cv::imread(path_stream.str());
-            ROS_INFO("Image loaded");
+        
+        if (is_kcity==true){
+            cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png");
+        }
+        if(!color_map.empty()){
+            ROS_INFO("KCity loaded");
+        }
+
+        else if(is_kcity==false){
+            cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/FMTC/FMTC_color_map.png");
+        }
+        
+        /*
+            if(is_kcity==true){
+    	        path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_color_map.png";
+                cv::Mat color_map = cv::imread(path_stream.str());  
+                ROS_INFO("KCity loaded");
+            }
+            else if(is_kcity==false){
+    	        path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
+                cv::Mat color_map = cv::imread(path_stream.str()); 
+                ROS_INFO("FMTC loaded");
+
+            }
+        */        
             pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
         }
@@ -123,6 +146,7 @@ class sector_publisher{
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "sector_publisher");
+    ros::param::get("/is_kcity", is_kcity);
     sector_publisher sector_publisher;
     ros::spin();
 }

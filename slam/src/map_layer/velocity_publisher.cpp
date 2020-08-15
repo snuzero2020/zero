@@ -17,7 +17,7 @@ class velocity_publisher{
         ros::Publisher pub;
         ros::Subscriber sub;
         int pixel_x, pixel_y;
-        bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
+        //bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
         double recommended_velocity;
 
     public:
@@ -34,7 +34,7 @@ class velocity_publisher{
 
         /*
         if(is_kcity==true){
-    	    path_stream << ros::package::getPath("slam") << "/config/KCity/KCityvelocity_map.png";
+    	    path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map.png";
             cv::Mat velocity_map = cv::imread(path_stream.str());  
         }
         else if(is_kcity==false){
@@ -52,13 +52,13 @@ class velocity_publisher{
          XYToPixel(pixel_y, pixel_x, msg->x, msg->y);
          std::cout<<"Pixel information is loaded: "<<pixel_x<<", "<<pixel_y<<std::endl;
 
-         if(x_inRange&&y_inRange){
+         //if(x_inRange&&y_inRange){
              std::cout<<"on map"<<std::endl;
              recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
              std_msgs::Float64 rt;
              rt.data = recommended_velocity/85;
              pub.publish(rt);
-         }
+         //}
         }
 };
 
