@@ -14,7 +14,6 @@ class sector_publisher{
         ros::NodeHandle nh;
         ros::Publisher pub;
         ros::Subscriber sub;
-        //double pixel_x, pixel_y;
         int pixel_x, pixel_y;
         bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
         int nBlue, nGreen, nRed;
@@ -58,29 +57,66 @@ class sector_publisher{
                     rt.data = 1;
                     ROS_INFO("Sector A");
                 }
-                if(nBlue==55&&nGreen==200&&nRed==0)
-                {
-                    rt.data = 1 << 1;
-                    ROS_INFO("Sector B");
-
-                }
-                if(nBlue==0&&nGreen==255&&nRed==0){
-                    rt.data = (1<<1)|(1<<5);
-                    ROS_INFO("Sector B'");
-
+                else if(nGreen==255){
+                    if(nBlue == 0 && nRed ==0){
+                        rt.data = 1;
+                        ROS_INFO("Sector B");
+                    }
+                    if(nRed == 0 && nBlue == 140){
+                        rt.data = 1 << 4;
+                        ROS_INFO("Sector F");
+                    }
+                    if(nRed == 140 && nBlue ==0){
+                        rt.data = 1 << 6;
+                        ROS_INFO("Sector H");
+                    }
+                    if(nRed == 0 && nBlue == 255){
+                        rt.data = (1<<3)|(1<<6);
+                        ROS_INFO("Sector L");
+                    }
                 }
                 
-                if(nBlue==255&nRed==0&&nBlue==0)
+                else if(nBlue==255)
                 {
-                    rt.data = 1 << 2;
-                    ROS_INFO("Sector C");
+                    if(nRed==0 && nGreen==0){
+                        rt.data =  1 << 1;
+                        ROS_INFO("Sector C");
+                    }
+                    if(nGreen==140 && nRed==0){
+                        rt.data = (1<<1)|(1<<7);
+                        ROS_INFO("Sector C'");
+                    }
+                    if(nGreen == 140 && nRed == 0){
+                        rt.data = (1<<0)|(1<<6);
+                        ROS_INFO("Sector I");
+                    }
+                    if(nRed == 140 && nGreen == 0){
+                        rt.data = (1<<1)|(1<<6);
+                        ROS_INFO("Sector J");
+                    }
                 }
-                if(nRed==255&&nBlue==0&&nGreen==0)
+
+                else if(nRed==255)
                 {
-                    rt.data = 1 << 3;
-                    ROS_INFO("Sector D");
+                    if(nBlue==0 && nGreen==0)
+                    {
+                        rt.data = 1 << 2;
+                        ROS_INFO("Sector D");
+                    }
+                    if(nBlue==0 && nGreen==140){
+                        rt.data = 1 << 3;
+                        ROS_INFO("Sector E");
+                    }
+                    if(nBlue==140 && nGreen==0){
+                        rt.data = 1 << 5;
+                        ROS_INFO("Sector G");
+                    }
+                    if(nGreen==255){
+                        rt.data = (1<<2)|(1<<6);
+                        ROS_INFO("Sector K");
+                    }
                 }
-                pub.publish(rt);
+                 pub.publish(rt);
             }
         }
 };
