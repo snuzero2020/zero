@@ -22,12 +22,12 @@ class sector_publisher{
     public:
         std::stringstream path_stream;
         //cv::Mat color_map;
-	    cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png");
+	    cv::Mat color_map = cv::imread("/home/snuzero/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png");
         sector_publisher(){
             //path_stream << ros::package::getPath("slam") << "/src/config/KCity/KCity_color_map.png";
 		    //color_map = cv::imread(path_stream.str());
             ROS_INFO("Image loaded");
-            pub = nh.advertise<std_msgs::UInt32>("/kcity_sector_info", 2);
+            pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
             //sub = nh.subscribe("/position/pixel", 1000, &sector_publisher::callback, this);
           //  nBlue = 0; nGreen = 0; nRed = 0;
