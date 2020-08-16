@@ -63,24 +63,24 @@ class sector_publisher{
                 std_msgs::UInt32 rt;
                 if(nBlue==0&&nGreen==0&&nRed==0)
                 {
-                    rt.data = 1;
+                    rt.data = 0;
                     ROS_INFO("Sector A");
                 }
                 else if(nGreen==255){
                     if(nBlue == 0 && nRed ==0){
-                        rt.data = 1;
-                        ROS_INFO("Sector B");
+                        rt.data = 2;
+                        ROS_INFO("Sector C");
                     }
                     if(nRed == 0 && nBlue == 140){
-                        rt.data = 1 << 4;
+                        rt.data = 5;
                         ROS_INFO("Sector F");
                     }
                     if(nRed == 140 && nBlue ==0){
-                        rt.data = 1 << 6;
+                        rt.data = 7;
                         ROS_INFO("Sector H");
                     }
                     if(nRed == 0 && nBlue == 255){
-                        rt.data = (1<<3)|(1<<6);
+                        rt.data = 11;
                         ROS_INFO("Sector L");
                     }
                 }
@@ -88,19 +88,19 @@ class sector_publisher{
                 else if(nBlue==255)
                 {
                     if(nRed==0 && nGreen==0){
-                        rt.data =  1 << 1;
-                        ROS_INFO("Sector C");
+                        rt.data =  3;
+                        ROS_INFO("Sector D");
                     }
                     if(nGreen==140 && nRed==0){
-                        rt.data = (1<<1)|(1<<7);
-                        ROS_INFO("Sector C'");
+                        rt.data = (3)|(1<<4);
+                        ROS_INFO("Sector D'");
                     }
                     if(nGreen == 140 && nRed == 0){
-                        rt.data = (1<<0)|(1<<6);
+                        rt.data = 8;
                         ROS_INFO("Sector I");
                     }
                     if(nRed == 140 && nGreen == 0){
-                        rt.data = (1<<1)|(1<<6);
+                        rt.data = 9;
                         ROS_INFO("Sector J");
                     }
                 }
@@ -109,19 +109,19 @@ class sector_publisher{
                 {
                     if(nBlue==0 && nGreen==0)
                     {
-                        rt.data = 1 << 2;
-                        ROS_INFO("Sector D");
+                        rt.data = 1;
+                        ROS_INFO("Sector B");
                     }
                     if(nBlue==0 && nGreen==140){
-                        rt.data = 1 << 3;
+                        rt.data = 4;
                         ROS_INFO("Sector E");
                     }
                     if(nBlue==140 && nGreen==0){
-                        rt.data = 1 << 5;
+                        rt.data = 6;
                         ROS_INFO("Sector G");
                     }
                     if(nGreen==255){
-                        rt.data = (1<<2)|(1<<6);
+                        rt.data = 10;
                         ROS_INFO("Sector K");
                     }
                 }

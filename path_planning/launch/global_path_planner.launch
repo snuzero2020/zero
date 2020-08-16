@@ -1,5 +1,5 @@
 <launch>
-	<node pkg="path_planner" type="path_planner_node" name="path_planner_node" />
+	<node pkg="path_planner" type="path_planner_node" name="path_planner_node" output="screen" launch-prefix="gnome-terminal --command" />
 
 	<node pkg="path_planner" type="mission_recognizer_node" name="mission_recognizer" output="screen" launch-prefix="gnome-terminal --command" />
 

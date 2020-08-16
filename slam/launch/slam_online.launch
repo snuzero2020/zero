@@ -1,0 +1,5 @@
+<launch>
+   <include file="$(find slam)/launch/sensor_driver.launch" />
+   <include file="$(find slam)/launch/decoder.launch" />
+   <include file="$(find slam)/launch/pp_publisher.launch" />
+</launch>

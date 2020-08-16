@@ -78,6 +78,7 @@ class LocalPathPublisher{
                 result.push_back(token);
             }
             slam::GlobalPathPoint point;
+	    if (result.size() == 0) break;
             point.x = stod(result.at(0));
             point.y = stod(result.at(1));
             point.theta = stod(result.at(2));
