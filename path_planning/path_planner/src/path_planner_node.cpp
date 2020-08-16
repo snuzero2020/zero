@@ -52,6 +52,7 @@ public:
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
 		//parking_space = (data>>12) & mask;
+		parking_space = 1;
 		cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 	}
 
@@ -177,7 +178,8 @@ public:
 			printf("goal : %lf %lf\n",y.x,y.y);
 						
 			if(parking_complished_changed){
-				time_parking_complished = clock();
+				//time_parking_complished = (int)clock();
+				time_parking_complished = (int)ros::Time::now().sec;
 				// if  accidently clock() == 0
 				if(time_parking_complished == 0) ++time_parking_complished;
 			}
@@ -185,7 +187,8 @@ public:
 			// already stop but available path occur then stop  (because of localization error)
 			else if(time_parking_complished != 0){
 				y.x = 0; y.y = 0;
-				if((clock() - time_parking_complished)/CLOCKS_PER_SEC > 20){
+				cout << "time : " << ((int)ros::Time::now().sec - time_parking_complished) << endl;
+				if(((int)ros::Time::now().sec - time_parking_complished) > 20){
 					gear_state = 1;
 					time_parking_complished = 0;
 				} 
@@ -193,6 +196,9 @@ public:
 			else if(unparking_complished_changed){
 				gear_state = 0;
 			}
+			cout << "parking_complished_changed : " << parking_complished_changed << endl;
+			cout << "unparking_complished_changed : " << unparking_complished_changed << endl;
+
 
 			// parking...  pub to slam team
 			std_msgs::UInt32 msg;
@@ -204,6 +210,7 @@ public:
 			if(y.x == 0 && y.y == 0){
 				nav_msgs::Path local_path;	
 				path_pub.publish(local_path);
+				cout << "stop at present location!\n";
 				return;
 			}
 
@@ -216,6 +223,8 @@ public:
 			if(path.empty()){
 				nav_msgs::Path local_path;	
 				path_pub.publish(local_path);
+				cout << "empty path is generated!\n";
+				cout << "(obstacle located between goal and start point)\n";
 				return;
 			}
 
