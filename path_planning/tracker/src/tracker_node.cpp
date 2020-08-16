@@ -294,6 +294,9 @@ void Tracker::adjust_steering_angle()
 	// total
 	//float sign = (nonslip_steering_angle>0)?1.0:-1.0;
 	//steering_angle.data = sign * 79.12363452 * pow(rotational_radius, -0.98117930922);	
+	
+	if (steering_angle.data < -28) steering_angle.data = -28;
+	else if (steering_angle.data >28) steering_angle.data = 28;
 }
 
 // capsulized module
@@ -380,8 +383,8 @@ void Tracker::vehicle_output_signal(){
 
 	if(decel_check == 1){
 		cout << "decceleration\n";
-		if (desired_vel_after < 0.1){
-			msg.brake = 10;
+		if (desired_vel_after < 0.2){
+			msg.brake = 20;
 			integral_error = 0;
 			msg.speed = 0;
 			decel_check = 0;
@@ -410,8 +413,14 @@ void Tracker::vehicle_output_signal(){
 	else{
 		msg.gear = 2;
 	}
-
-	msg.steer = get_steering_angle().data;
+	
+	// if look_ahead_dist is less than 50cm, set steer to 0 to prevent sudden tilting of the vehicle
+	double look_ahead_dist;
+	look_ahead_dist = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y);
+	if (look_ahead_dist<17)
+		msg.steer = get_steering_angle().data/3.0;
+	else
+		msg.steer = get_steering_angle().data;
 	car_signal_pub.publish(msg);
 }
 

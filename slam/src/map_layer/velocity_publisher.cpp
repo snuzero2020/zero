@@ -6,8 +6,9 @@
 #include <slam/Pixel.h>
 #include <slam/Data.h>
 #include "XYToPixel.h"
-#include "std_msgs/UInt32.h"
-
+#include "std_msgs/Float64.h"
+#include <string>
+bool is_kcity;
 
 class velocity_publisher{
 
@@ -16,42 +17,51 @@ class velocity_publisher{
         ros::Publisher pub;
         ros::Subscriber sub;
         int pixel_x, pixel_y;
-        bool x_inRange{(pixel_x<=14500)}, y_inRange{(pixel_y<=14500)};
-        int recommended_velocity;
-
+        double recommended_velocity;
 
     public:
+        cv::Mat velocity_map;
         std::stringstream path_stream;
-    	cv::Mat velocity_map;
         velocity_publisher(){
-            
-
-	    path_stream << ros::package::getPath("slam") << "/config/velocity_map.png";
-	    //cv::Mat velocity_map = cv::imread(path_stream.str()); 
-	    velocity_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/velocity_map.png");
-            ROS_INFO("Image loaded");
-            pub = nh.advertise<std_msgs::UInt32>("/recommended_velocity", 2);
-            sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
+            if(is_kcity==true){
+            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map1.png";
+                velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
+                    if(!velocity_map.empty()){
+                        ROS_INFO("KCity loaded");
+                    }   
+            }
+            else if(is_kcity==false){
+            	path_stream << ros::package::getPath("slam") << "/config/RMTC/FMTC_velocity_map1.png";
+                velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
+                   if(!velocity_map.empty()){
+                        ROS_INFO("FMTC loaded");
+                    }   
+            }
+ 
+        pub = nh.advertise<std_msgs::Float64>("/recommended_velocity", 2);
+        sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
         }
 
         void callback(const slam::Data::ConstPtr& msg){
+         bool x_inRange{pixel_x<=22489 && pixel_x > 0}, y_inRange{pixel_y<=8273 && pixel_y > 0};
+
          XYToPixel(pixel_y, pixel_x, msg->x, msg->y);
          std::cout<<"Pixel information is loaded: "<<pixel_x<<", "<<pixel_y<<std::endl;
 
          if(x_inRange&&y_inRange){
              std::cout<<"on map"<<std::endl;
-             //publish the information of a pixel
              recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
-             std_msgs::UInt32 rt;
-             rt.data = recommended_velocity;
+             std_msgs::Float64 rt;
+             rt.data = recommended_velocity/85;
              pub.publish(rt);
          }
         }
-
 };
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "velocity_publisher");
+    ros::param::get("/is_kcity", is_kcity);
     velocity_publisher velocity_publisher;
     ros::spin();
 }
+

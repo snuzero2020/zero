@@ -35,3 +35,8 @@ initial_omega_process_noise_var : 0.01
 initial_imu_observation_noise_var : 1.0
 initial_gps_observation_noise_var : 0.2
 time_noise_var : 0.002
+
+#map layer
+#color_velocity.cpp, sector_publisher.cpp, velocity publiser.cpp
+is_kcity : true
+

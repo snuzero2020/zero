@@ -4,8 +4,7 @@
    </node>
 
    <node pkg="serial_communicator" type="serial_com.py" 
-              name="serial_com" 
-	      output="screen">
+              name="serial_com" >
    </node>
 </launch>
 

@@ -29,17 +29,42 @@ class Calibration{
         cx = 317.92637171;
         cy = 227.12706437;
         roll = 0.0, pitch = 19.0, yaw = 0.0;
-        x = 0, y = 0.37, z = 0.2; // Unit[m] => Camera to Lidar
-
+        x = 0, y = -0.52, z = -0.2; // Unit[m] => Camera to Lidar
+        img = Mat::zeros(20,20,CV_8U);
         //Publish, Subscribe
-        pub_ = nh_.advertise<slam::imgCluster>("/pcl_on_image", 10);
+        pub_ = nh_.advertise<slam::Clustermaster>("/pcl_on_image", 10);
         sub_ = nh_.subscribe("/point_cloud_clusters", 1, &Calibration::callback, this);
     }
 
     void callback(const slam::Clusters::ConstPtr& msg){
+        temp.clear();
+        // y -= 0.02;
+        // z += 0.02;
+        //FOR CONTROL
+        imshow("hello",img);
+        int c = waitKey(100);
+        cout << "Entered key is " << c << endl;
+        if(c == 'a') {
+            z -= 0.03;
+            cout << "pressed a" << endl;
+        }
+        else if(c == 'd') {
+            z += 0.03;
+            cout << "pressed d" << endl;
+        }
+        else if(c == 's') {
+            y -= 0.03;
+        }
+        else if(c == 'w') {
+            y += 0.03;   
+        }
+
+        cout << "y: " << y << "z: " << z << endl;
         internal = getInternalMatrix(fx, fy, cx, cy);
         external = getExternalMatrix(roll, pitch, yaw, x, y, z);
         calibration_matrix = internal * external; // final_calibration_matrix
+        // cout << "External Matrix : " << endl << external << endl;
+        // cout << "Calibration Matrix : " << calibration_matrix << endl;
 
         // cluster_array = msg->clusters;
         // for(slam::Cluster cluster : msg->clusters){
@@ -49,20 +74,19 @@ class Calibration{
         // }
         // vector<Point3d> points = (msg->clusters).points;
 
-
-        vector<slam::imgCluster> temp;
         for(slam::Cluster cluster : msg->clusters){
-            slam::imgCluster tempCluster;
-            temp.push_back(tempCluster);
+            slam::imgCluster tempCluster; 
             for(geometry_msgs::Point pt : cluster.points_3d){
                 tempCluster.points.push_back(lidartoImage(pt));
                 tempCluster.count = cluster.count;
             }
+            temp.push_back(tempCluster);
         }
         slam::Clustermaster rt;
         rt.header = msg->header;
         rt.clusters = temp;
-        cout << rt.clusters.at(0).count << endl;
+        //cout << "hello" << rt.clusters.at(0).count << endl;
+        //cout << "bye" << rt.clusters.at(0).points.at(0).x << endl;
         pub_.publish(rt);
     }
 
@@ -107,15 +131,15 @@ class Calibration{
         lidar_pt << pt.x, pt.y, pt.z, 1.0;
         image_pt = calibration_matrix * lidar_pt;
         //camera_world = external * lidar_pt;
-        cout << image_pt(0) << "<" << image_pt(1) << "<" << image_pt(2) << endl;
+        //cout << image_pt(0) << "<" << image_pt(1) << "<" << image_pt(2) << endl;
         //cout << camera_world(0) << "<" << camera_world(1) << "<" << camera_world(2) << endl;
         geometry_msgs::Point rt;
         for(int i=0; i<3 ; i++){
             image_pt(i) /= image_pt(2);
         }
-        rt.x = image_pt(0);
-        rt.y = image_pt(1);
-        cout << "Converted Coordinate: " << rt.x << " , " << rt.y << endl;
+        rt.x = int(image_pt(0));
+        rt.y = int(image_pt(1));
+        //cout << "Converted Coordinate: " << rt.x << " , " << rt.y << endl;
         return rt;
     }
 
@@ -130,7 +154,9 @@ class Calibration{
     Matrix3Xd calibration_matrix;
     vector<int> lidar_channels;
     vector<int> lidar_clusters;
+    vector<slam::imgCluster> temp;
     vector<geometry_msgs::Point> lidar_points;
+    Mat img;
 };
 
 //imgCluster :: Cluster[], Header 

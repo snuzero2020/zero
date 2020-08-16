@@ -51,7 +51,14 @@ enum sector
     C,
     D,
     E,
-
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
 // for sector_pass_checker's first check, (it is not real sector)
     X
 };

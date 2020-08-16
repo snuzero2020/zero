@@ -41,7 +41,7 @@ class Local_costmap_publisher{
                 
        		//Constructor for local_path_publisher
         	Local_costmap_publisher(){
-        		path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
+        		path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
        			glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
         		ROS_INFO("Image loaded");
         		pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);

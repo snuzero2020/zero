@@ -70,7 +70,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[6] = {1,1,1,1,1,1};
+		float recommend_vel_info[13] = {1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5};
 		int buff_length{10};
 		vector<int> light_state_buff;
 		RosNode(){
@@ -82,7 +82,29 @@ class RosNode{
 
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
-
+			vector<int> A_task{DRIVING_SECTION, INTERSECTION_RIGHT, DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
+						,DRIVING_SECTION,DRIVING_SECTION,INTERSECTION_LEFT, DRIVING_SECTION,DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION};	
+			vector<int> B_task{INTERSECTION_LEFT_UNSIGNED, INTERSECTION_STRAIGHT_UNSIGNED};
+			vector<int> C_task{};
+			vector<int> D_task{INTERSECTION_RIGHT};
+			vector<int> E_task{INTERSECTION_LEFT,INTERSECTION_STRAIGHT};
+			vector<int> F_task{};
+			vector<int> G_task{INTERSECTION_STRAIGHT, INTERSECTION_STRAIGHT};
+			vector<int> H_task{INTERSECTION_STRAIGHT, INTERSECTION_RIGHT};
+			vector<int> I_task{INTERSECTION_LEFT};
+			vector<int> J_task{INTERSECTION_LEFT};
+/*
+			vector<int> A_task{DRIVING_SECTION, DRIVING_SECTION, INTERSECTION_LEFT, DRIVING_SECTION, DRIVING_SECTION, DRIVING_SECTION, DRIVING_SECTION};	
+			vector<int> B_task{ INTERSECTION_STRAIGHT};
+			vector<int> C_task{};
+			vector<int> D_task{};
+			vector<int> E_task{INTERSECTION_STRAIGHT};
+			vector<int> F_task{};
+			vector<int> G_task{INTERSECTION_STRAIGHT};
+			vector<int> H_task{ INTERSECTION_RIGHT};
+			vector<int> I_task{INTERSECTION_LEFT};
+			vector<int> J_task{INTERSECTION_LEFT};
+*//*
 			
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
@@ -90,7 +112,7 @@ class RosNode{
 			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
 			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
 			vector<int> E_task{PARKING};
-			
+*/			
 			
 			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
@@ -110,7 +132,7 @@ class RosNode{
 			vector<int> E_task{PARKING};
 */
 
-			checker_container.resize(6, Checker());
+			checker_container.resize(15, Checker());
 
 //////////////////////////////////////////
 			checker_container[A] = Checker(A_task.size());
@@ -123,10 +145,21 @@ class RosNode{
 			checker_container[D].state_list = D_task;
 			checker_container[E] = Checker(E_task.size());
 			checker_container[E].state_list = E_task;
-
+			checker_container[F] = Checker(F_task.size());
+			checker_container[F].state_list = F_task;
+			checker_container[G] = Checker(G_task.size());
+			checker_container[G].state_list = G_task;
+			checker_container[H] = Checker(H_task.size());
+			checker_container[H].state_list = H_task;
+			checker_container[I] = Checker(I_task.size());
+			checker_container[I].state_list = I_task;
+			checker_container[J] = Checker(J_task.size());
+			checker_container[J].state_list = J_task;
 			//vector<int> sector_order{X,A,D,A,B,A,C,A,B,A,D,A,E};
 			//vector<int> sector_order{X,A,B,A,B,A,B,A,B,A,B,A};
-			vector<int> sector_order{X,A,B,A,C,A,D,A,B,A,C,A,B,A,D,A,E};
+			vector<int> sector_order{X,A,B,A,D,A,E,A,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
+			//vector<int> sector_order{X,A,J,A,I,A,H,A,G,A,E,A,B,A};
+			
 			sector_pass_checker = Checker(sector_order.size());
 			sector_pass_checker.state_list = sector_order;
 
@@ -142,6 +175,7 @@ class RosNode{
 		}
 
 		void sectorInfoCallback(const std_msgs::UInt32 & msg){
+			cout<<"sectorInfocallback\n";
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
 			int motion_state;
 
@@ -161,6 +195,23 @@ class RosNode{
 		}
 
 		void light_state_determiner(int task_state){
+			if(task_state & 0b10000){
+				task_state = (task_state & 0b1111);
+				if(task_state == INTERSECTION_STRAIGHT){
+					light_state = 0b0001;
+				}
+				else if(task_state == INTERSECTION_LEFT){
+					light_state = 0b0010;
+				}
+				else if(task_state == INTERSECTION_RIGHT){
+					light_state = 0b0001;
+				}
+				else{
+					light_state = 0b0000;
+				}
+				return;
+			}
+			
 			double determinant{0};
 			bool go_sign{false};
 			if (task_state == INTERSECTION_STRAIGHT || task_state == INTERSECTION_LEFT || task_state == INTERSECTION_RIGHT){
