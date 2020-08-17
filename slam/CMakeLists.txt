@@ -24,7 +24,7 @@ find_package(OpenCV REQUIRED)
 add_message_files(
   DIRECTORY msg
   FILES 
-  Data.msg Gps.msg Imu.msg Lidar.msg Cluster.msg Pixel.msg GlobalPathPoint.msg 
+  Data.msg Gps.msg Imu.msg Lidar.msg LidarPoint.msg Cluster.msg Pixel.msg GlobalPathPoint.msg 
   Yolomaster.msg Yoloinfo.msg Clustermaster.msg imgCluster.msg Clusters.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs)
@@ -82,13 +82,13 @@ target_link_libraries(velocity_publisher ${catkin_LIBRARIES})
 add_dependencies(velocity_publisher slam_generate_messages_cpp)
 
 ##add_executable for obstacle_cost_map
-add_executable(object_detector src/obstacle_cost_map/object_detector.cpp)
+add_executable(object_detector src/obstacle_cost_map/object_detector.cpp lib/XYToPixel.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(object_detector slam_generate_messages_cpp)
 
-add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
-target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
+#add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
+#target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+#add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
 
 ##add_executable for sensing
 add_executable(gps_decoder src/sensing/gps_decoder.cpp lib/UTM.cpp)
@@ -120,25 +120,25 @@ add_executable(pp_visualizer src/visualizer/pp_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(pp_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(pp_visualizer slam_generate_messages_cpp)
 
-add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
-target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(yolo_sender slam_generate_messages_cpp)
+#add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
+#target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(yolo_sender slam_generate_messages_cpp)
 
-add_executable(yolo_lidar src/obstacle_cost_map/yolo_lidar_fusion.cpp)
-target_link_libraries(yolo_lidar ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(yolo_lidar slam_generate_messages_cpp)
+#add_executable(yolo_lidar src/obstacle_cost_map/yolo_lidar_fusion.cpp)
+#target_link_libraries(yolo_lidar ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(yolo_lidar slam_generate_messages_cpp)
 
-add_executable(calib_matrix src/obstacle_cost_map/calib_mtx.cpp)
-target_link_libraries(calib_matrix ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(calib_matrix slam_generate_messages_cpp)
+#add_executable(calib_matrix src/obstacle_cost_map/calib_mtx.cpp)
+#target_link_libraries(calib_matrix ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(calib_matrix slam_generate_messages_cpp)
 
-add_executable(lidar_visualizer src/obstacle_cost_map/lidar_visualizer.cpp)
-target_link_libraries(lidar_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(lidar_visualizer slam_generate_messages_cpp)
+#add_executable(lidar_visualizer src/obstacle_cost_map/lidar_visualizer.cpp)
+#target_link_libraries(lidar_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(lidar_visualizer slam_generate_messages_cpp)
 
-add_executable(video_capture src/obstacle_cost_map/video_capture.cpp)
-target_link_libraries(video_capture ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(video_capture slam_generate_messages_cpp)
+#add_executable(video_capture src/obstacle_cost_map/video_capture.cpp)
+#target_link_libraries(video_capture ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(video_capture slam_generate_messages_cpp)
 
 
 catkin_install_python(PROGRAMS 
