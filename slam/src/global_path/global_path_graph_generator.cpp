@@ -1,29 +1,32 @@
-#include "ros/ros.h"
-#include "ros/time.h"
-#include "ros/package.h"
-#include "slam/Imu.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/MagneticField.h"
-#include "geometry_msgs/Vector3Stamped.h"
-#include "geometry_msgs/Quaternion.h"
-#include "slam/GlobalPathPoint.h"
-#include "UnixtimeToSec.h"
-#include "nav_msgs/Path.h"
-#include "slam/Data.h"
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <string>
 #include <map>
 #include <math.h>
+#include <sstream>
+#include <string>
 #include <vector>
-#include <cmath>
-#include<iostream>
-#include<fstream>
-#include<sstream>
-#include<string>
-#include<nav_msgs/OccupancyGrid.h>
+
+#include "geometry_msgs/Vector3Stamped.h"
+#include "geometry_msgs/Quaternion.h"
+#include "nav_msgs/OccupancyGrid.h"
+#include "nav_msgs/Path.h"
+#include "sensor_msgs/Imu.h"
+#include "sensor_msgs/MagneticField.h"
+
+#include "slam/Data.h"
+#include "slam/GlobalPathPoint.h"
+#include "slam/Imu.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
+#include "ros/time.h"
+
+#include "UnixtimeToSec.h"
 
 using namespace std;
+
 
 double dist(slam::GlobalPathPoint a, slam::GlobalPathPoint b){
     return sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));

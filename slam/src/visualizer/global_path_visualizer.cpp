@@ -1,25 +1,28 @@
-#include "ros/ros.h"
-#include <iostream>
-#include "opencv2/opencv.hpp"
-#include <math.h>
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
+#include <math.h>
 #include <sstream>
 #include <string>
-#include <cmath>
-#include "slam/GlobalPathPoint.h"
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include "ros/package.h"
 #include <vector>
-#include <cv_bridge/cv_bridge.h>
-#include "XYToPixel.h"
-#include <slam/Pixel.h>
-#include <slam/Data.h>
+
+#include "sensor_msgs/Image.h"
+#include "sensor_msgs/image_encodings.h"
+
+#include "slam/Data.h"
+#include "slam/GlobalPathPoint.h"
+#include "slam/Pixel.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
+#include "opencv2/opencv.hpp"
+#include "cv_bridge/cv_bridge.h"
+
 #include "XYToPixel.h"
 
 using namespace std;
 using namespace cv;
+
 
 class GlobalVisual{
     
@@ -27,11 +30,14 @@ class GlobalVisual{
         const char delimiter_ = ' '; 
         ros::NodeHandle nh;
 		ros::Publisher pub;
+        bool is_kcity;
 
     public:
 		stringstream in_path_stream, in_map_stream, out_visual_stream;
 
         GlobalVisual(){
+            ros::param::get("/is_kcity", is_kcity);
+
 			/*
 			in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
 			in_map_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
@@ -46,7 +52,6 @@ class GlobalVisual{
         }
 
 		
-
         void global_path_visual(){
             cv::Mat img = imread(in_map_stream.str(), IMREAD_COLOR);
 			if (img.empty()){
@@ -73,8 +78,8 @@ class GlobalVisual{
                 int pixel_x{0}, pixel_y{0};
                 int end_pixel_x{0}, end_pixel_y{0};
 
-                XYToPixel(pixel_x, pixel_y, point.x, point.y);
-                XYToPixel(end_pixel_x,end_pixel_y,point.x+ 0.4*cos(point.theta), point.y + 0.4*sin(point.theta));
+                XYToPixel(pixel_x, pixel_y, point.x, point.y, is_kcity);
+                XYToPixel(end_pixel_x,end_pixel_y,point.x+ 0.4*cos(point.theta), point.y + 0.4*sin(point.theta), is_kcity);
 
                 cout << pixel_x << "  " << pixel_y << endl;
 

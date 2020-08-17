@@ -1,26 +1,30 @@
-#include "ros/ros.h"
-#include "ros/time.h"
 #include <iostream>
+#include <math.h>
 #include <stdlib.h>
+#include <set>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <set>
-#include "slam/Lidar.h"
+
+#include "geometry_msgs/Point.h"
+
 #include "slam/Cluster.h"
 #include "slam/Clusters.h"
-#include "geometry_msgs/Point.h"
+#include "slam/Lidar.h"
+
+#include "ros/ros.h"
+#include "ros/time.h"
 #include "Eigen/Eigen"
 
 using namespace std;
 using namespace Eigen;
+
 
 class ObjectDetector{
     public:
     ObjectDetector(){
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
         sub_ = nh_.subscribe("/points", 1, &ObjectDetector::callback, this);
-        plane_tolerance_ = 0.05;
+        plane_tolerance_ = 0.10;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
         lidar_angle_ = 18.97246;
@@ -31,6 +35,7 @@ class ObjectDetector{
         x_position_.x = 1.0;
         x_position_.y = 0.0;
         x_position_.z = 0.0;
+	    plane_coefficient_ = 0.0;
     }
 
     geometry_msgs::Point projection(geometry_msgs::Point point){
@@ -84,15 +89,15 @@ class ObjectDetector{
         plane_config_[0]=-sin(lidar_angle_*M_PI/180);
         plane_config_[1]=0.0;
         plane_config_[2]=cos(lidar_angle_*M_PI/180);
-        plane_config_[3]=-lidar_height_;
+        plane_config_[3]=lidar_height_;
         set<int> inliers_result;
         for(int i =0;i<cloud_points_.size();i++){
             geometry_msgs::Point point = cloud_points_.at(i);
-            if (-point.x*plane_config_[0]+point.z*plane_config_[2] < plane_config_[3] + plane_tolerance_*4){
+            if (abs(point.x*plane_config_[0]+point.z*plane_config_[2] + plane_config_[3]) < plane_coefficient_*plane_tolerance_){
                 inliers_result.insert(i);
             }
         }
-        ROS_INFO("# of inliers : %d", inliers_result.size());
+        ROS_INFO_STREAM("# of inliers: " << inliers_result.size());
         vector<bool> check_points;
         for(int i=0;i<cloud_points_.size();i++) check_points.push_back(false);
         for(int index : inliers_result) check_points.at(index) = true;
@@ -173,6 +178,7 @@ class ObjectDetector{
 
     void callback(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
+	    plane_coefficient_ = 1.1; // HARD CODING
         cloud_points_ = msg->points;
         cloud_channels_ = msg->channels;
         filtered_points_.clear();
@@ -189,9 +195,11 @@ class ObjectDetector{
         vector<slam::Cluster> rt_clusters;
         vector<geometry_msgs::Point> rt_points;
         rt.header.stamp = ros::Time::now();
+
         for(vector<int> cluster : clusters){
             slam::Cluster rt_cluster;
             rt_cluster.count = 0;
+
             for(int index : cluster){
                 rt_cluster.points_2d.push_back(projected_points_.at(index));
                 rt_cluster.points_3d.push_back(filtered_points_.at(index));
@@ -202,10 +210,12 @@ class ObjectDetector{
         rt.clusters = rt_clusters;
         pub_.publish(rt);
         clock_t end = clock();
-        ROS_INFO("# of filtered points : %d", projected_points_.size());
-        ROS_INFO("elapsed time : %lf",double(end-begin)/CLOCKS_PER_SEC);
-        ROS_INFO("cosine value between z and normal : %lf", acos(plane_config_[2]
-        /sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
+
+        ROS_INFO_STREAM("# of filtered points: " << projected_points_.size());
+        ROS_INFO_STREAM("elapsed time: " << static_cast<double>(end - begin) / CLOCKS_PER_SEC);
+        ROS_INFO_STREAM("cosine value between z and normal: " << acos(plane_config_[2]
+        /sqrt(plane_config_[0] * plane_config_[0] + plane_config_[1] * plane_config_[1] + plane_config_[2] * plane_config_[2])) * 180 / M_PI);
+	    //ROS_INFO("plane coefficient : %lf", plane_coefficient_);
     }
 
     private:
@@ -226,6 +236,7 @@ class ObjectDetector{
     int cluster_threshold_;
     geometry_msgs::Point zero_position_;
     geometry_msgs::Point x_position_;
+    double plane_coefficient_;
 };
 
 int main(int argc, char **argv){
