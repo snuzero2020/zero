@@ -33,6 +33,11 @@ def init():
             msg.data = green_light + left_light
         if key == '5':  #red left light
             msg.data = red_light + left_light
+	if key == 'p' :
+            pub_park = rospy.Publisher('parking_complished', UInt32, queue_size = 10)
+            msg = UInt32()
+            msg.data = 1
+            pub_park.publish(msg)
         if key == 'q':
             rospy.on_shutdown()        
         pub_time.publish(msg)

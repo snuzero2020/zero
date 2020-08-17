@@ -26,6 +26,7 @@ private:
 	ros::Subscriber goals_sub;
 	ros::Publisher path_pub;
 	ros::Publisher gear_state_pub;
+	ros::Publisher parking_complished_pub;
 
 	int task, light, motion, parking_space;
 	nav_msgs::Path goals;
@@ -38,6 +39,7 @@ public:
 		goals_sub = n.subscribe("goals", 50000, &RosNode::goalsCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
+		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished", 10);
 
 		task = light = motion = parking_space = -1;
 		isTrackDriving = false;
@@ -195,6 +197,9 @@ public:
 			}
 			else if(unparking_complished_changed){
 				gear_state = 0;
+				std_msgs::UInt32 msg;
+				msg.data = 1;
+				parking_complished_pub.publish(msg);
 			}
 			cout << "parking_complished_changed : " << parking_complished_changed << endl;
 			cout << "unparking_complished_changed : " << unparking_complished_changed << endl;
