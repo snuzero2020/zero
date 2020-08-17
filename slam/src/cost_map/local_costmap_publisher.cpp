@@ -41,7 +41,6 @@ class Local_costmap_publisher{
 		bool is_kcity;
 
 	public:
-
 		int map_size = 300;
 		std::stringstream path_stream;
 		cv::Mat glob_costmap;
@@ -72,6 +71,7 @@ class Local_costmap_publisher{
 			//const int channels = local_costmap.channels();
 		void gs_callback(const std_msgs::UInt32 state){
 			gear_state = state.data;
+			std::cout << gear_state << std::endl;
 		}
 
 		void callback(const slam::Data data){
@@ -115,17 +115,11 @@ class Local_costmap_publisher{
 					}
 				}
 
-				nav_msgs::OccupancyGrid cost_map;
-				cost_map.info.width = 300;
-				cost_map.info.height = 300;
-
-				for (int i = 1; i < 301; i++){
-					for (int j = 1; j < 301; j++) cost_map.data.push_back((int8_t)local_costmap.at<uchar>(300-i,300-j)); 
-				}
 			}
 
 			//rear driving
 			else{
+				std::cout << "rear driving" << std::endl;
 				for(int j=201; j<800; j++){
 					point_pixel_x = curr_pixel_x - j*head_coor_y;
 					point_pixel_y = curr_pixel_y + j*head_coor_x;

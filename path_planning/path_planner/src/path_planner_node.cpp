@@ -16,7 +16,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed);
+extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state);
 
 class RosNode{
 private:
@@ -32,6 +32,7 @@ private:
 	nav_msgs::Path goals;
 public:
 	double stepsize_pp_value;
+	int duration_parking{0};
 	bool isTrackDriving;
 	RosNode(){
 		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 5, &RosNode::costmapCallback, this);
@@ -39,7 +40,7 @@ public:
 		goals_sub = n.subscribe("goals", 50000, &RosNode::goalsCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
-		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished", 10);
+		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished",10);
 
 		task = light = motion = parking_space = -1;
 		isTrackDriving = false;
@@ -176,9 +177,9 @@ public:
 			// 3. when 20s is passed, gear_state is changed to rear(1) and time_parking_complished is reset to 0.
 			// 4. finally, when unparking_complished is true, gear_state is changed to front(0).
 			bool parking_complished_changed = false, unparking_complished_changed = false;
-			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed);
+			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed, gear_state);
 			printf("goal : %lf %lf\n",y.x,y.y);
-						
+					
 			if(parking_complished_changed){
 				//time_parking_complished = (int)clock();
 				time_parking_complished = (int)ros::Time::now().sec;
@@ -189,27 +190,37 @@ public:
 			// already stop but available path occur then stop  (because of localization error)
 			else if(time_parking_complished != 0){
 				y.x = 0; y.y = 0;
-				cout << "time : " << ((int)ros::Time::now().sec - time_parking_complished) << endl;
-				if(((int)ros::Time::now().sec - time_parking_complished) > 20){
+				duration_parking = ((int)ros::Time::now().sec - time_parking_complished);
+				cout << "time : " << duration_parking << endl;
+				if( duration_parking > 20 && duration_parking <=21){
+					gear_state = 1;
+				}
+				else if (duration_parking > 21){
 					gear_state = 1;
 					time_parking_complished = 0;
-				} 
+				}
 			}
 			else if(unparking_complished_changed){
 				gear_state = 0;
 				std_msgs::UInt32 msg;
-				msg.data = 1;
 				parking_complished_pub.publish(msg);
 			}
 			cout << "parking_complished_changed : " << parking_complished_changed << endl;
 			cout << "unparking_complished_changed : " << unparking_complished_changed << endl;
-
+			cout << "gear_state : " << gear_state << endl;
 
 			// parking...  pub to slam team
 			std_msgs::UInt32 msg;
 			msg.data = gear_state;
 			gear_state_pub.publish(msg);
-
+			
+			/*
+			if (duration_parking > 20){
+					ros::Rate sleep_time{1};
+					sleep_time.sleep();
+					duration_parking = 0;
+			}
+			*/
 
 			// stop!!!!!
 			if(y.x == 0 && y.y == 0){
@@ -284,12 +295,13 @@ public:
 			poseStamped.header.seq = 0;
 			local_path.poses.push_back(poseStamped);
 
-			local_path.header.seq = 0;
+			local_path.header.stamp.sec = 0;
 			if (motion == HALT_MOTION)
-				local_path.header.seq |= 0b1;
+				local_path.header.stamp.sec += 1;
 			if (gear_state == 1)
-				local_path.header.seq |= 0b10;
+				local_path.header.stamp.sec +=2;
 
+			cout << "local_path.header.stamp.sec = " << local_path.header.stamp.sec << endl;
 			// publish
 			path_pub.publish(local_path);
 
