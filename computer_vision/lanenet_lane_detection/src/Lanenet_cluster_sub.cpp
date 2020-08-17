@@ -15,6 +15,7 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
+#include "multi_img_utils.h"
 
 using namespace cv;
 using namespace std;
@@ -115,8 +116,9 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
 
     std::cout<<"C++ lane_postprocessing time : "<<(double)(clock()-start)/CLOCKS_PER_SEC<<std::endl;
 
-    cv::imshow("right_cluster", right_cluster);
-    cv::imshow("left_cluster", left_cluster);
+    //cv::imshow("right_cluster", right_cluster);
+    //cv::imshow("left_cluster", left_cluster);
+    ShowManyImages("Cluster_image",2, left_cluster, right_cluster);
     cv::waitKey(1);
 }
 
