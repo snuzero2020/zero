@@ -33,8 +33,8 @@ class GlobalPathGenerator{
         prev_.second = 0.0;
         threshold_distance_ = 0.3;
 		//change the number in save_path_stream into the bag sequence
-		//save_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_1.txt";
-		save_path_stream << ros::package::getPath("slam") << "/config/KCity/park_6.txt";
+		save_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_4.txt";
+		//save_path_stream << ros::package::getPath("slam") << "/config/KCity/park_6.txt";
     }
     
 
@@ -55,7 +55,7 @@ class GlobalPathGenerator{
         point.x = cur_.first;
         point.y = cur_.second;
         point.theta = msg->theta;
-	point.flag = 10;
+	point.flag = 8;
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);
