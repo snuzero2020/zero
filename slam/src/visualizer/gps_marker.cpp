@@ -20,6 +20,8 @@ using namespace std;
 class Map_Marker{
     public:
     Map_Marker(){
+        ros::param::get("/is_kcity", is_kcity);
+
         sub_gps = n_.subscribe("/gps", 2000, &Map_Marker::callback_gps, this);
         sub_filtered = n_.subscribe("/filtered_data", 2000, &Map_Marker::callback_filtered, this);
         sub_imu = n_.subscribe("/imu", 2000, &Map_Marker::callback_imu, this);
@@ -33,7 +35,7 @@ class Map_Marker{
     void callback_gps(const slam::Gps::ConstPtr& msg){
 	    int pixel_x, pixel_y;
 
-        XYToPixel(pixel_x, pixel_y, msg->x, msg->y);
+        XYToPixel(pixel_x, pixel_y, msg->x, msg->y, is_kcity);
         if (n != 1) {
             cv::line(img, cv::Point(prev_pixel_x, prev_pixel_y), cv::Point(pixel_x, pixel_y), cv::Scalar(255, 0, 0), 7);
             //cv::circle(img, cv::Point(pixel_x, pixel_y), 2, cv::Scalar(255, 0, 0), -1);
@@ -55,12 +57,12 @@ class Map_Marker{
     void callback_filtered(const slam::Data::ConstPtr& msg){
 	    int pixel_x, pixel_y;
 
-        XYToPixel(filtered_pixel_x, filtered_pixel_y, msg->x, msg->y);
-        XYToPixel(pixel_x, pixel_y, REF_X, REF_Y);
-        XYToPixel(filtered_pixel_vx, filtered_pixel_vy, REF_X+msg->vx, REF_Y+msg->vy);
+        XYToPixel(filtered_pixel_x, filtered_pixel_y, msg->x, msg->y, is_kcity);
+        XYToPixel(pixel_x, pixel_y, REF_X, REF_Y, is_kcity);
+        XYToPixel(filtered_pixel_vx, filtered_pixel_vy, REF_X+msg->vx, REF_Y+msg->vy, is_kcity);
         filtered_pixel_vx -= pixel_x;
         filtered_pixel_vy -= pixel_y;
-        XYToPixel(filtered_pixel_thx, filtered_pixel_thy, REF_X+VEL*cos(msg->theta), REF_Y+VEL*sin(msg->theta));
+        XYToPixel(filtered_pixel_thx, filtered_pixel_thy, REF_X+VEL*cos(msg->theta), REF_Y+VEL*sin(msg->theta), is_kcity);
         filtered_pixel_thx -= pixel_x;
         filtered_pixel_thy -= pixel_y;
 
@@ -71,8 +73,8 @@ class Map_Marker{
     void callback_imu(const slam::Imu::ConstPtr& msg){
 	    int pixel_x, pixel_y;
 
-        XYToPixel(pixel_x, pixel_y, REF_X, REF_Y);
-        XYToPixel(mag_pixel_thx, mag_pixel_thy, REF_X+VEL*cos(msg->theta), REF_Y+VEL*sin(msg->theta));
+        XYToPixel(pixel_x, pixel_y, REF_X, REF_Y, is_kcity);
+        XYToPixel(mag_pixel_thx, mag_pixel_thy, REF_X+VEL*cos(msg->theta), REF_Y+VEL*sin(msg->theta), is_kcity);
         mag_pixel_thx -= pixel_x;
         mag_pixel_thy -= pixel_y;
 
@@ -108,6 +110,7 @@ class Map_Marker{
     int mag_pixel_thx = -1;
     int mag_pixel_thy = -1;
     bool saved = false;
+    bool is_kcity;
     ros::Time t;
 };
 

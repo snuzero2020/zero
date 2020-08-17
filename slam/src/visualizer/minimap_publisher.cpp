@@ -17,21 +17,28 @@ class map_tracer{
 		ros::Subscriber sub;
 		std::stringstream path_stream1;
 		std::stringstream path_stream2;
+		bool is_kcity;
 
 	public:
 		//set the right path for your map
 		cv::Mat glob_map;
 		cv::Mat flag_map;
 		cv::Mat mini_map = cv::Mat(1000,1000, CV_8UC3, cv::Scalar(0,0,0));
+
 		map_tracer(){
+			ros::param::get("/is_kcity", is_kcity);
+
 			path_stream1 << ros::package::getPath("slam") << "/src/config/map.png";
 			path_stream2 << ros::package::getPath("slam") << "/src/config/glob_path.png";
 			glob_map = cv::imread(path_stream1.str());
+			
 			if(glob_map.empty()) ROS_INFO("no global map");
 			else ROS_INFO("global map loaded");
+			
 			flag_map = cv::imread(path_stream2.str());
 			ROS_INFO("global map loaded");
 			ROS_INFO("flag map loaded");
+			
 			if(flag_map.empty()) ROS_INFO("no flag map");
 			else ROS_INFO("flag map loaded");
 
@@ -40,17 +47,19 @@ class map_tracer{
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
 			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
 		}
+
 		int prev_pixel_x{}, prev_pixel_y{};
 		int count{0}, check{0};
 
 		void callback(const slam::Data data){
 			int inst_pixel_x, inst_pixel_y;
 			int copy_pixel_x{}, copy_pixel_y{};
-                        //inst_pixel_x = data.x;
-		        //inst_pixel_y = data.y;
+            //inst_pixel_x = data.x;
+		    //inst_pixel_y = data.y;
 			double theta;
 			theta = data.theta;
-			XYToPixel(inst_pixel_x,inst_pixel_y,data.x,data.y);	
+
+			XYToPixel(inst_pixel_x, inst_pixel_y, data.x, data.y, is_kcity);	
 			std::cout<<inst_pixel_x << inst_pixel_y << std::endl;
 			bool x_500{inst_pixel_x <= 500}, y_500{inst_pixel_y <= 500}, x_14500{inst_pixel_x >= 14500}, y_14500{inst_pixel_y >= 14500};
 			std::cout << x_500 << "," << y_500 << "," << x_14500 << "," << y_14500 << std::endl;	

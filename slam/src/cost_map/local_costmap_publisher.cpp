@@ -32,6 +32,8 @@ class Local_costmap_publisher{
 			ros::Subscriber gear_state_sub;
             ros::Publisher cost_map_pub;
 
+			bool is_kcity;
+
         public:
 
 			int map_size = 300;
@@ -40,10 +42,13 @@ class Local_costmap_publisher{
 			int gear_state{0};
                 
        		//Constructor for local_path_publisher
-        	Local_costmap_publisher(){
+        	Local_costmap_publisher() {
+    			ros::param::get("/is_kcity", is_kcity);
+
         		path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
        			glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
         		ROS_INFO("Image loaded");
+
         		pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);
        			//subscribe for not considering rear driving
 				//sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
@@ -76,7 +81,7 @@ class Local_costmap_publisher{
 				double head_coor_x, head_coor_y;
 	            head_coor_x = (step)*sin(pix_heading);
 	            head_coor_y = (step)*cos(pix_heading);
-				XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y);
+				XYToPixel(curr_pixel_x, curr_pixel_y, data.x, data.y, is_kcity);
 	                        
 				double point_pixel_x{}, point_pixel_y{};
 
