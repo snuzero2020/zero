@@ -23,31 +23,29 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     clock_t start;
     start = clock();
     
-    cv::Mat left_binary_seg = cv::Mat::zeros(480, 640, CV_8UC1);
-    cv::Mat right_binary_seg = cv::Mat::zeros(480, 640, CV_8UC1);
+    //cv::Mat left_binary_seg = cv::Mat::zeros(480, 640, CV_8UC1);
+    //cv::Mat right_binary_seg = cv::Mat::zeros(480, 640, CV_8UC1);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_left(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_right(new pcl::PointCloud<pcl::PointXYZ>);
+    
     vector<int> left_seg_x, right_seg_x;
     vector<int> left_seg_y, right_seg_y;
 
     for(int h=0; h<480; h++){
         for(int w=0; w<640; w++){
             if(msg->data[h*640 + w] < msg->data[480*640 + h*640 + w]){
-                left_binary_seg.at<uchar>(h,w) = 255;
+                //left_binary_seg.at<uchar>(h,w) = 255;
                 left_seg_x.push_back(w);
                 left_seg_y.push_back(h);
             }
             if(msg->data[2*640*480 + h*640 + w] < msg->data[2*640*480 + 480*640 + h*640 + w]){
-                right_binary_seg.at<uchar>(h,w) = 255;
+                //right_binary_seg.at<uchar>(h,w) = 255;
                 right_seg_x.push_back(w);
                 right_seg_y.push_back(h);
             }
         }
     }
-
-    // left_img clustering
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_left(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_right(new pcl::PointCloud<pcl::PointXYZ>);
-    
     cloud_left->height = 1;
     cloud_left->width = left_seg_x.size();
     cloud_left->points.resize(left_seg_x.size());
@@ -66,9 +64,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
         cloud_right->points[i].x = msg->data[2*2*640*480 + 3*640*480 + right_seg_y[i]*640 + right_seg_x[i]];
         cloud_right->points[i].y = msg->data[2*2*640*480 + 3*640*480 + 640*480 + right_seg_y[i]*640 + right_seg_x[i]];
         cloud_right->points[i].z = msg->data[2*2*640*480 + 3*640*480 + 2*640*480 + right_seg_y[i]*640 + right_seg_x[i]];
-    }
-    
-    std::cout<<"check"<<std::endl;
+    };
 
     pcl::search::KdTree<pcl::PointXYZ>::Ptr left_tree (new pcl::search::KdTree<pcl::PointXYZ>);
     pcl::search::KdTree<pcl::PointXYZ>::Ptr right_tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -121,8 +117,6 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
 
     cv::imshow("right_cluster", right_cluster);
     cv::imshow("left_cluster", left_cluster);
-    //cv::imshow("left_binary_seg", left_binary_seg);
-    //cv::imshow("right_binary_seg", right_binary_seg);
     cv::waitKey(1);
 }
 
