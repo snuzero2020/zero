@@ -177,12 +177,13 @@ def batch_detection_example():
 
 def publish_yolo(detections):
     # area_max = 0
-    y_max = 0
+    y_min = 640
     label_final = 0
+    rt = 0
     for label, confidence, bbox in detections:
         x, y, w, h = bbox
-        if y > y_max:
-            y_max = h
+        if y < y_min:
+            y_min = y
             label_final = label
             confidence_final = confidence
         """ If 'Area' is more credible
@@ -235,8 +236,10 @@ def main():
         # Call Yolo publishing ftn
         
         rt = publish_yolo(detections) #WS_ADDED
-        pub.publish(rt) #WS_ADDED
-        
+        if rt != 0:
+            pub.publish(rt) #WS_ADDED
+        else:
+            ROS_INFO("TRAFFIC LIGHT UNDETECTED")
         if args.save_labels:
             save_annotations(image_name, image, detections, class_names)
         darknet.print_detections(detections, args.ext_output)

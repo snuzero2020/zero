@@ -91,13 +91,17 @@ class ObjectDetector{
         plane_config_[2]=cos(lidar_angle_*M_PI/180);
         plane_config_[3]=lidar_height_;
         set<int> inliers_result;
+        clock_t begin = clock();
+        plane_coefficient_ = 1.2;
         for(int i =0;i<cloud_points_.size();i++){
             geometry_msgs::Point point = cloud_points_.at(i);
             if (abs(point.x*plane_config_[0]+point.z*plane_config_[2] + plane_config_[3]) < plane_coefficient_*plane_tolerance_){
                 inliers_result.insert(i);
             }
         }
+        clock_t end = clock();
         ROS_INFO("# of inliers : %d", inliers_result.size());
+        ROS_INFO("elaspsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
         vector<bool> check_points;
         for(int i=0;i<cloud_points_.size();i++) check_points.push_back(false);
         for(int index : inliers_result) check_points.at(index) = true;
@@ -178,7 +182,6 @@ class ObjectDetector{
 
     void callback(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
-	    plane_coefficient_ = 1.1; // HARD CODING
         cloud_points_ = msg->points;
         cloud_channels_ = msg->channels;
         filtered_points_.clear();
