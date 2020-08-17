@@ -116,7 +116,7 @@ class sector_publisher{
                         rt.data =  3;
                         ROS_INFO("Sector D");
                     }
-                    if(nGreen==140 && nRed==0){
+                    if(nGreen==100 && nRed==100){
                         rt.data = (3)|(1<<4);
                         ROS_INFO("Sector D'");
                     }
