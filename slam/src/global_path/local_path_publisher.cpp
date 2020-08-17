@@ -93,34 +93,52 @@ class LocalPathPublisher{
         slam::GlobalPathPoint pose;
         geometry_msgs::PoseStamped pose_change;
         nav_msgs::OccupancyGrid local_goal;
-        for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
+        if(!gear_state){
+			for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
 
-            pose.x = (*iter).x;
-            pose.y = (*iter).y;
-            pose.theta = (*iter).theta;
-            pose.flag = (*iter).flag;
+            	pose.x = (*iter).x;
+            	pose.y = (*iter).y;
+            	pose.theta = (*iter).theta;
+            	pose.flag = (*iter).flag;
 
-            double X = pose.x - current_pose.x - length/2.0 * sin(current_pose.theta);
-            double Y = pose.y - current_pose.y + length/2.0 * cos(current_pose.theta);
+            	double X = pose.x - current_pose.x - length/2.0 * sin(current_pose.theta);
+            	double Y = pose.y - current_pose.y + length/2.0 * cos(current_pose.theta);
 
-            pose_change.pose.position.x = X * cos(current_pose.theta) + Y * sin(current_pose.theta);
-            pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
-            pose_change.pose.position.z = pose.theta - current_pose.theta;
-            pose_change.header.seq = pose.flag;
-			if(!gear_state){	
-            	if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
-               		pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
-                	pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
-                	local_path.poses.push_back(pose_change);   
+            	pose_change.pose.position.x = X * cos(current_pose.theta) + Y * sin(current_pose.theta);
+            	pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
+            	pose_change.pose.position.z = pose.theta - current_pose.theta;
+            	pose_change.header.seq = pose.flag;
+            
+				if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
+            	   	pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
+            	   	pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
+            	    local_path.poses.push_back(pose_change);   
             	}
         	}
-			else{
+		}
+		else{
+			for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
+
+            	pose.x = (*iter).x;
+            	pose.y = (*iter).y;
+            	pose.theta = (*iter).theta;
+            	pose.flag = (*iter).flag;
+
+            	double X = pose.x - current_pose.x - length/2.0 * sin(current_pose.theta);
+            	double Y = pose.y - current_pose.y + length/2.0 * cos(current_pose.theta);
+
+            	pose_change.pose.position.x = X * cos(current_pose.theta) + Y * sin(current_pose.theta);
+            	pose_change.pose.position.y = Y * cos(current_pose.theta) - X * sin(current_pose.theta);
+            	pose_change.pose.position.z = pose.theta - current_pose.theta;
+            	pose_change.header.seq = pose.flag;
+            
+
 				if(pose_change.pose.position.x<-1.05 && pose_change.pose.position.x>-1.05-length && pose_change.pose.position.y > 0 && pose_change.pose.position.y < length){
-                    pose_change.pose.position.x = int((-pose_change.pose.position.x-1.05)/length*pixel);
-                    pose_change.pose.position.y = (-1) * (int(pose_change.pose.position.y/length*pixel) - pixel/2);
-                    local_path.poses.push_back(pose_change);
-                }
-            }
+                	pose_change.pose.position.x = int((-pose_change.pose.position.x-1.05)/length*pixel);
+                	pose_change.pose.position.y = (-1) * (int(pose_change.pose.position.y/length*pixel) - pixel/2);
+                	local_path.poses.push_back(pose_change);
+            	}
+        	}
 		}
 	    printf("# of local path : %d\n", local_path.poses.size());
         local_path_pub.publish (local_path);
