@@ -1,15 +1,19 @@
-#include "ros/ros.h"
 #include <iostream>
-#include <slam/Imu.h>
-#include <slam/Gps.h>
-#include <slam/Data.h>
-#include <std_msgs/Float64MultiArray.h>
+
+#include "std_msgs/Float64MultiArray.h"
+
+#include "slam/Data.h"
+#include "slam/Gps.h"
+#include "slam/Imu.h"
+
+#include "ros/ros.h"
 #include "Eigen/Eigen"
 
 #define PI 3.141592653589793238463
 #define SMALL 0.000001
 
 using namespace Eigen;
+
 
 template <int _ST=5, int _U=3, int _Q=3, int _ZIMU=1, int _ZGPS=2>
 class Kalman_fusion{

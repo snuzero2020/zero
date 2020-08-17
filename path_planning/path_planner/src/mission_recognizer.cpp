@@ -70,7 +70,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
-		float recommend_vel_info[13] = {1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8};
+		float recommend_vel_info[13] = {1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5};
 		int buff_length{10};
 		vector<int> light_state_buff;
 		RosNode(){
@@ -82,9 +82,9 @@ class RosNode{
 
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
-			vector<int> A_task{DRIVING_SECTION, INTERSECTION_RIGHT, DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
+			vector<int> A_task{PARKING, DRIVING_SECTION, INTERSECTION_RIGHT , DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,INTERSECTION_LEFT, DRIVING_SECTION,DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION};	
-			vector<int> B_task{INTERSECTION_LEFT, INTERSECTION_STRAIGHT};
+			vector<int> B_task{INTERSECTION_LEFT_UNSIGNED, INTERSECTION_STRAIGHT_UNSIGNED};
 			vector<int> C_task{};
 			vector<int> D_task{INTERSECTION_RIGHT};
 			vector<int> E_task{INTERSECTION_LEFT,INTERSECTION_STRAIGHT};
@@ -156,8 +156,8 @@ class RosNode{
 			checker_container[J] = Checker(J_task.size());
 			checker_container[J].state_list = J_task;
 			//vector<int> sector_order{X,A,D,A,B,A,C,A,B,A,D,A,E};
-			//vector<int> sector_order{X,A,B,A,B,A,B,A,B,A,B,A};
-			vector<int> sector_order{X,A,B,A,D,A,E,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
+			vector<int> sector_order{X,A,A};
+			//vector<int> sector_order{X,A,B,A,D,A,E,A,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
 			//vector<int> sector_order{X,A,J,A,I,A,H,A,G,A,E,A,B,A};
 			
 			sector_pass_checker = Checker(sector_order.size());

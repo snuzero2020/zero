@@ -1,18 +1,21 @@
-#include <iostream>
 #include <cmath>
-#include <ros/ros.h>
-#include "opencv2/opencv.hpp"
-#include "opencv2/highgui.hpp"
+#include <iostream>
+
+#include "message_filters/subscriber.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "message_filters/synchronizer.h"
+#include "message_filters/time_synchronizer.h"
+#include "nav_msgs/Path.h"
+#include "sensor_msgs/Image.h"
+#include "sensor_msgs/image_encodings.h"
+
+#include "slam/Data.h"
+
+#include "ros/ros.h"
+#include "cv_bridge/cv_bridge.h"
 #include "opencv2/imgproc.hpp"
-#include <cv_bridge/cv_bridge.h>
-#include <slam/Data.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include <message_filters/subscriber.h>
-#include <message_filters/time_synchronizer.h>
-#include <message_filters/synchronizer.h>
-#include <message_filters/sync_policies/approximate_time.h>
-#include <nav_msgs/Path.h>
+#include "opencv2/highgui.hpp"
+#include "opencv2/opencv.hpp"
 
 
 class pp_visualizer{

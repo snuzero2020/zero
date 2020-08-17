@@ -10,6 +10,50 @@
 #include "core_msgs/Control.h"
 #include "core_msgs/VehicleState.h"
 #include "core_msgs/Encoderfilter.h"
+#include "std_msgs/UInt32.h"
+
+
+enum taskState{
+      DRIVING_SECTION,
+      INTERSECTION_STRAIGHT,
+      INTERSECTION_LEFT,
+      INTERSECTION_RIGHT,
+      INTERSECTION_STRAIGHT_UNSIGNED,
+      INTERSECTION_LEFT_UNSIGNED,
+      INTERSECTION_RIGHT_UNSIGNED,
+      OBSTACLE_STATIC,
+      OBSTACLE_SUDDEN,
+      CROSSWALK,
+      PARKING
+};
+
+// if LEFT_LIGHT && RED_LIGHT, then light_state = 1010 (bit) = 10
+enum lightState{
+      GREEN_LIGHT,
+      LEFT_LIGHT,
+      YELLOW_LIGHT,
+      RED_LIGHT
+};
+
+enum motionState{
+      FORWARD_MOTION,
+      FORWARD_SLOW_MOTION,
+      HALT_MOTION,
+      LEFT_MOTION,
+      RIGHT_MOTION,
+      PARKING_MOTION
+};
+
+enum parkingState{
+    SEARCHING_PARKING_SPOT,
+    PARKING_SPOT_0,
+    PARKING_SPOT_1,
+    PARKING_SPOT_2,
+    PARKING_SPOT_3,
+    PARKING_SPOT_4,
+    PARKING_SPOT_5
+};
+
 
 using namespace std;
 using namespace std_msgs;
@@ -73,7 +117,13 @@ class Tracker
 		ros::Subscriber local_path_sub;
 		ros::Subscriber current_vel_sub;
 		ros::Subscriber recommend_vel_sub;
+		ros::Subscriber mission_state_sub;
 
+		int motion{-1};
+		int light{-1};
+		int task{-1};
+		int parking_space{-1};
+		
 		// initializer
 		Tracker() 
 			:steering_angle(Float32()), curr_local_path(Path()), look_ahead_oval_ratio(2)
@@ -84,6 +134,7 @@ class Tracker
 			//current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
 			current_vel_sub = nh.subscribe("filter_encoder_data",100, &Tracker::current_vel_callback, this);
 			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
+			mission_state_sub = nh.subscribe("mission_state", 50, &Tracker::missionstateCallback, this);
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
 			nh.getParam("/D_gain", D_gain);
@@ -101,6 +152,8 @@ class Tracker
 		void local_path_callback(const Path::ConstPtr msg);
 		void current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg);
 		void recommend_vel_callback(const Float32::ConstPtr msg);
+		void missionstateCallback(const std_msgs::UInt32 & msg);
+
 
 		// Fuctions for determind steering angle
 		// 1. set look ahead point under considering velocity
@@ -179,6 +232,18 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
 	cout << "steering_angle : " << steering_angle << endl;
 	//cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
+}
+
+
+void Tracker::missionstateCallback(const std_msgs::UInt32 & msg){
+        int mask = 0b1111;
+        int data = msg.data;
+        motion = data & mask;
+        light = (data>>4) & mask;
+        task = (data>>8) & mask;
+        //parking_space = (data>>12) & mask;
+        parking_space = 1;
+	cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 }
 
 
@@ -294,6 +359,17 @@ void Tracker::adjust_steering_angle()
 	// total
 	//float sign = (nonslip_steering_angle>0)?1.0:-1.0;
 	//steering_angle.data = sign * 79.12363452 * pow(rotational_radius, -0.98117930922);	
+
+	if (task != PARKING){	
+		if (steering_angle.data < -28){
+			cout << "calculated steering angle is too large\n";       
+			steering_angle.data = -28;
+		}
+		else if (steering_angle.data >28){
+			steering_angle.data = 28;
+			cout << "calculated steering angle is too large\n";      
+		}	
+	}
 }
 
 // capsulized module
@@ -380,8 +456,8 @@ void Tracker::vehicle_output_signal(){
 
 	if(decel_check == 1){
 		cout << "decceleration\n";
-		if (desired_vel_after < 0.1){
-			msg.brake = 10;
+		if (desired_vel_after < 0.2){
+			//msg.brake = 20;
 			integral_error = 0;
 			msg.speed = 0;
 			decel_check = 0;
@@ -410,9 +486,21 @@ void Tracker::vehicle_output_signal(){
 	else{
 		msg.gear = 2;
 	}
-
-	msg.steer = get_steering_angle().data;
-	car_signal_pub.publish(msg);
+	
+	// if look_ahead_dist is less than 50cm, set steer to 0 to prevent sudden tilting of the vehicle
+	double look_ahead_dist;
+	look_ahead_dist = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y);
+	if (task != PARKING){
+		if (look_ahead_dist<17)
+			msg.steer = get_steering_angle().data/3.0;
+		else
+			msg.steer = get_steering_angle().data;
+		car_signal_pub.publish(msg);
+	}
+	else {
+		msg.steer = get_steering_angle().data;
+		car_signal_pub.publish(msg);
+	}
 }
 
 

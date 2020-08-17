@@ -81,18 +81,6 @@ add_executable(velocity_publisher src/map_layer/velocity_publisher.cpp lib/XYToP
 target_link_libraries(velocity_publisher ${catkin_LIBRARIES})
 add_dependencies(velocity_publisher slam_generate_messages_cpp)
 
-add_executable(kcity_sector_publisher src/map_layer/kcity_sector_publisher.cpp lib/XYToPixel.cpp)
-target_link_libraries(kcity_sector_publisher ${catkin_LIBRARIES})
-add_dependencies(kcity_sector_publisher slam_generate_messages_cpp)
-
-add_executable(kcity_color_velocity src/map_layer/kcity_color_velocity.cpp)
-target_link_libraries(kcity_color_velocity ${catkin_LIBRARIES})
-add_dependencies(kcity_color_velocity slam_generate_messages_cpp)
-
-add_executable(kcity_velocity_publisher src/map_layer/kcity_velocity_publisher.cpp lib/XYToPixel.cpp)
-target_link_libraries(kcity_velocity_publisher ${catkin_LIBRARIES})
-add_dependencies(kcity_velocity_publisher slam_generate_messages_cpp)
-
 ##add_executable for obstacle_cost_map
 add_executable(object_detector src/obstacle_cost_map/object_detector.cpp)
 target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})

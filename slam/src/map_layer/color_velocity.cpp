@@ -15,7 +15,18 @@ int main(int argc, char**argv){
     stringstream path_stream1;
     stringstream path_stream2;
     stringstream path_stream3;
-    path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
+    bool is_kcity;
+    ros::param::get("/is_kcity", is_kcity);
+    if(is_kcity==true){
+       path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map.png";
+       path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map.png";
+    }
+    else if(is_kcity==false){
+       path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
+       path_stream2 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_discrete_velocity_map.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_velocity_map.png";
+    }
     color_map = imread(path_stream1.str());
     ROS_INFO("color map loaded");
 
@@ -61,11 +72,9 @@ int main(int argc, char**argv){
         }
     }
 
-    path_stream2 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_discrete_velocity_map.png";
     cv::imwrite(path_stream2.str(), discrete_velocity_map);
     ROS_INFO("discrete velocity map is saved");
     GaussianBlur(discrete_velocity_map, velocity_map, Size(33,33), 20, 0);
-    path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_velocity_map.png";
     cv::imwrite(path_stream3.str(), velocity_map);
     ROS_INFO("velocity map is saved");
 

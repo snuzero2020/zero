@@ -1,16 +1,21 @@
-#include "ros/ros.h"
-#include "ros/time.h"
-#include "slam/Imu.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/MagneticField.h"
-#include "geometry_msgs/Vector3Stamped.h"
-#include "geometry_msgs/Quaternion.h"
-#include "UnixtimeToSec.h"
-#include <iostream>
 #include <iomanip>
-#include <string>
+#include <iostream>
 #include <map>
 #include <math.h>
+#include <string>
+
+#include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/Vector3Stamped.h"
+#include "sensor_msgs/Imu.h"
+#include "sensor_msgs/MagneticField.h"
+
+#include "slam/Imu.h"
+
+#include "ros/ros.h"
+#include "ros/time.h"
+
+#include "UnixtimeToSec.h"
+
 
 class IMU_Decoder{
     public:

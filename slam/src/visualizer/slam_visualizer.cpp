@@ -1,28 +1,34 @@
+#include <cmath>
 #include <iostream>
-#include <string>
 #include <sstream>
-#include "ros/package.h"
-#include <ros/ros.h>
+#include <string>
 #include <vector>
+
+#include "slam/Data.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+
 #include "XYToPixel.h"
-#include "slam/Data.h"
-#include <cmath>
+
 
 class Slam_visualizer{
     private:
         ros::NodeHandle nh;
         ros::Subscriber sub;
+        bool is_kcity;
 
     public:
-
         int map_size = 300;
         std::stringstream path_stream;
         cv::Mat glob_map;
 
         Slam_visualizer(){
+            ros::param::get("/is_kcity", is_kcity);
+
             path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path_visual.png";
             glob_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);
 
@@ -36,7 +42,7 @@ class Slam_visualizer{
             int map_size{300};
             int curr_xpix{}, curr_ypix{};
 
-            XYToPixel(curr_xpix, curr_ypix, data.x, data.y);
+            XYToPixel(curr_xpix, curr_ypix, data.x, data.y, is_kcity);
 
             cv::Point2f rc(curr_xpix, curr_ypix);
             cv::Mat matrix = cv::getRotationMatrix2D(rc, (M_PI_2-data.theta)*180/M_PI, 1);

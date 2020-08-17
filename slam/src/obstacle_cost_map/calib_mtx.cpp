@@ -1,23 +1,26 @@
-#include <opencv2/opencv.hpp>
-#include <ros/ros.h>
-#include <vector>
+
+#include <math.h>
 #include <iostream>
 #include <string.h>
-#include "Eigen/Eigen"
+#include <vector>
+
 #include "geometry_msgs/Point.h"
+
+#include "slam/Clustermaster.h"
+#include "slam/Clusters.h"
+#include "slam/imgCluster.h"
+
 #include "ros/ros.h"
 #include "ros/time.h"
-#include "math.h"
-#include "slam/imgCluster.h"
-#include "slam/Clusters.h"
-#include "slam/Clustermaster.h"
-
+#include "opencv2/opencv.hpp"
+#include "Eigen/Eigen"
 
 using namespace std;
 using namespace cv;
 using namespace Eigen;
 
 #define PI 3.14159265
+
 
 class Calibration{
     public:

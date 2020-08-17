@@ -141,9 +141,11 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 		int pose_flag = poseStamped.header.seq & 0b1111;
+		//cout << "flag is " << pose_flag << endl;
 		//int pose_flag = 0;
 		int pose_seq = poseStamped.header.seq>>4;
 
+		//cout << "(goal decision) flag check!\n";
 		// check flag
 		if(!flag[pose_flag]) continue;
 
@@ -151,6 +153,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double ang_diff = angle - goal_angle;
 		ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
 		
+		//cout << "(goal decision) heading check!\n";
 		// check if same dir
 		if(motion != PARKING_MOTION){
 			if(ang_diff > M_PI/2) continue;
@@ -165,6 +168,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
 		//printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx][(int)dy+costmap.size()/2]);
+		//cout << "(goal decision) obstacle check!\n";
 		// check obstacle
 		if(costmap[(int)dx][(int)dy+costmap.size()/2] >= OBSTACLE) {
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
@@ -187,6 +191,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			key_sub = abs(dist - look_ahead_radius);
 			value_sub = i;
 		}
+		//cout << "(goal decision) all check pass!\n";
 	}
 
 	// if obstacle sudden, choose goal which is farthest and closer than obstacle
@@ -241,6 +246,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double gx = goals[value].pose.position.x;
 		double gy = goals[value].pose.position.y;
 		cout << "current goal flag : " << (goals[value].header.seq & 0b1111) << endl;
+		cout << "current goal point : (" << gx << ',' << gy << ")\n";
 		return Cor(gx,gy);
 	}
 
@@ -265,6 +271,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	// we check whether parking or unparking complished by no goal available
 	// when parking complished or unparking complished stop!
 	else if(motion==PARKING_MOTION){
+		cout << "parking_complished : " << parking_complished << endl;
+		cout << "unparking_complished : " << unparking_complished << endl;
 		// parking complished
 		if(parking_complished==false){
 			parking_complished = true;
@@ -286,37 +294,3 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		return Cor(0,0);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

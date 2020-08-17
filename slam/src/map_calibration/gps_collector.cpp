@@ -1,12 +1,17 @@
-#include "ros/ros.h"
-#include "nmea_msgs/Sentence.h"
-#include "slam/Gps.h"
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <algorithm>
+
+#include "nmea_msgs/Sentence.h"
+
+#include "slam/Gps.h"
+
+#include "ros/ros.h"
+
 using namespace std;
+
 
 typedef pair<double,double> pdd;
 
