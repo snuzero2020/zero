@@ -45,7 +45,7 @@ class LocalPathPublisher{
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
 
-//    string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
+    //string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
 
     public:
     
@@ -125,8 +125,8 @@ class LocalPathPublisher{
                 }
             }
 		}
-	    printf("# of local path : %d\n", local_path.poses.size());
-        local_path_pub.publish (local_path);
+	    cout << "# of local path: " << local_path.poses.size() << endl;
+        local_path_pub.publish(local_path);
     }
 
 };

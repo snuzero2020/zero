@@ -97,7 +97,7 @@ class ObjectDetector{
                 inliers_result.insert(i);
             }
         }
-        ROS_INFO("# of inliers : %d", inliers_result.size());
+        ROS_INFO_STREAM("# of inliers: " << inliers_result.size());
         vector<bool> check_points;
         for(int i=0;i<cloud_points_.size();i++) check_points.push_back(false);
         for(int index : inliers_result) check_points.at(index) = true;
@@ -195,9 +195,11 @@ class ObjectDetector{
         vector<slam::Cluster> rt_clusters;
         vector<geometry_msgs::Point> rt_points;
         rt.header.stamp = ros::Time::now();
+
         for(vector<int> cluster : clusters){
             slam::Cluster rt_cluster;
             rt_cluster.count = 0;
+
             for(int index : cluster){
                 rt_cluster.points_2d.push_back(projected_points_.at(index));
                 rt_cluster.points_3d.push_back(filtered_points_.at(index));
@@ -208,11 +210,12 @@ class ObjectDetector{
         rt.clusters = rt_clusters;
         pub_.publish(rt);
         clock_t end = clock();
-        ROS_INFO("# of filtered points : %d", projected_points_.size());
-        ROS_INFO("elapsed time : %lf",double(end-begin)/CLOCKS_PER_SEC);
-        ROS_INFO("cosine value between z and normal : %lf", acos(plane_config_[2]
-        /sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
-	//ROS_INFO("plane coefficient : %lf", plane_coefficient_);
+
+        ROS_INFO_STREAM("# of filtered points: " << projected_points_.size());
+        ROS_INFO_STREAM("elapsed time: " << static_cast<double>(end - begin) / CLOCKS_PER_SEC);
+        ROS_INFO_STREAM("cosine value between z and normal: " << acos(plane_config_[2]
+        /sqrt(plane_config_[0] * plane_config_[0] + plane_config_[1] * plane_config_[1] + plane_config_[2] * plane_config_[2])) * 180 / M_PI);
+	    //ROS_INFO("plane coefficient : %lf", plane_coefficient_);
     }
 
     private:
