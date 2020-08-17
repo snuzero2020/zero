@@ -27,7 +27,7 @@ using namespace Eigen;
 typedef pair<double, double> pdd;
 
 
-class ObjectDetector{
+class ObstacleDetector{
     private:
     ros::NodeHandle nh_;
     ros::Publisher pub_;
@@ -50,10 +50,10 @@ class ObjectDetector{
     
 
     public:
-    ObjectDetector(){
+    ObstacleDetector(){
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
-        sub_lidar_ = nh_.subscribe("/points", 1, &ObjectDetector::callback_lidar, this);
-        sub_position_ = nh_.subscribe("/filtered_data", 1, &ObjectDetector::callback_position, this);
+        sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
+        sub_position_ = nh_.subscribe("/filtered_data", 1, &ObstacleDetector::callback_position, this);
         current_position_.first = 0.0;
         current_position_.second = 0.0;
         current_heading_ = 0.0;
@@ -202,7 +202,7 @@ class ObjectDetector{
 };
 
 int main(int argc, char **argv){
-    ros::init(argc, argv, "object_detector");
-    ObjectDetector object_detector;
+    ros::init(argc, argv, "obstacle_detector");
+    ObstacleDetector obstacle_detector;
     ros::spin();
 }

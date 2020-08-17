@@ -35,6 +35,7 @@ class LidarDecoder:
                 p.point_3d.x = point[0]
                 p.point_3d.y = point[1]
                 p.point_3d.z = point[2]
+                p.channel = point[4]
                 cloud_points.append(p)
         h = std_msgs.msg.Header()
         h.stamp = rospy.Time.now()
