@@ -96,7 +96,7 @@ class ObjectDetector{
                 inliers_result.insert(i);
             }
         }
-        ROS_INFO("# of inliers : %d", inliers_result.size());
+        ROS_INFO_STREAM("# of inliers: " << inliers_result.size());
         vector<bool> check_points;
         for(int i=0;i<cloud_points_.size();i++) check_points.push_back(false);
         for(int index : inliers_result) check_points.at(index) = true;
@@ -169,9 +169,11 @@ class ObjectDetector{
         vector<slam::Cluster> rt_clusters;
         vector<geometry_msgs::Point> rt_points;
         rt.header.stamp = ros::Time::now();
+
         for(vector<int> cluster : clusters){
             slam::Cluster rt_cluster;
             rt_cluster.count = 0;
+
             for(int index : cluster){
                 rt_cluster.points.push_back(filtered_points_.at(index));
                 rt_cluster.count ++;

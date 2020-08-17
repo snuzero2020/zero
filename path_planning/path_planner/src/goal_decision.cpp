@@ -50,7 +50,7 @@ const static int OBSTACLE = 100;
 //}
 //
 //
-Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed){
+Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state){
 	///////////////////////////////////////////////
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
@@ -162,7 +162,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(ang_diff > M_PI/2) continue;
 		}
 		else{ // rear motion
-			if(ang_diff < M_PI/2) continue;
+			if(ang_diff > M_PI/2) continue;
 		}
 		
 		double dx = poseStamped.pose.position.x;
@@ -281,8 +281,10 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 		// unparking complished
 		else{
-			unparking_complished = true;
-			unparking_complished_changed = true;
+			if (gear_state == 0)
+				unparking_complished = true;
+			if (gear_state == 1)
+				unparking_complished_changed = true;
 			return Cor(0,0);
 		}
 	}
