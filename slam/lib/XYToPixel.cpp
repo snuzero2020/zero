@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <ros/ros.h>
+
+#include "ros/ros.h"
 #include "opencv2/opencv.hpp"
 
 #ifndef PLACE
@@ -56,8 +57,9 @@ void XYToPixel(int& pixel_x, int& pixel_y, double x, double y, bool is_kcity) {
         pixel_x = static_cast<int>(a1*x+b1*y+c1);
         pixel_y = static_cast<int>(a2*x+b2*y+c2);
     }
-    
-    ROS_DEBUG("%d %d", pixel_x, pixel_y);
+
+    if (is_kcity) ROS_DEBUG_STREAM("XYToPixel(K-City): Coordiate (" << pixel_x << ", " << pixel_y << ")");
+    else ROS_DEBUG_STREAM("XYToPixel(FMTC): Coordiate (" << pixel_x << ", " << pixel_y << ")");
 }
 
 // int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, double ref_x, double ref_y, int ref_pixel_x, int ref_pixel_y, double coefficient) {

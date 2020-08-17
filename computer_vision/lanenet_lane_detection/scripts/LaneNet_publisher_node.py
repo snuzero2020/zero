@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     seg_pub = rospy.Publisher('/lane_seg_topic', numpy_msg(lanenet_msg), queue_size = 10)
 
-    rospy.init_node('LaneNet_publisher_node', anonymous = True)
+    rospy.init_node('lanenet_seg_publisher', anonymous = True)
     #rate = rospy.Rate(100)
 
     cap_left = cv2.VideoCapture(video_left)

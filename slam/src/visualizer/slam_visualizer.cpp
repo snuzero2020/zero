@@ -1,15 +1,19 @@
+#include <cmath>
 #include <iostream>
-#include <string>
 #include <sstream>
-#include "ros/package.h"
-#include <ros/ros.h>
+#include <string>
 #include <vector>
+
+#include "slam/Data.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+
 #include "XYToPixel.h"
-#include "slam/Data.h"
-#include <cmath>
+
 
 class Slam_visualizer{
     private:

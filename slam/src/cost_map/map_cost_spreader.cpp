@@ -1,11 +1,13 @@
+#include <iostream>
+
+#include "ros/package.h"
 #include "ros/ros.h"
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
-#include <iostream>
-#include "ros/package.h"
 
 #define USHORT_FACTOR 255   // should be <= 255
+
 
 //boseol code
 int centerline_cost;

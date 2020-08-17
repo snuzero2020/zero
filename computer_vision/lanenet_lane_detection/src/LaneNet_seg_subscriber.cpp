@@ -35,7 +35,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_msg::ConstPtr &msg){
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "lanenet_msg_subscriber");
+    ros::init(argc, argv, "lanenet_seg_subscriber");
     ros::NodeHandle nh;
 
     ros::Subscriber lanenet_sub = nh.subscribe("/lane_seg_topic",100, lanenet_callback);

@@ -1,17 +1,20 @@
-#include "ros/ros.h"
-#include "ros/time.h"
-#include "ros/package.h"
-#include "slam/Data.h"
-#include "slam/GlobalPathPoint.h"
+#include <iomanip>
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <string>
-#include <map>
 #include <math.h>
+#include <map>
+#include <string>
 #include <vector>
 
+#include "slam/Data.h"
+#include "slam/GlobalPathPoint.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
+#include "ros/time.h"
+
 using namespace std;
+
 
 typedef pair<double, double> pdd;
 
@@ -55,11 +58,11 @@ class GlobalPathGenerator{
         point.x = cur_.first;
         point.y = cur_.second;
         point.theta = msg->theta;
-	point.flag = 8;
+	    point.flag = 8;
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);
-        printf("# of global path points : %d\n", points_.size());
+        cout << "# of global path points: " << points_.size() << endl;
 
         save();
     }

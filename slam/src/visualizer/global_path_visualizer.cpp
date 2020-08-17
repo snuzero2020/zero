@@ -9,20 +9,20 @@
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/image_encodings.h"
 
-#include "slam/Pixel.h"
 #include "slam/Data.h"
 #include "slam/GlobalPathPoint.h"
+#include "slam/Pixel.h"
 
-#include "ros/ros.h"
 #include "ros/package.h"
+#include "ros/ros.h"
 #include "opencv2/opencv.hpp"
 #include "cv_bridge/cv_bridge.h"
 
 #include "XYToPixel.h"
 
-
 using namespace std;
 using namespace cv;
+
 
 class GlobalVisual{
     
