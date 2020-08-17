@@ -1,19 +1,17 @@
 #include "ros/ros.h"
 #include <iostream>
-#include "lanenet_lane_detection/lanenet_msg.h"
+#include "lanenet_lane_detection/lanenet_clus_msg.h"
 #include <opencv2/opencv.hpp>
 #include <ctime>
 
 using namespace cv;
 
-void lanenet_callback(const lanenet_lane_detection::lanenet_msg::ConstPtr &msg){
+void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &msg){
     clock_t start;
     start = clock();
     
     cv::Mat left_binary_seg = cv::Mat::zeros(480, 640, CV_8UC1);
     cv::Mat right_binary_seg = cv::Mat::zeros(480, 640, CV_8UC1);
-    
-    float decode[2][2][480][640];
 
     for(int h=0; h<480; h++){
         for(int w=0; w<640; w++){
@@ -35,10 +33,10 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_msg::ConstPtr &msg){
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "lanenet_seg_subscriber");
+    ros::init(argc, argv, "lanenet_cluster_subscriber");
     ros::NodeHandle nh;
 
-    ros::Subscriber lanenet_sub = nh.subscribe("/lane_seg_topic",100, lanenet_callback);
+    ros::Subscriber lanenet_sub = nh.subscribe("/lane_cluster_topic",100, lanenet_callback);
 
     ros::spin();
 

@@ -6,7 +6,7 @@ import rospy
 import time
 from std_msgs.msg import UInt16MultiArray
 from torchvision.transforms import transforms
-from lanenet_lane_detection.msg import lanenet_msg
+from lanenet_lane_detection.msg import lanenet_clus_msg
 from rospy.numpy_msg import numpy_msg
 
 from model import *
@@ -25,9 +25,9 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(weight_path))
     model.eval()
 
-    seg_pub = rospy.Publisher('/lane_seg_topic', numpy_msg(lanenet_msg), queue_size = 10)
+    seg_pub = rospy.Publisher('/lane_cluster_topic', numpy_msg(lanenet_clus_msg), queue_size = 10)
 
-    rospy.init_node('lanenet_seg_publisher', anonymous = True)
+    rospy.init_node('lanenet_cluster_publisher', anonymous = True)
     #rate = rospy.Rate(100)
 
     cap_left = cv2.VideoCapture(video_left)
@@ -59,11 +59,12 @@ if __name__ == "__main__":
 
                 output = model(img_input)
 
-                lanenet_msg_pub = lanenet_msg()
+                lanenet_msg_pub = lanenet_clus_msg()
 
-                #pix_embedding = output['pix_embedding']
-                #pix_embedding = pix_embedding.detach().cpu().numpy()
-                
+                pix_embedding = output['pix_embedding']
+                pix_embedding = pix_embedding.detach().cpu().numpy().flatten()
+                pix_embedding_pub = pix_embedding.flatten()
+
                 #print(pix_embedding.shape)
                 #embedding_left = np.transpose(pix_embedding[0],(1,2,0))
                 #embedding_right = np.transpose(pix_embedding[1],(1,2,0))
@@ -87,7 +88,7 @@ if __name__ == "__main__":
                 #seg_msg = UInt16MultiArray()
                 #seg_msg.data = seg_img
 
-                seg_pub.publish(lanenet_msg_pub)
+                seg_pub.publish(np.append(lanenet_msg_pub, pix_embedding_pub))
                 #rate.sleep()
                 #cv2.imshow("left_seg", left_seg_img)
                 #cv2.imshow("right_seg", right_seg_img)
