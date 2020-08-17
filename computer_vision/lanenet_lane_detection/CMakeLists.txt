@@ -5,10 +5,20 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  sensor_msgs
+  message_generation
 )
 
 find_package(OpenCV 3 REQUIRED)
+
+add_message_files(
+  FILES
+  lanenet_msg.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 catkin_package(
 	INCLUDE_DIRS include
