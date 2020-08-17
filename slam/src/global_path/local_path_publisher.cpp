@@ -114,7 +114,7 @@ class LocalPathPublisher{
             	if(pose_change.pose.position.x>0 && pose_change.pose.position.x<length && pose_change.pose.position.y >0 && pose_change.pose.position.y<length){
                		pose_change.pose.position.x = int(pose_change.pose.position.x/length*pixel);
                 	pose_change.pose.position.y = int(pose_change.pose.position.y/length*pixel) - pixel/2;
-                	local_path.poses.push_back(pose_change);   
+                	local_path.poses.push_back(pose_change);
             	}
         	}
 			else{
