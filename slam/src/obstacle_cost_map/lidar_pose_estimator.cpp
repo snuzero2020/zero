@@ -1,18 +1,22 @@
-#include "ros/ros.h"
-#include "ros/time.h"
 #include <iostream>
+#include <math.h>
+#include <set>
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <set>
-#include "slam/Lidar.h"
-#include "slam/Cluster.h"
+
 #include "geometry_msgs/Point.h"
+
+#include "slam/Cluster.h"
+#include "slam/Lidar.h"
+
+#include "ros/ros.h"
+#include "ros/time.h"
 #include "Eigen/Eigen"
 
 using namespace std;
 using namespace Eigen;
+
 
 class LidarPoseEstimator{
     public:

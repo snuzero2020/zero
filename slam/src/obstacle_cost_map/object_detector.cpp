@@ -1,19 +1,23 @@
-#include "ros/ros.h"
-#include "ros/time.h"
 #include <iostream>
+#include <math.h>
 #include <stdlib.h>
+#include <set>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <set>
-#include "slam/Lidar.h"
+
+#include "geometry_msgs/Point.h"
+
 #include "slam/Cluster.h"
 #include "slam/Clusters.h"
-#include "geometry_msgs/Point.h"
+#include "slam/Lidar.h"
+
+#include "ros/ros.h"
+#include "ros/time.h"
 #include "Eigen/Eigen"
 
 using namespace std;
 using namespace Eigen;
+
 
 class ObjectDetector{
     public:

@@ -1,16 +1,20 @@
 #include <iostream>
-#include <ros/ros.h>
-#include "ros/package.h"
-#include "opencv2/opencv.hpp"
-#include <vector>
-#include <slam/Pixel.h>
-#include <slam/Data.h>
-#include "XYToPixel.h"
-#include "std_msgs/Float64.h"
 #include <string>
+#include <vector>
+
+#include "std_msgs/Float64.h"
+
+#include "slam/Pixel.h"
+#include "slam/Data.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
+#include "opencv2/opencv.hpp"
+
+#include "XYToPixel.h"
+
 
 class velocity_publisher{
-
     private:
         ros::NodeHandle nh;
         ros::Publisher pub;

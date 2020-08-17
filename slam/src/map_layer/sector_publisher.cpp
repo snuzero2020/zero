@@ -1,15 +1,19 @@
 #include <iostream>
-#include <ros/ros.h>
+#include <string>
+#include <vector>
+
+#include "std_msgs/UInt32.h"
+
+#include "slam/Data.h"
+#include "slam/Pixel.h"
+
 #include "ros/package.h"
-#include "opencv2/opencv.hpp"
+#include "ros/ros.h"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
-#include <vector>
-#include <slam/Pixel.h>
-#include <slam/Data.h>
+#include "opencv2/opencv.hpp"
+
 #include "XYToPixel.h"
-#include "std_msgs/UInt32.h"
-#include <string>
 
 
 class sector_publisher{

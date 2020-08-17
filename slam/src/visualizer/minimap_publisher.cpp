@@ -1,14 +1,19 @@
 #include <iostream>
-#include <ros/ros.h>
-#include "ros/package.h"
-#include "opencv2/opencv.hpp"
 #include <vector>
-#include <cv_bridge/cv_bridge.h>
+
+#include "slam/Pixel.h"
+#include "slam/Data.h"
+
+#include "sensor_msgs/Image.h"
+#include "sensor_msgs/image_encodings.h"
+
+#include "ros/ros.h"
+#include "ros/package.h"
+#include "cv_bridge/cv_bridge.h"
+#include "opencv2/opencv.hpp"
+
 #include "XYToPixel.h"
-#include <slam/Pixel.h>
-#include <slam/Data.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
+
 
 class map_tracer{
 	private:

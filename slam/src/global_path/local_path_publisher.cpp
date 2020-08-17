@@ -1,28 +1,31 @@
-#include "ros/ros.h"
-#include "ros/time.h"
-#include "ros/package.h"
-#include "slam/Imu.h"
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/Vector3Stamped.h"
+#include "nav_msgs/OccupancyGrid.h"
+#include "nav_msgs/Path.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "std_msgs/UInt32.h"
-#include "geometry_msgs/Vector3Stamped.h"
-#include "geometry_msgs/Quaternion.h"
-#include "slam/GlobalPathPoint.h"
-#include "UnixtimeToSec.h"
-#include "nav_msgs/Path.h"
+
 #include "slam/Data.h"
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <map>
-#include <math.h>
-#include <vector>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <nav_msgs/OccupancyGrid.h>
+#include "slam/GlobalPathPoint.h"
+#include "slam/Imu.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
+#include "ros/time.h"
+
+#include "UnixtimeToSec.h"
+
 
 using namespace std;
 
