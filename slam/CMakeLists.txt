@@ -120,6 +120,14 @@ add_executable(pp_visualizer src/visualizer/pp_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(pp_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(pp_visualizer slam_generate_messages_cpp)
 
+add_executable(obstacle_image src/obstacle_cost_map/obstacle_image.cpp)
+target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(obstacle_image slam_generate_messages_cpp)
+
+add_executable(obstacle_costmap_publisher src/obstacle_cost_map/find_cone.cpp)
+target_link_libraries(obstacle_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(obstacle_costmap_publisher slam_generate_messages_cpp)
+
 #add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
 #target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(yolo_sender slam_generate_messages_cpp)

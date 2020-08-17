@@ -157,12 +157,7 @@ class ObstacleDetector{
 
     void callback_lidar(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
-<<<<<<< HEAD
-        cloud_points_ = msg->points;
-        cloud_channels_ = msg->channels;
-=======
-	    cloud_points_ = msg->points;
->>>>>>> 851a2d559a226b18aebe50632e5e570021025abb
+	cloud_points_ = msg->points;
         filtered_points_.clear();
         clustering_helper_.clear();
 

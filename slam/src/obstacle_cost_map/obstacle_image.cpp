@@ -6,6 +6,8 @@
 #include <vector>
 
 #include "slam/Cluster.h"
+#include "slam/LidarPoint.h"
+#include "slam/Clusters.h"
 #include "slam/Lidar.h"
 
 #include "geometry_msgs/Point.h"
@@ -27,19 +29,22 @@ class ObstacleImage{
     public:
     ObstacleImage(){
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/image_raw", 10);
-        sub_ = nh_.subscribe("/2d_obstacle_clouds", 1, &ObstacleImage::callback, this);
+        sub_ = nh_.subscribe("/point_cloud_clusters", 1, &ObstacleImage::callback, this);
     }
 
-    void callback(const slam::Cluster::ConstPtr& msg){
+    void callback(const slam::Clusters::ConstPtr& msg){
         clock_t begin = clock();
         Mat obstacle_map = Mat(height_, width_, CV_8UC3,Scalar(255,255,255));
-        vector<geometry_msgs::Point> points = msg->points;
-        for(geometry_msgs::Point point : points){
-            int x = (int)(point.x/resolution_);
-            int y = (int)(point.y/resolution_) + width_/2;
-            if (x<0 || x>=height_ || y<0 || y>=width_) continue;
-            Vec3b& color = obstacle_map.at<Vec3b>(x,y);
-            color[0] = 0; color[1] = 0; color[2] = 0;
+        clusters_ = msg -> clusters;
+        for(slam::Cluster cluster_iter : clusters_){
+            vector<slam::LidarPoint> points_ = cluster_iter.points;
+            for(slam::LidarPoint point_iter : points_){
+                int x = (int)(point_iter.point_2d.x/resolution_);
+                int y = (int)(point_iter.point_2d.y/resolution_) + width_/2;
+                if (x<0 || x>=height_ || y<0 || y>=width_) continue;
+                Vec3b& color = obstacle_map.at<Vec3b>(x,y);
+                color[0] = 0; color[1] = 0; color[2] = 0;
+            }
         }
         sensor_msgs::Image rt;
         std_msgs::Header header;
@@ -59,6 +64,7 @@ class ObstacleImage{
     int height_ = 300;
     int width_ = 300;
     double resolution_ = 0.03;
+    vector<slam::Cluster> clusters_;
     cv_bridge::CvImage img_bridge;
 };
 

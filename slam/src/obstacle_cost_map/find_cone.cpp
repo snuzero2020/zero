@@ -127,7 +127,9 @@ class DetectCone{
                 else continue;
             }
         }
-
+        Point2f rotation_center(costmap.cols/2, costmap.rows/2);
+        Mat rotation_matrix = getRotationMatrix2D(rotation_center, 180, 1.0);
+        warpAffine(costmap, costmap, rotation_matrix, costmap.size());
         // Quit if press 'q'
         if(count == 0){
             imshow("cone", map);
@@ -174,7 +176,7 @@ class DetectCone{
 
 int main(int argc, char **argv){
     cout << "hello" << endl;
-    ros::init(argc, argv, "cone_detection");
+    ros::init(argc, argv, "obstacle_costmap_publisher");
     DetectCone detect_cone;
     while(ros::ok()){
         detect_cone.quit_if_end();
