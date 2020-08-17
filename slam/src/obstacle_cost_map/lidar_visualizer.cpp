@@ -18,7 +18,7 @@ class Visualizer{
     public:
     Visualizer(){
         color_randomizer();
-        in_path_stream << ros::package::getPath("slam") << "/config/capture1.jpg";
+        in_path_stream << ros::package::getPath("slam") << "/config/capture6.jpg";
         sub_ = nh_.subscribe("/pcl_on_image", 1, &Visualizer::callback, this);
     }
 
