@@ -62,7 +62,7 @@ class GlobalPathGenerator{
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);
-        printf("# of global path points : %d\n", points_.size());
+        cout << "# of global path points: " << points_.size() << endl;
 
         save();
     }

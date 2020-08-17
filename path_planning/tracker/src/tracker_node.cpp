@@ -181,7 +181,6 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	//set_curr_local_path(msg);
 	curr_local_path = Path();
 	curr_local_path.header = msg->header;
-	curr_local_path.header.seq = 0;
 
 	int i{0};
 	while(1)
@@ -300,10 +299,12 @@ void Tracker::set_look_ahead_point()
 void Tracker::solve_pure_pursuit()
 {
 	Point rotational_center{Point()};
-	double temp_angle;
-	bool is_front_gear = ((curr_local_path.header.seq & 0b10) != 0b10);
-	// curr_local_path.header.seq & 0b10 != 0b10 : front gear
-	// curr_local_path.header.seq & 0b10 == 0b10 : reverse gear (only for parking motion with backward motion
+	double temp_angle; 
+	cout << "curr_local_path.header.stamp.sec = " << curr_local_path.header.stamp.sec << endl;
+	bool is_front_gear = (curr_local_path.header.stamp.sec < 2);
+	cout << "is_front_gear : " << is_front_gear << endl;
+	// curr_local_path.header.stamp.sec & 0b10 != 0b10 : front gear
+	// curr_local_path.header.stamp.sec & 0b10 == 0b10 : reverse gear (only for parking motion with backward motion
 	if (is_front_gear){
 		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
 		rotational_center.y = -1.05*100/3.0;
@@ -477,9 +478,9 @@ void Tracker::vehicle_output_signal(){
 	msg.is_auto = 1;
 	msg.estop = 0;
 
-	cout<<"curr seq : "<<curr_local_path.header.seq<<"\n\n"; 
+	cout<<"curr seq : "<<curr_local_path.header.stamp.sec<<"\n\n"; 
 	// forward motion
-	if ((curr_local_path.header.seq & 0b10) != 0b10){
+	if ((curr_local_path.header.stamp.sec & 0b10) != 0b10){
 		msg.gear = 0;
 	}
 	// backward motion

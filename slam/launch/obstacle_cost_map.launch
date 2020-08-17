@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find slam)/launch/decoder.launch"/>
+  <node name="obstacle_detector" pkg="slam" type="obstacle_detector" output="screen"/>
+</launch>
