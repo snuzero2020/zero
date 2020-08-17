@@ -45,7 +45,7 @@ class Local_costmap_publisher{
         	Local_costmap_publisher() {
     			ros::param::get("/is_kcity", is_kcity);
 
-        		path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
+        		path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
        			glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
         		ROS_INFO("Image loaded");
 
