@@ -1,13 +1,19 @@
-#include "ros/ros.h"
-#include "nmea_msgs/Sentence.h"
-#include "slam/Gps.h"
-#include "std_msgs/Duration.h"
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
+
+#include "nmea_msgs/Sentence.h"
+#include "std_msgs/Duration.h"
+
+#include "slam/Gps.h"
+
+#include "ros/ros.h"
+
 #include "UTM.h"
+
 using namespace std;
+
 
 double QI_err;
 double QI_warn;

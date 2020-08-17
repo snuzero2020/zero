@@ -1,24 +1,27 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "geometry_msgs/Point.h"
+
+#include "slam/Clustermaster.h"
+#include "slam/imgCluster.h"
+
+#include "ros/package.h"
 #include "ros/ros.h"
 #include "ros/time.h"
-#include "ros/package.h"
-#include <iostream>
 #include <opencv2/opencv.hpp>
 #include "Eigen/Eigen"
-#include <vector>
-#include <string>
-//Message Type
-#include "slam/imgCluster.h"
-#include "geometry_msgs/Point.h"
-#include "slam/Clustermaster.h"
 
 using namespace cv;
 using namespace std;
+
 
 class Visualizer{
     public:
     Visualizer(){
         color_randomizer();
-        in_path_stream << ros::package::getPath("slam") << "/config/capture1.jpg";
+        in_path_stream << ros::package::getPath("slam") << "/config/capture6.jpg";
         sub_ = nh_.subscribe("/pcl_on_image", 1, &Visualizer::callback, this);
     }
 

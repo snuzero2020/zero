@@ -1,23 +1,27 @@
-#include "ros/ros.h"
-#include "ros/time.h"
 #include <iostream>
+#include <math.h>
+#include <set>
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <set>
-#include "slam/Lidar.h"
+
 #include "slam/Cluster.h"
+#include "slam/Lidar.h"
+
 #include "geometry_msgs/Point.h"
 #include "sensor_msgs/Image.h"
-#include <sensor_msgs/image_encodings.h>
-#include "Eigen/Eigen"
+#include "sensor_msgs/image_encodings.h"
+
+#include "ros/ros.h"
+#include "ros/time.h"
+#include "cv_bridge/cv_bridge.h"
 #include "opencv2/opencv.hpp"
-#include <cv_bridge/cv_bridge.h>
+#include "Eigen/Eigen"
 
 using namespace std;
 using namespace Eigen;
 using namespace cv;
+
 
 class ObstacleImage{
     public:

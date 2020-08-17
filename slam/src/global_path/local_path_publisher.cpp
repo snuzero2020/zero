@@ -1,28 +1,31 @@
-#include "ros/ros.h"
-#include "ros/time.h"
-#include "ros/package.h"
-#include "slam/Imu.h"
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/Vector3Stamped.h"
+#include "nav_msgs/OccupancyGrid.h"
+#include "nav_msgs/Path.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "std_msgs/UInt32.h"
-#include "geometry_msgs/Vector3Stamped.h"
-#include "geometry_msgs/Quaternion.h"
-#include "slam/GlobalPathPoint.h"
-#include "UnixtimeToSec.h"
-#include "nav_msgs/Path.h"
+
 #include "slam/Data.h"
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <map>
-#include <math.h>
-#include <vector>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <nav_msgs/OccupancyGrid.h>
+#include "slam/GlobalPathPoint.h"
+#include "slam/Imu.h"
+
+#include "ros/package.h"
+#include "ros/ros.h"
+#include "ros/time.h"
+
+#include "UnixtimeToSec.h"
+
 
 using namespace std;
 
@@ -52,7 +55,7 @@ class LocalPathPublisher{
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
         gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
 		filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
-        path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
+        path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
         load_global_path();
     }
     

@@ -1,14 +1,16 @@
-#include <iostream>
-#include <ros/ros.h>
-#include "ros/package.h"
-#include <string>
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <map>
 #include <math.h>
 #include <sstream>
-#include <cmath>
-#include <cstdlib>
+#include <string>
+
+#include "ros/package.h"
+#include "ros/ros.h"
+
 
 class Outlier_eliminator{
 	private:
@@ -17,7 +19,6 @@ class Outlier_eliminator{
 		const char delimiter_ = ' ';
 
 	public:
-		
 		int current_flag{0};
 		double x_avg_delta{0}, y_avg_delta{0}, heading_avg_delta{0};
 		double x_inst_delta{0}, y_inst_delta{0}, heading_inst_delta{0};
@@ -37,13 +38,16 @@ class Outlier_eliminator{
 			std::ifstream in(in_path_stream.str());
 			int line_count{0};
 			double prev_x, prev_y, prev_heading;
+
 			while(getline(in, in_line)){
 				std::stringstream ss(in_line);
 				std::string token;
 				std::vector<std::string> result;
+
 				while(getline(ss, token, delimiter_)){
 					result.push_back(token);
 				}
+
 				if(line_count == 0){ 
 					current_flag = atoi(result.at(3).c_str());
 					prev_x = stod(result.at(0));
@@ -77,9 +81,11 @@ class Outlier_eliminator{
 				}
 			}
 			std::ofstream out(out_path_stream.str());
+
 			while(getline(in, in_line)){
 				out << in_line;
 			}
+
 			out.close();
 			in.close();
 			printf("complete elimination of outliers\n");
