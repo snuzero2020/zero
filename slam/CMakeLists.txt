@@ -82,9 +82,9 @@ target_link_libraries(velocity_publisher ${catkin_LIBRARIES})
 add_dependencies(velocity_publisher slam_generate_messages_cpp)
 
 ##add_executable for obstacle_cost_map
-add_executable(object_detector src/obstacle_cost_map/object_detector.cpp lib/XYToPixel.cpp)
-target_link_libraries(object_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-add_dependencies(object_detector slam_generate_messages_cpp)
+add_executable(obstacle_detector src/obstacle_cost_map/obstacle_detector.cpp lib/XYToPixel.cpp)
+target_link_libraries(obstacle_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(obstacle_detector slam_generate_messages_cpp)
 
 #add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
 #target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
