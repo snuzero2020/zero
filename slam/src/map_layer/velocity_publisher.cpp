@@ -51,9 +51,21 @@ class velocity_publisher{
         }
 
         void callback(const slam::Data::ConstPtr& msg){
-            bool x_inRange{pixel_x<=22489 && pixel_x > 0}, y_inRange{pixel_y<=8273 && pixel_y > 0};
+            bool x_inRange, y_inRange;
 
-            XYToPixel(pixel_y, pixel_x, msg->x, msg->y, is_kcity);
+ 
+            XYToPixel(pixel_y, pixel_x, msg->x, msg->y, is_kcity); // pixel_y here is x in cv graphics and column in cv Mat
+            
+            if(is_kcity==true){
+            x_inRange ={pixel_x<=22489 && pixel_x > 0};
+            y_inRange ={pixel_y<=8273 && pixel_y > 0};
+            }
+
+            if(is_kcity==false){
+            x_inRange ={pixel_x<=14226 && pixel_x > 0};
+            y_inRange ={pixel_y<=12072 && pixel_y > 0};
+            }
+
             std::cout<<"Pixel information is loaded: "<<pixel_x<<", "<<pixel_y<<std::endl;
 
             if(x_inRange&&y_inRange){

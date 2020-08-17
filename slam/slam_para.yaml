@@ -38,5 +38,5 @@ time_noise_var : 0.002
 
 #map layer
 #color_velocity.cpp, sector_publisher.cpp, velocity publiser.cpp
-is_kcity : true
+is_kcity : false
 
