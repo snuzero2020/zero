@@ -57,6 +57,7 @@ class RosNode{
 		ros::Subscriber light_state_sub;
 		//ros::Subscriber task_state_sub;
 		ros::Subscriber sector_info_sub;
+		ros::Subscriber parking_complished_sub;
 		ros::Publisher mission_state_pub;
 		ros::Publisher recommend_vel_pub;
 
@@ -77,6 +78,7 @@ class RosNode{
 			light_state_sub = n.subscribe("light_state", 50, &RosNode::lightstateCallback, this);
 			//task_state_sub = n.subscribe("task_state_with_std_vel", 50, &RosNode::taskstateCallback, this);
 			sector_info_sub = n.subscribe("/sector_info", 50, &RosNode::sectorInfoCallback, this);
+			parking_complished_sub = n.subscribe("parking_complished", 50, &RosNode::parkingcomplishedCallback, this);
 			mission_state_pub = n.advertise<std_msgs::UInt32>("mission_state", 50);
 			recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 50);
 
@@ -174,6 +176,11 @@ class RosNode{
 			if(debug) ROS_INFO("light_state : %d",msg.data);
 		}
 
+		void parkingcomplishedCallback(const std_msgs::UInt32 & msg){
+			checker_container[sector_pass_checker.get_present_task()].check_prior_task();
+			sector_pass_checker.check_prior_task();
+		
+		}
 		void sectorInfoCallback(const std_msgs::UInt32 & msg){
 			cout<<"sectorInfocallback\n";
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
