@@ -192,7 +192,7 @@ class sector_publisher{
                         rt.data = 10|(1<<4);
                         ROS_INFO("Sector K'");
                     }
-                }
+                } 
                  std::cout<<"Published: "<<rt.data<<std::endl;
                  pub.publish(rt);
             }
