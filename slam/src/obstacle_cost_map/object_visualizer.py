@@ -10,6 +10,7 @@ import geometry_msgs.msg
 import sensor_msgs
 import sensor_msgs.point_cloud2 as pc2
 from slam.msg import Lidar
+from slam.msg import LidarPoint
 from slam.msg import Cluster
 from slam.msg import Clusters
 import time
@@ -32,9 +33,9 @@ class ObjectVisualizer:
         C = []
         for cluster in clusters:
             index = index + 1
-            for point in cluster.points_2d:
-                X.append(point.x)
-                Y.append(point.y)
+            for point in cluster.points:
+                X.append(point.point_2d.x)
+                Y.append(point.point_2d.y)
                 C.append(index)
         plt.scatter(X,Y,c=C,s=2)
         plt.xlim([0,7])

@@ -8,6 +8,7 @@
 #include "geometry_msgs/Point.h"
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/image_encodings.h"
+#include "nav_msgs/OccupancyGrid.h"
 
 #include "slam/Cluster.h"
 #include "slam/Lidar.h"
@@ -30,6 +31,7 @@ class DetectCone{
         element = getStructuringElement(MORPH_RECT, Size(4,4), Point(-1,-1));
         //ptsub_ = nh_.subscribe("/2d_obstacle_clouds", 1, &DetectCone::callback, this);
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/costmap",10);
+        pub_map_ = nh_.advertise<nav_msgs::OccupancyGrid>("/obstacle_cost_map",10);
         imgsub_ = nh_.subscribe("/obstacle_map/image_raw",1,&DetectCone::imagecallback,this);
         namedWindow("cone",WINDOW_AUTOSIZE);
         kernel = getKernel(33); // CAUTION 2. size should be odd! , 3cm/ 1 size
@@ -127,7 +129,9 @@ class DetectCone{
                 else continue;
             }
         }
-
+        Point2f rotation_center(costmap.cols/2, costmap.rows/2);
+        Mat rotation_matrix = getRotationMatrix2D(rotation_center, 180, 1.0);
+        warpAffine(costmap, costmap, rotation_matrix, costmap.size());
         // Quit if press 'q'
         if(count == 0){
             imshow("cone", map);
@@ -148,6 +152,16 @@ class DetectCone{
         img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, costmap);
         img_bridge.toImageMsg(rt);
         pub_.publish(rt);
+
+        nav_msgs::OccupancyGrid cost_map;
+		cost_map.info.width = 300;
+		cost_map.info.height = 300;
+
+		for (int i = 1; i < 301; i++){
+			for (int j = 1; j < 301; j++) cost_map.data.push_back(static_cast<int8_t>(costmap.at<uchar>(300-i,300-j)));
+		}
+						
+		pub_map_.publish(cost_map);
         
         // Measure time taken at code
         clock_t end = clock();
@@ -158,6 +172,7 @@ class DetectCone{
     private:
     ros::NodeHandle nh_;
     ros::Publisher pub_;
+    ros::Publisher pub_map_;
     ros::Subscriber imgsub_; // Image type subscriber node
     ros::Subscriber ptsub_; // Point type subscriber node
     ros::Time mainclock; 
@@ -174,7 +189,7 @@ class DetectCone{
 
 int main(int argc, char **argv){
     cout << "hello" << endl;
-    ros::init(argc, argv, "cone_detection");
+    ros::init(argc, argv, "obstacle_costmap_publisher");
     DetectCone detect_cone;
     while(ros::ok()){
         detect_cone.quit_if_end();

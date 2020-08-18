@@ -32,25 +32,21 @@ class sector_publisher{
         //cv::Mat color_map = cv::imread("/home/healthykim/catkin_ws/src/zero/slam/config/KCity/KCity_color_map.png", cv::IMREAD_COLOR);
 
         sector_publisher() {
-        ros::param::get("/is_kcity", is_kcity);
-        if(is_kcity==true){
-            path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_color_map.png";
-            color_map = cv::imread(path_stream.str());
-            if(!color_map.empty()){
-                ROS_INFO("KCity loaded");
-            }  
-        }
-        else if(is_kcity==false){
-            path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
-            color_map = cv::imread(path_stream.str()); 
-            if(!color_map.empty()){
-                ROS_INFO("FMTC loaded");
-            }     
-        }
-
             ros::param::get("/is_kcity", is_kcity);
-
-  
+            if(is_kcity==true){
+                path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_color_map.png";
+                color_map = cv::imread(path_stream.str());
+                if(!color_map.empty()){
+                    ROS_INFO("KCity loaded");
+                }  
+            }
+            else if(is_kcity==false){
+                path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
+                color_map = cv::imread(path_stream.str()); 
+                if(!color_map.empty()){
+                    ROS_INFO("FMTC loaded");
+                }     
+            }  
             pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
         }

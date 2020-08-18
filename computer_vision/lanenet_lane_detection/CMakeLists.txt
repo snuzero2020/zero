@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(OpenCV 3 REQUIRED)
+find_package(PCL 1.8 REQUIRED)
 
 add_message_files(
   FILES
@@ -31,12 +32,23 @@ catkin_package(
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${PCL_INCLUDE_DIRS})
 include_directories(include)
+
+add_library(multi_img_utils src/multi_img_utils.cpp)
+
+set (SOURCES 
+ ${CMAKE_CURRENT_SOURCE_DIR}/src/multi_img_utils.cpp
+)
+
+set (HEADERS
+ ${CMAKE_CURRENT_SOURCE_DIR}/include/multi_img_utils.h
+)
 
 add_executable(lanenet_seg_subscriber src/LaneNet_seg_subscriber.cpp ${HEADERS} ${SOURCES})
 add_dependencies(lanenet_seg_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(lanenet_seg_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(lanenet_seg_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES})
 
 add_executable(lanenet_cluster_subscriber src/Lanenet_cluster_sub.cpp ${HEADERS} ${SOURCES})
 add_dependencies(lanenet_cluster_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(lanenet_cluster_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(lanenet_cluster_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES})
