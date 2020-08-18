@@ -185,12 +185,12 @@ class ObstacleDetector{
         pub_.publish(rt);
         clock_t end = clock();
         if(double(end-begin)/CLOCKS_PER_SEC > max_time) max_time = double(end-begin)/CLOCKS_PER_SEC;
-        
-        ROS_INFO_STREAM("# of filtered points: " << filtered_points_.size());
-        ROS_INFO_STREAM("elapsed time: " << double(end-begin)/CLOCKS_PER_SEC);
-        ROS_INFO_STREAM("cosine value between z and normal: " << acos(plane_config_[2]
+
+        ROS_INFO_STREAM("# of filtered points : " << filtered_points_.size());
+        ROS_INFO_STREAM("elapsed time : " << double(end-begin)/CLOCKS_PER_SEC);
+        ROS_INFO_STREAM("cosine value between z and normal : " << acos(plane_config_[2]
         /sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
-        ROS_INFO_STREAM("max time: " << max_time);
+        ROS_INFO_STREAM("max time : " << max_time);
 	    //ROS_INFO("plane coefficient : %lf", plane_coefficient_);
     }
 
