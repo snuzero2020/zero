@@ -12,8 +12,8 @@ from rospy.numpy_msg import numpy_msg
 from model import *
 from utils import *
 
-video_left = "/home/snuzero/Pictures/vision_lane_data/lane_video/lane_detection_1/front_lane_detection_1/front_lane_detection_1.avi"
-video_right = "/home/snuzero/Pictures/vision_lane_data/lane_video/lane_detection_2/front_lane_detection_2/front_lane_detection_2.avi"
+video_left = "/home/snuzero/Videos/front_lane_detection_1.avi"
+video_right = "/home/snuzero/Videos/front_lane_detection_2.avi"
 weight_path = "/home/snuzero/catkin_ws/src/zero/computer_vision/lanenet_lane_detection/ldln_ckpt_7.pth"
 
 if __name__ == "__main__":
