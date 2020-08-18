@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "std_msgs/UInt32.h"
+#include "std_msgs/Int32.h"
 
 #include "slam/Data.h"
 #include "slam/Pixel.h"
@@ -24,8 +24,6 @@ class sector_publisher{
         int pixel_x, pixel_y;
         int nBlue, nGreen, nRed;
         bool is_kcity;
-        int change=0;
-        int previous_data;
 
 
     public:
@@ -50,7 +48,7 @@ class sector_publisher{
                     ROS_INFO("FMTC loaded");
                 }     
             }  
-            pub = nh.advertise<std_msgs::UInt32>("/sector_info", 2);
+            pub = nh.advertise<std_msgs::Int32>("/sector_info", 2);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
         }
 
@@ -86,14 +84,14 @@ class sector_publisher{
                 //           C ==> pub 2
                 //           D ==> pub 3
 
-                std_msgs::UInt32 rt;
+                std_msgs::Int32 rt;
 
                 if(nBlue==0&&nGreen==0&&nRed==0)
                 {
                     rt.data = 0;
                     ROS_INFO("Sector A");
                 }
-                if(nBlue==255&&nGreen==255&&nRed==255){
+                else if(nBlue==255&&nGreen==255&&nRed==255){
                     rt.data = 0;
                     ROS_INFO("Sector A with curve");
                 }
@@ -103,29 +101,33 @@ class sector_publisher{
                         rt.data = 2;
                         ROS_INFO("Sector C");
                     }
-                    if(nRed == 0 && nBlue == 140){
+                    else if(nRed == 0 && nBlue == 140){
                         rt.data = 5;
                         ROS_INFO("Sector F");
                     }
-                    if(nRed == 100 && nBlue == 140){
+                    else if(nRed == 100 && nBlue == 140){
                         rt.data = 5|(1<<4);
                         ROS_INFO("Sector F'");
                     }
-                    if(nRed == 140 && nBlue ==0){
+                    else if(nRed == 140 && nBlue ==0){
                         rt.data = 7;
                         ROS_INFO("Sector H");
                     }
-                    if(nRed == 140 && nBlue == 100){
+                    else if(nRed == 140 && nBlue == 100){
                         rt.data = 7|(1<<4);
                         ROS_INFO("Sector H'");
                     }
-                    if(nRed == 0 && nBlue == 255){
+                    else if(nRed == 0 && nBlue == 255){
                         rt.data = 11;
                         ROS_INFO("Sector L");
                     }
-                    if(nRed == 100 && nBlue == 255){
+                    else if(nRed == 100 && nBlue == 255){
                         rt.data = 11|(1<<4);
                         ROS_INFO("Sector L'");
+                    }
+                    else{
+                        rt.data = -1;
+                        ROS_INFO("Sector X");
                     }
                 }
                 
@@ -135,25 +137,29 @@ class sector_publisher{
                         rt.data =  3;
                         ROS_INFO("Sector D");
                     }
-                    if(nGreen==100 && nRed==100){
+                    else if(nGreen==100 && nRed==100){
                         rt.data = (3)|(1<<4);
                         ROS_INFO("Sector D'");
                     }
-                    if(nGreen == 140 && nRed == 0){
+                    else if(nGreen == 140 && nRed == 0){
                         rt.data = 8;
                         ROS_INFO("Sector I");
                     }
-                    if(nGreen == 140 && nRed == 100){
+                    else if(nGreen == 140 && nRed == 100){
                         rt.data = 8|(1<<4);
                         ROS_INFO("Sector I'");
                     }
-                    if(nRed == 140 && nGreen == 0){
+                    else if(nRed == 140 && nGreen == 0){
                         rt.data = 9;
                         ROS_INFO("Sector J");
                     }
-                    if(nRed == 140 && nGreen == 100){
+                    else if(nRed == 140 && nGreen == 100){
                         rt.data = 9|(1<<4);
                         ROS_INFO("Sector J'");
+                    }
+                    else{
+                        rt.data = -1;
+                        ROS_INFO("Sector X");                    
                     }
                 }
 
@@ -164,46 +170,37 @@ class sector_publisher{
                         rt.data = 1;
                         ROS_INFO("Sector B");
                     }
-                    if(nBlue==0 && nGreen==140){
+                    else if(nBlue==0 && nGreen==140){
                         rt.data = 4;
                         ROS_INFO("Sector E");
                     }
-                    if(nBlue==100 && nGreen==140){
+                    else if(nBlue==100 && nGreen==140){
                         rt.data = 4|(1<<4);
                         ROS_INFO("Sector E'");
                     }
 
-                    if(nBlue==140 && nGreen==0){
+                    else if(nBlue==140 && nGreen==0){
                         rt.data = 6;
                         ROS_INFO("Sector G");
                     }
-                    if(nBlue==140 && nGreen == 100){
+                    else if(nBlue==140 && nGreen == 100){
                         rt.data = 6|(1<<4);
                         ROS_INFO("Sector G'");
                     }
-                    if(nGreen==255 && nBlue == 0){
+                    else if(nGreen==255 && nBlue == 0){
                         rt.data = 10;
                         ROS_INFO("Sector K");
                     }
-                    if(nGreen==255 && nBlue == 100){
+                    else if(nGreen==255 && nBlue == 100){
                         rt.data = 10|(1<<4);
                         ROS_INFO("Sector K'");
                     }
+                    else{
+                        rt.data = -1;
+                        ROS_INFO("Sector X");
+                    }
                 } 
 
-                if(change <= 5){
-                    if(rt.data != previous_data){
-                     change ++;
-                     rt.data = previous_data;
-                     ROS_INFO("... SECTOR IS BEING CHANGED ...");
-                    }
-                 }
-                else if (change >= 5){
-                     change = 0;
-                 }
-
-                 std::cout<< change <<std::endl;
-                 previous_data = rt.data;
                  std::cout<<"Published: "<<rt.data<<std::endl;
                  pub.publish(rt);
             }
