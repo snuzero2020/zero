@@ -3,6 +3,7 @@
 #include "ros/ros.h"
 #include "rrt_star.h"
 #include "std_msgs/UInt32.h"
+#include "std_msgs/Int32.h"
 #include "std_msgs/Float32.h"
 
 using namespace std;
@@ -247,9 +248,10 @@ class RosNode{
 			sector_pass_checker.check_prior_task();
 		
 		}
-		void sectorInfoCallback(const std_msgs::UInt32 & msg){
+		void sectorInfoCallback(const std_msgs::Int32 & msg){
 			cout<<"sectorInfocallback\n";
-			int task_state = task_state_determiner(static_cast<int>(msg.data));
+			int task_state = (msg.data == -1)?sector_pass_checker.get_present_task():task_state_determiner(static_cast<int>(msg.data));
+			
 			int motion_state;
 			bool _2far2return{(msg.data & 0b10000) == 0b10000};
 			cout << "prime : " << _2far2return << endl;

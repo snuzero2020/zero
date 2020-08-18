@@ -44,8 +44,7 @@ class LocalPathPublisher{
 
     vector<slam::GlobalPathPoint> global_path_; 
     const char delimiter_ = ' '; 
-
-    //string input_file_ = "/home/snuzero/catkin_ws/src/zero/slam/src/global_path/global_path.txt";
+	bool is_kcity;
 
     public:
     
@@ -53,10 +52,12 @@ class LocalPathPublisher{
 
     LocalPathPublisher(){
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
-        gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
+        ros::param::get("/is_kcity", is_kcity);
+		gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
 	filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
-        path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
-        load_global_path();
+        if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
+        else path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
+		load_global_path();
     }
     
 	void gs_callback(const std_msgs::UInt32 state){

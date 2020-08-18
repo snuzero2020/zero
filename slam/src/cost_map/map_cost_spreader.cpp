@@ -16,6 +16,7 @@ int parkingline_cost;
 int dilate_pixel_radius;
 int spread_pixel_radius;
 int color_threshold;
+bool is_kcity;
 
 //This function determines how cost will spread
 //return * USHORT_FACTOR should be <= 255
@@ -30,14 +31,16 @@ using namespace cv;
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "map_cost_spreader");
-    ros::param::get("/centerline_cost", centerline_cost);
+    ros::param::get("/is_kcity", is_kcity);
+	ros::param::get("/centerline_cost", centerline_cost);
     ros::param::get("/line_cost", line_cost);
     ros::param::get("/parkingline_cost", parkingline_cost);
     ros::param::get("/dilate_pixel_radius", dilate_pixel_radius);
     ros::param::get("/spread_pixel_radius", spread_pixel_radius);
     ros::param::get("/color_threshold", color_threshold);
     stringstream path_stream;
-    path_stream << ros::package::getPath("slam") << "/config/KCity/KCity.png";
+	if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_map.png";
+    else path_stream << ros::package::getPath("slam") << "/config/KCity/KCity.png";
     Mat img_input = imread(path_stream.str(),IMREAD_COLOR);
     if(img_input.empty()){
         ROS_WARN("No image");
