@@ -84,6 +84,7 @@ class RosNode{
 
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
+			/*
 			vector<int> A_task{PARKING, DRIVING_SECTION, INTERSECTION_RIGHT , DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,INTERSECTION_LEFT, DRIVING_SECTION,DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION};	
 			vector<int> B_task{INTERSECTION_LEFT_UNSIGNED, INTERSECTION_STRAIGHT_UNSIGNED};
@@ -95,6 +96,7 @@ class RosNode{
 			vector<int> H_task{INTERSECTION_STRAIGHT, INTERSECTION_RIGHT};
 			vector<int> I_task{INTERSECTION_LEFT};
 			vector<int> J_task{INTERSECTION_LEFT};
+			*/
 /*
 			vector<int> A_task{DRIVING_SECTION, DRIVING_SECTION, INTERSECTION_LEFT, DRIVING_SECTION, DRIVING_SECTION, DRIVING_SECTION, DRIVING_SECTION};	
 			vector<int> B_task{ INTERSECTION_STRAIGHT};
@@ -106,15 +108,15 @@ class RosNode{
 			vector<int> H_task{ INTERSECTION_RIGHT};
 			vector<int> I_task{INTERSECTION_LEFT};
 			vector<int> J_task{INTERSECTION_LEFT};
-*//*
+*/
 			
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
-						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
-			vector<int> B_task{INTERSECTION_RIGHT,INTERSECTION_STRAIGHT,INTERSECTION_LEFT};
+						,DRIVING_SECTION,DRIVING_SECTION,PARKING,DRIVING_SECTION,DRIVING_SECTION};	
+			vector<int> B_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
 			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
-			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
+			vector<int> D_task{INTERSECTION_RIGHT,INTERSECTION_STRAIGHT,INTERSECTION_LEFT};
 			vector<int> E_task{PARKING};
-*/			
+			
 			
 			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
@@ -147,6 +149,7 @@ class RosNode{
 			checker_container[D].state_list = D_task;
 			checker_container[E] = Checker(E_task.size());
 			checker_container[E].state_list = E_task;
+			/*
 			checker_container[F] = Checker(F_task.size());
 			checker_container[F].state_list = F_task;
 			checker_container[G] = Checker(G_task.size());
@@ -157,8 +160,9 @@ class RosNode{
 			checker_container[I].state_list = I_task;
 			checker_container[J] = Checker(J_task.size());
 			checker_container[J].state_list = J_task;
-			//vector<int> sector_order{X,A,D,A,B,A,C,A,B,A,D,A,E};
-			vector<int> sector_order{X,A,A};
+			*/
+			vector<int> sector_order{X,A,D,A,C,A,B,A,D,A,C,A,D,A,A,A};
+			//vector<int> sector_order{X,A,A};
 			//vector<int> sector_order{X,A,B,A,D,A,E,A,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
 			//vector<int> sector_order{X,A,J,A,I,A,H,A,G,A,E,A,B,A};
 			
@@ -416,7 +420,7 @@ class RosNode{
 		{
 			static int cnt = 0;
 			static int prev_sector = -1;
-
+			sector_info &= 0b1111;
 			int task_state = checker_container[sector_info].get_present_task();
 
 			if(prev_sector != sector_info){
