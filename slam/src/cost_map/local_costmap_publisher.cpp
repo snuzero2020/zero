@@ -36,6 +36,8 @@ class Local_costmap_publisher{
 		ros::Publisher pub;
 		ros::Subscriber costmap_sub;
 		ros::Subscriber gear_state_sub;
+		ros::Subscriber mission_state_sub;
+		ros::Subscriber obstacle_cost_map_sub;
 		ros::Publisher cost_map_pub;
 
 		bool is_kcity;
@@ -44,7 +46,9 @@ class Local_costmap_publisher{
 		int map_size = 300;
 		std::stringstream path_stream;
 		cv::Mat glob_costmap;
+		cv::Mat obstacle_costmap;
 		int gear_state{0};
+		int mission_state{0};
 			
 		//Constructor for local_path_publisher
 		Local_costmap_publisher() {
@@ -52,6 +56,8 @@ class Local_costmap_publisher{
 
 			path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
 			glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
+			obstacle_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
+			
 			ROS_INFO("Image loaded");
 
 			pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);
@@ -59,10 +65,12 @@ class Local_costmap_publisher{
 			//sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
 			costmap_sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
 			gear_state_sub = nh.subscribe("/gear_state", 2, &Local_costmap_publisher::gs_callback, this);
+			mission_state_sub = nh.subscribe("/mission_state", 2, &Local_costmap_publisher::ms_callback, this);
+			obstacle_cost_map_sub = nh.subscribe("/obstacle_map/image_raw", 1, &Local_costmap_publisher::obstacle_cost_map_callback, this);
 			cost_map_pub = nh.advertise<nav_msgs::OccupancyGrid>("/cost_map_with_goal_vector", 2);
 		}
 			
-
+		int max(int a, int b){ return (a>b)?a:b;}
 
 			//cv::Mat local_path_img = cv::Mat(300,300, CV_8UC3, cv::Scalar(255,255,255));
 			//set path for own global costmap
@@ -72,6 +80,17 @@ class Local_costmap_publisher{
 		void gs_callback(const std_msgs::UInt32 state){
 			gear_state = state.data;
 			std::cout << gear_state << std::endl;
+		}
+
+		void ms_callback(const std_msgs::UInt32 state){
+			mission_state = state.data;
+			std::cout << "mission state : " << mission_state << std::endl;
+		}
+
+		void obstacle_cost_map_callback(const sensor_msgs::Image::ConstPtr& msg){
+			cv_bridge::CvImagePtr map_ptr;
+			map_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::MONO8);
+			obstacle_costmap = map_ptr->image;
 		}
 
 		void callback(const slam::Data data){
@@ -142,6 +161,13 @@ class Local_costmap_publisher{
 				}
 			}
 			
+			// in the obstacle mission area
+			if(mission_state == 8){
+				for(int i = 0;i<300;i++){
+					for(int j = 0;j<300;j++) local_costmap.at<uchar>(i,j) = max(local_costmap.at<uchar>(i,j), obstacle_costmap.at<uchar>(i,j));
+				}
+			}
+
 			nav_msgs::OccupancyGrid cost_map;
 			cost_map.info.width = 300;
 			cost_map.info.height = 300;

@@ -71,6 +71,7 @@ class RosNode{
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
 
+		int mission_start{0};
 		float recommend_vel_info[13] = {1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5};
 		int buff_length{10};
 		vector<int> light_state_buff;
@@ -84,6 +85,57 @@ class RosNode{
 
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
+
+			n.getParam("/mission_start", mission_start);
+
+			
+			vector<Sector_Task> sector_task_order{
+				Sector_Task(X,0),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(D,INTERSECTION_RIGHT),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(B,INTERSECTION_RIGHT_UNSIGNED),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(D,INTERSECTION_STRAIGHT),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(C,DRIVING_SECTION),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(D,INTERSECTION_LEFT),
+				Sector_Task(A,DRIVING_SECTION),
+				Sector_Task(B,DRIVING_SECTION),
+				Sector_Task(A,PARKING),
+				Sector_Task(A,DRIVING_SECTION)
+			};
+/*
+			vector<int> passed_sector_count;
+			int sector_cnt{0};
+			int temp_sector{A};
+
+			while(sector_cnt != mission_start){
+				for (int seq{1}; seq < mission_start; ++seq){
+					if (sector_order[seq].sector == temp_sector)
+						sector_cnt++;
+				}
+				passed_sector_count.push_back(sector_cnt);
+				sector_cnt = 0;
+				temp_sector++;
+			}
+*/
+
+
+
+			//vector<int> sector_order{X,A,A};
+			//vector<int> sector_order{X,A,B,A,D,A,E,A,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
+			//vector<int> sector_order{X,A,J,A,I,A,H,A,G,A,E,A,B,A};
+			
+
+			sector_pass_checker = Checker();
+			sector_pass_checker.push_back(sector_task_order[0].sector);
+			for (int sector_seq{mission_start}; sector_seq < sector_task_order.size(); ++sector_seq)
+				sector_pass_checker.push_back(sector_task_order[sector_seq].sector);
+			
 			/*
 			vector<int> A_task{PARKING, DRIVING_SECTION, INTERSECTION_RIGHT , DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,INTERSECTION_LEFT, DRIVING_SECTION,DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION};	
@@ -109,14 +161,14 @@ class RosNode{
 			vector<int> I_task{INTERSECTION_LEFT};
 			vector<int> J_task{INTERSECTION_LEFT};
 */
-			
+			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
 						,DRIVING_SECTION,DRIVING_SECTION,PARKING,DRIVING_SECTION,DRIVING_SECTION};	
 			vector<int> B_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
 			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
 			vector<int> D_task{INTERSECTION_RIGHT,INTERSECTION_STRAIGHT,INTERSECTION_LEFT};
 			vector<int> E_task{PARKING};
-			
+			*/
 			
 			/*
 			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
@@ -139,6 +191,9 @@ class RosNode{
 			checker_container.resize(15, Checker());
 
 //////////////////////////////////////////
+			for (int mission_seq{mission_start}; mission_seq < sector_task_order.size(); mission_seq++)
+				checker_container[sector_task_order[mission_seq].sector].push_back(sector_task_order[mission_seq].task);
+			/*
 			checker_container[A] = Checker(A_task.size());
 			checker_container[A].state_list = A_task;
 			checker_container[B] = Checker(B_task.size());
@@ -149,6 +204,7 @@ class RosNode{
 			checker_container[D].state_list = D_task;
 			checker_container[E] = Checker(E_task.size());
 			checker_container[E].state_list = E_task;
+			*/
 			/*
 			checker_container[F] = Checker(F_task.size());
 			checker_container[F].state_list = F_task;
@@ -161,13 +217,6 @@ class RosNode{
 			checker_container[J] = Checker(J_task.size());
 			checker_container[J].state_list = J_task;
 			*/
-			vector<int> sector_order{X,A,D,A,C,A,B,A,D,A,C,A,D,A,A,A};
-			//vector<int> sector_order{X,A,A};
-			//vector<int> sector_order{X,A,B,A,D,A,E,A,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
-			//vector<int> sector_order{X,A,J,A,I,A,H,A,G,A,E,A,B,A};
-			
-			sector_pass_checker = Checker(sector_order.size());
-			sector_pass_checker.state_list = sector_order;
 
 			debug = true;
 		}
@@ -202,12 +251,15 @@ class RosNode{
 			cout<<"sectorInfocallback\n";
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
 			int motion_state;
+			bool _2far2return{(msg.data & 0b10000) == 0b10000};
+			cout << "prime : " << _2far2return << endl;
 
 			std_msgs::Float32 recommend_vel_msg;
 			recommend_vel_msg.data = recommend_vel_info[sector_pass_checker.get_present_task()];
 			recommend_vel_pub.publish(recommend_vel_msg);
 
-			light_state_determiner(task_state);
+			light_state_determiner(task_state,_2far2return);
+			printf("light state after light_state_determiner : %d\n", light_state);
 			motion_state_determiner(motion_state,task_state,light_state);
 
 			if(debug) print_debug((int)msg.data, task_state, light_state, motion_state);
@@ -218,9 +270,8 @@ class RosNode{
 			mission_state_pub.publish(mission_state);		
 		}
 
-		void light_state_determiner(int task_state){
-			if(task_state & 0b10000){
-				task_state = (task_state & 0b1111);
+		void light_state_determiner(int task_state, bool _2far2return){
+			if(_2far2return){
 				if(task_state == INTERSECTION_STRAIGHT){
 					light_state = 0b0001;
 				}
@@ -377,6 +428,7 @@ class RosNode{
 					break;
 
 				case INTERSECTION_RIGHT :
+					printf("light state in motion_State_determiner : case INTERSECTION_RIGHT : %d\n", light_state);
 					if(light_state == 0) motion_state = FORWARD_SLOW_MOTION;
 					else if(isSign(light_state,GREEN_LIGHT)) motion_state = RIGHT_MOTION;
 					else motion_state = HALT_MOTION;
@@ -423,6 +475,7 @@ class RosNode{
 			sector_info &= 0b1111;
 			int task_state = checker_container[sector_info].get_present_task();
 
+			cout << "prev_sector : " << prev_sector << " sector_info : " << sector_info << " cnt : " << cnt << endl;
 			if(prev_sector != sector_info){
 				prev_sector = sector_info;
 				cnt = 0;

@@ -18,3 +18,5 @@ isTrackDriving: 0
 # pid_control
 vel1: 3.0
 vel2: 2.0
+# mission recognizer
+mission_start : 3
