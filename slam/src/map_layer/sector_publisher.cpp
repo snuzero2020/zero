@@ -25,7 +25,7 @@ class sector_publisher{
         int nBlue, nGreen, nRed;
         bool is_kcity;
         int change=0;
-        int previous_data;
+        int previous_data=0;
 
 
     public:
@@ -190,7 +190,8 @@ class sector_publisher{
                         ROS_INFO("Sector K'");
                     }
                 } 
-
+                
+/*
                 if(change <= 5){
                     if(rt.data != previous_data){
                      change ++;
@@ -204,8 +205,17 @@ class sector_publisher{
 
                  std::cout<< change <<std::endl;
                  previous_data = rt.data;
-                 std::cout<<"Published: "<<rt.data<<std::endl;
+
+   
+                else{
+                    rt.data = previous_data;
+                }
+                 */
+                 //std::cout<<"Published: "<<rt.data<<std::endl;
+                 
                  pub.publish(rt);
+                 //previous_data = rt.data;
+                 
             }
         }
 };
