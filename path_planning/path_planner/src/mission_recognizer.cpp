@@ -251,13 +251,15 @@ class RosNode{
 			cout<<"sectorInfocallback\n";
 			int task_state = task_state_determiner(static_cast<int>(msg.data));
 			int motion_state;
-			bool _2far2return{msg.data & 0b10000 == 0b10000};
+			bool _2far2return{(msg.data & 0b10000) == 0b10000};
+			cout << "prime : " << _2far2return << endl;
 
 			std_msgs::Float32 recommend_vel_msg;
 			recommend_vel_msg.data = recommend_vel_info[sector_pass_checker.get_present_task()];
 			recommend_vel_pub.publish(recommend_vel_msg);
 
 			light_state_determiner(task_state,_2far2return);
+			printf("light state after light_state_determiner : %d\n", light_state);
 			motion_state_determiner(motion_state,task_state,light_state);
 
 			if(debug) print_debug((int)msg.data, task_state, light_state, motion_state);
@@ -426,6 +428,7 @@ class RosNode{
 					break;
 
 				case INTERSECTION_RIGHT :
+					printf("light state in motion_State_determiner : case INTERSECTION_RIGHT : %d\n", light_state);
 					if(light_state == 0) motion_state = FORWARD_SLOW_MOTION;
 					else if(isSign(light_state,GREEN_LIGHT)) motion_state = RIGHT_MOTION;
 					else motion_state = HALT_MOTION;
@@ -472,6 +475,7 @@ class RosNode{
 			sector_info &= 0b1111;
 			int task_state = checker_container[sector_info].get_present_task();
 
+			cout << "prev_sector : " << prev_sector << " sector_info : " << sector_info << " cnt : " << cnt << endl;
 			if(prev_sector != sector_info){
 				prev_sector = sector_info;
 				cnt = 0;
