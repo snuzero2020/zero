@@ -24,6 +24,9 @@ class sector_publisher{
         int pixel_x, pixel_y;
         int nBlue, nGreen, nRed;
         bool is_kcity;
+        int change=0;
+        int previous_data;
+
 
     public:
         std::stringstream path_stream;
@@ -54,8 +57,6 @@ class sector_publisher{
         //void callback(const slam::Pixel Data){
         void callback(const slam::Data::ConstPtr& msg){
             bool x_inRange, y_inRange;
-
- 
             XYToPixel(pixel_y, pixel_x, msg->x, msg->y, is_kcity); // pixel_y here is x in cv graphics and column in cv Mat
             
             if(is_kcity==true){
@@ -189,6 +190,20 @@ class sector_publisher{
                         ROS_INFO("Sector K'");
                     }
                 } 
+
+                if(change <= 5){
+                    if(rt.data != previous_data){
+                     change ++;
+                     rt.data = previous_data;
+                     ROS_INFO("... SECTOR IS BEING CHANGED ...");
+                    }
+                 }
+                else if (change >= 5){
+                     change = 0;
+                 }
+
+                 std::cout<< change <<std::endl;
+                 previous_data = rt.data;
                  std::cout<<"Published: "<<rt.data<<std::endl;
                  pub.publish(rt);
             }

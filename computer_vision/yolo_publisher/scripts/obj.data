@@ -1,0 +1,6 @@
+classes= 4
+train  = x64/data/train.txt
+valid  = x64/data/train.txt
+names = /home/snuzero/catkin_ws/src/zero/computer_vision/yolo_publisher/scripts/obj.names
+backup = backup/
+
