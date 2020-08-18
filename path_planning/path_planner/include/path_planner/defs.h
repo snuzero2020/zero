@@ -97,6 +97,21 @@ class Checker
 			}
 		}
 	}
+
+	void push_back(int task)
+	{
+		state_list.push_back(task);
+		check_list.push_back(false);
+	}
+};
+
+class Sector_Task
+{
+	public:
+		int sector;
+		int task;
+
+		Sector_Task(int _sector, int _task) :sector(_sector), task(_task) {}
 };
 
 #endif
