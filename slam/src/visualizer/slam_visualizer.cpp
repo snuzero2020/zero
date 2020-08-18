@@ -29,7 +29,8 @@ class Slam_visualizer{
         Slam_visualizer(){
             ros::param::get("/is_kcity", is_kcity);
 
-            path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path_visual.png";
+			if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
+			else path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
             glob_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);
 
             ROS_INFO("Image Loaded");
@@ -46,8 +47,8 @@ class Slam_visualizer{
 
             cv::Point2f rc(curr_xpix, curr_ypix);
             cv::Mat matrix = cv::getRotationMatrix2D(rc, (M_PI_2-data.theta)*180/M_PI, 1);
-            cv::Mat rotated_map(cv::Size(15000,15000), CV_8UC3);
-			cv::warpAffine(glob_map, rotated_map, matrix, cv::Size(15000, 15000));
+            cv::Mat rotated_map(glob_map.size(), CV_8UC3);
+			cv::warpAffine(glob_map, rotated_map, matrix, glob_map.size());
 
             int x = int(curr_xpix - map_size/2);
             int y = int(curr_ypix - map_size);
