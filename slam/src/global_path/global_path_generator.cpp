@@ -27,17 +27,19 @@ class GlobalPathGenerator{
     pdd cur_;
     double threshold_distance_;
     std::stringstream save_path_stream;
+	bool is_kcity;
 
     public:
     GlobalPathGenerator(){
         sub_ = nh_.subscribe("/filtered_data", 2, &GlobalPathGenerator::callback, this);
-        points_.clear();
+        ros::param::get("/is_kcity", is_kcity);
+		points_.clear();
         prev_.first = 0.0;
         prev_.second = 0.0;
         threshold_distance_ = 0.3;
 		//change the number in save_path_stream into the bag sequence
-		save_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_4.txt";
-		//save_path_stream << ros::package::getPath("slam") << "/config/KCity/park_6.txt";
+		if(!is_kcity) save_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_4.txt";
+		else save_path_stream << ros::package::getPath("slam") << "/config/KCity/park_6.txt";
     }
     
 
