@@ -37,6 +37,7 @@ class Outlier_eliminator{
 			else{
 				in_path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
                 out_path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_refined_global_path.txt";
+			}
 			eliminate_outliers();
 		}
 
