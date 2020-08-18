@@ -77,7 +77,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     std::vector<pcl::PointIndices> right_cluster_indices;
 
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_left;
-    ec_left.setClusterTolerance(0.034);
+    ec_left.setClusterTolerance(0.05);
     ec_left.setMinClusterSize(100);
     ec_left.setMaxClusterSize(5000);
     ec_left.setSearchMethod(left_tree);
@@ -96,7 +96,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     }
     
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_right;
-    ec_right.setClusterTolerance(0.034);
+    ec_right.setClusterTolerance(0.05);
     ec_right.setMinClusterSize(100);
     ec_right.setMaxClusterSize(5000);;
     ec_right.setSearchMethod(right_tree);
