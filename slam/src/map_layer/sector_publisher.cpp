@@ -94,7 +94,7 @@ class sector_publisher{
                 }
                 if(nBlue==255&&nGreen==255&&nRed==255){
                     rt.data = 0;
-                    ROS_INFO("Sector A");
+                    ROS_INFO("Sector A with curve");
                 }
 
                 else if(nGreen==255){
