@@ -17,6 +17,7 @@ class Outlier_eliminator{
 		std::string save_path_;
 		double threshold_error_, threshold_heading_error_;
 		const char delimiter_ = ' ';
+		bool is_kcity;
 
 	public:
 		int current_flag{0};
@@ -28,8 +29,14 @@ class Outlier_eliminator{
 		Outlier_eliminator(){
 			threshold_error_ = 0.2;
 			threshold_heading_error_ = 5.0;
-			in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
-			out_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_refined_global_path.txt";
+			ros::param::get("/is_kcity", is_kcity);
+			if(!is_kcity){
+				in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
+				out_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_refined_global_path.txt";
+			}
+			else{
+				in_path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
+                out_path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_refined_global_path.txt";
 			eliminate_outliers();
 		}
 
