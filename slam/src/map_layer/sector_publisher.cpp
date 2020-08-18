@@ -195,37 +195,17 @@ class sector_publisher{
                         rt.data = 10|(1<<4);
                         ROS_INFO("Sector K'");
                     }
-<<<<<<< HEAD
-                } 
-                
-/*
-                if(change <= 5){
-                    if(rt.data != previous_data){
-                     change ++;
-                     rt.data = previous_data;
-                     ROS_INFO("... SECTOR IS BEING CHANGED ...");
-=======
                     else{
                         rt.data = -1;
-                        ROS_INFO("Sector X");
->>>>>>> 76a8ea443fcf0c48a1af67f66469fe8d5208b4d6
+                        ROS_INFO("Sector X");                    
                     }
                 } 
-
-<<<<<<< HEAD
-                 std::cout<< change <<std::endl;
-                 previous_data = rt.data;
-
-   
                 else{
-                    rt.data = previous_data;
+                    rt.data = -1;
+                    ROS_INFO("Sector X");                    
                 }
-                 */
-                 //std::cout<<"Published: "<<rt.data<<std::endl;
-                 
-=======
+                
                  std::cout<<"Published: "<<rt.data<<std::endl;
->>>>>>> 76a8ea443fcf0c48a1af67f66469fe8d5208b4d6
                  pub.publish(rt);
                  //previous_data = rt.data;
                  

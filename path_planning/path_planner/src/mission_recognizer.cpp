@@ -224,7 +224,7 @@ class RosNode{
 
 		inline int isSign(int _light_state, int sign_num) {return ((_light_state)>>sign_num)&1;}
 
-		void lightstateCallback(const std_msgs::UInt32 & msg){
+		void lightstateCallback(const std_msgs::Int32 & msg){
 			for(int i{0}; i<light_state_buff.size()-1; i++) light_state_buff[i]=light_state_buff[i+1];
 			light_state_buff[light_state_buff.size()-1] = (int)msg.data;
 			//if(debug) ROS_INFO("light_state : %d",msg.data);
