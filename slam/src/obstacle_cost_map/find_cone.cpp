@@ -129,6 +129,7 @@ class DetectCone{
                 else continue;
             }
         }
+        ///Rotate pi(rad)
         Point2f rotation_center(costmap.cols/2, costmap.rows/2);
         Mat rotation_matrix = getRotationMatrix2D(rotation_center, 180, 1.0);
         warpAffine(costmap, costmap, rotation_matrix, costmap.size());
