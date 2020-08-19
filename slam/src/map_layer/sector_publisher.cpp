@@ -197,12 +197,18 @@ class sector_publisher{
                     }
                     else{
                         rt.data = -1;
-                        ROS_INFO("Sector X");
+                        ROS_INFO("Sector X");                    
                     }
                 } 
-
+                else{
+                    rt.data = -1;
+                    ROS_INFO("Sector X");                    
+                }
+                
                  std::cout<<"Published: "<<rt.data<<std::endl;
                  pub.publish(rt);
+                 //previous_data = rt.data;
+                 
             }
         }
 };

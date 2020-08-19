@@ -63,6 +63,13 @@ add_executable(global_visual src/visualizer/global_path_visualizer.cpp lib/XYToP
 target_link_libraries(global_visual ${catkin_LIBRARIES})
 add_dependencies(global_visual slam_generate_messages_cpp)
 
+##add_excutable for line_matching
+add_executable(map_lane_extractor src/lane_matching/map_lane_extractor.cpp)
+target_link_libraries(map_lane_extractor ${catkin_LIBRARIES})
+
+add_executable(lane_matcher src/lane_matching/lane_matcher.cpp)
+target_link_libraries(lane_matcher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 ##add_executable for map_calibration
 add_executable(gps_collector src/map_calibration/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})

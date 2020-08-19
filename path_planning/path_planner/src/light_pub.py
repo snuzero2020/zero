@@ -6,15 +6,15 @@ import serial
 import math
 import sys, select, termios, tty
 from std_msgs.msg import String
-from std_msgs.msg import UInt32
+from std_msgs.msg import Int32
 from core_msgs.msg import Control
 
 def init():
     
-    pub_time = rospy.Publisher('light_state', UInt32, queue_size=10)
+    pub_time = rospy.Publisher('light_state', Int32, queue_size=10)
     rospy.init_node('light_pub', anonymous=True)
     rate = rospy.Rate(20)
-    msg = UInt32()
+    msg = Int32()
     green_light = 1
     left_light = 2
     yellow_light = 4

@@ -67,7 +67,7 @@ class Local_costmap_publisher{
 			costmap_sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
 			gear_state_sub = nh.subscribe("/gear_state", 2, &Local_costmap_publisher::gs_callback, this);
 			mission_state_sub = nh.subscribe("/mission_state", 2, &Local_costmap_publisher::ms_callback, this);
-			obstacle_cost_map_sub = nh.subscribe("/obstacle_map/image_raw", 1, &Local_costmap_publisher::obstacle_cost_map_callback, this);
+			obstacle_cost_map_sub = nh.subscribe("/obstacle_map/costmap", 1, &Local_costmap_publisher::obstacle_cost_map_callback, this);
 			cost_map_pub = nh.advertise<nav_msgs::OccupancyGrid>("/cost_map_with_goal_vector", 2);
 		}
 			
@@ -163,11 +163,14 @@ class Local_costmap_publisher{
 			}
 			
 			// in the obstacle mission area
-			if(mission_state == 8){
+			if(mission_state == 2049){
+				ROS_INFO("mission state is obstacle");
 				for(int i = 0;i<300;i++){
 					for(int j = 0;j<300;j++) local_costmap.at<uchar>(i,j) = max(local_costmap.at<uchar>(i,j), obstacle_costmap.at<uchar>(i,j));
 				}
 			}
+
+			ROS_INFO("Publish cost map");
 
 			nav_msgs::OccupancyGrid cost_map;
 			cost_map.info.width = 300;
