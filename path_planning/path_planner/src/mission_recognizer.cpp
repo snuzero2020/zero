@@ -66,13 +66,14 @@ class RosNode{
 		double min_weight{0.5};
 		double max_weight{1.0};
 		double go_sign_threshold{0.5};
-		bool debug;
 
 	public:
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
-
+		vector<Sector_Task> sector_task_order;
+		
 		int mission_start{0};
+		int isKcity{true};
 		float recommend_vel_info[13] = {1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5};
 		int buff_length{10};
 		vector<int> light_state_buff;
@@ -88,27 +89,59 @@ class RosNode{
 			light_state = 0;
 
 			n.getParam("/mission_start", mission_start);
-
+			n.getParam("/isKcity", isKcity);
 			
-			vector<Sector_Task> sector_task_order{
-				Sector_Task(X,0),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(D,INTERSECTION_RIGHT),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(B,INTERSECTION_RIGHT_UNSIGNED),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(D,INTERSECTION_STRAIGHT),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(C,DRIVING_SECTION),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(D,INTERSECTION_LEFT),
-				Sector_Task(A,DRIVING_SECTION),
-				Sector_Task(B,DRIVING_SECTION),
-				Sector_Task(A,PARKING),
-				Sector_Task(A,DRIVING_SECTION)
-			};
+			if (isKcity){
+				sector_task_order={
+					Sector_Task(X,0),
+                                        Sector_Task(A,PARKING),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(B,INTERSECTION_LEFT_UNSIGNED),
+                                        Sector_Task(A,INTERSECTION_RIGHT_UNSIGNED),
+                                        Sector_Task(D,INTERSECTION_RIGHT_UNSIGNED),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(E,INTERSECTION_LEFT),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(G,INTERSECTION_STRAIGHT),
+                                        Sector_Task(A,DRIVING_SECTION),
+					//Sector_Task(A,OBSTACLE_STATIC),
+                                        Sector_Task(H,INTERSECTION_STRAIGHT),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(J,INTERSECTION_LEFT),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(I,INTERSECTION_LEFT),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(H,INTERSECTION_RIGHT)
+					Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(G,INTERSECTION_STRAIGHT),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(E,INTERSECTION_STRAIGHT),
+                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(B,INTERSECTION_STRAIGHT_UNSIGNED),
+                                        Sector_Task(A,DRIVING_SECTION)
+				};
+			}
+			else{
+				sector_task_order={
+					Sector_Task(X,0),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(D,INTERSECTION_RIGHT),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(B,INTERSECTION_RIGHT_UNSIGNED),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(D,INTERSECTION_STRAIGHT),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(C,DRIVING_SECTION),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(D,INTERSECTION_LEFT),
+					Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(B,DRIVING_SECTION),
+					Sector_Task(A,PARKING),
+					Sector_Task(A,DRIVING_SECTION)
+				};
+			}
 /*
 			vector<int> passed_sector_count;
 			int sector_cnt{0};
@@ -124,102 +157,17 @@ class RosNode{
 				temp_sector++;
 			}
 */
-
-
-
-			//vector<int> sector_order{X,A,A};
-			//vector<int> sector_order{X,A,B,A,D,A,E,A,G,A,H,A,J,A,I,A,H,A,G,A,E,A,B,A};
-			//vector<int> sector_order{X,A,J,A,I,A,H,A,G,A,E,A,B,A};
-			
-
 			sector_pass_checker = Checker();
-			sector_pass_checker.push_back(sector_task_order[0].sector);
 			for (int sector_seq{mission_start}; sector_seq < sector_task_order.size(); ++sector_seq)
 				sector_pass_checker.push_back(sector_task_order[sector_seq].sector);
 			
-			/*
-			vector<int> A_task{PARKING, DRIVING_SECTION, INTERSECTION_RIGHT , DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
-						,DRIVING_SECTION,DRIVING_SECTION,INTERSECTION_LEFT, DRIVING_SECTION,DRIVING_SECTION, DRIVING_SECTION,DRIVING_SECTION};	
-			vector<int> B_task{INTERSECTION_LEFT_UNSIGNED, INTERSECTION_STRAIGHT_UNSIGNED};
-			vector<int> C_task{};
-			vector<int> D_task{INTERSECTION_RIGHT};
-			vector<int> E_task{INTERSECTION_LEFT,INTERSECTION_STRAIGHT};
-			vector<int> F_task{};
-			vector<int> G_task{INTERSECTION_STRAIGHT, INTERSECTION_STRAIGHT};
-			vector<int> H_task{INTERSECTION_STRAIGHT, INTERSECTION_RIGHT};
-			vector<int> I_task{INTERSECTION_LEFT};
-			vector<int> J_task{INTERSECTION_LEFT};
-			*/
-/*
-			vector<int> A_task{DRIVING_SECTION, DRIVING_SECTION, INTERSECTION_LEFT, DRIVING_SECTION, DRIVING_SECTION, DRIVING_SECTION, DRIVING_SECTION};	
-			vector<int> B_task{ INTERSECTION_STRAIGHT};
-			vector<int> C_task{};
-			vector<int> D_task{};
-			vector<int> E_task{INTERSECTION_STRAIGHT};
-			vector<int> F_task{};
-			vector<int> G_task{INTERSECTION_STRAIGHT};
-			vector<int> H_task{ INTERSECTION_RIGHT};
-			vector<int> I_task{INTERSECTION_LEFT};
-			vector<int> J_task{INTERSECTION_LEFT};
-*/
-			/*
-			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
-						,DRIVING_SECTION,DRIVING_SECTION,PARKING,DRIVING_SECTION,DRIVING_SECTION};	
-			vector<int> B_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
-			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
-			vector<int> D_task{INTERSECTION_RIGHT,INTERSECTION_STRAIGHT,INTERSECTION_LEFT};
-			vector<int> E_task{PARKING};
-			*/
-			
-			/*
-			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
-						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
-			vector<int> B_task{INTERSECTION_STRAIGHT_UNSIGNED,INTERSECTION_LEFT_UNSIGNED};
-			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED};
-			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
-			vector<int> E_task{PARKING};
-
-*/
-			/*
-			vector<int> A_task{DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION
-						,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION,DRIVING_SECTION};	
-			vector<int> B_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_STRAIGHT_UNSIGNED,INTERSECTION_LEFT_UNSIGNED};
-			vector<int> C_task{INTERSECTION_RIGHT_UNSIGNED,INTERSECTION_RIGHT_UNSIGNED};
-			vector<int> D_task{INTERSECTION_RIGHT_UNSIGNED,DRIVING_SECTION};
-			vector<int> E_task{PARKING};
-*/
 
 			checker_container.resize(15, Checker());
 
 //////////////////////////////////////////
 			for (int mission_seq{mission_start}; mission_seq < sector_task_order.size(); mission_seq++)
 				checker_container[sector_task_order[mission_seq].sector].push_back(sector_task_order[mission_seq].task);
-			/*
-			checker_container[A] = Checker(A_task.size());
-			checker_container[A].state_list = A_task;
-			checker_container[B] = Checker(B_task.size());
-			checker_container[B].state_list = B_task;
-			checker_container[C] = Checker(C_task.size());
-			checker_container[C].state_list = C_task;
-			checker_container[D] = Checker(D_task.size());
-			checker_container[D].state_list = D_task;
-			checker_container[E] = Checker(E_task.size());
-			checker_container[E].state_list = E_task;
-			*/
-			/*
-			checker_container[F] = Checker(F_task.size());
-			checker_container[F].state_list = F_task;
-			checker_container[G] = Checker(G_task.size());
-			checker_container[G].state_list = G_task;
-			checker_container[H] = Checker(H_task.size());
-			checker_container[H].state_list = H_task;
-			checker_container[I] = Checker(I_task.size());
-			checker_container[I].state_list = I_task;
-			checker_container[J] = Checker(J_task.size());
-			checker_container[J].state_list = J_task;
-			*/
 
-			debug = true;
 		}
 
 		inline int isSign(int _light_state, int sign_num) {return ((_light_state)>>sign_num)&1;}
@@ -227,15 +175,14 @@ class RosNode{
 		void lightstateCallback(const std_msgs::Int32 & msg){
 			for(int i{0}; i<light_state_buff.size()-1; i++) light_state_buff[i]=light_state_buff[i+1];
 			light_state_buff[light_state_buff.size()-1] = (int)msg.data;
-			//if(debug) ROS_INFO("light_state : %d",msg.data);
 			int light = msg.data;
-			ROS_INFO("light : %s%s%s%s", 
+			printf("light : %s%s%s%s", 
 					isSign(light, 3)?"\x1b[41m      \x1b[0m":"      ",
 					isSign(light, 2)?"\x1b[43m      \x1b[0m":"      ",
 					isSign(light, 1)?"\x1b[32m /___ \x1b[0m":"      ",
 					isSign(light, 0)?"\x1b[42m      \x1b[0m":"      "
 				);
-			ROS_INFO("light : %s%s%s%s", 
+			printf("light : %s%s%s%s", 
 					isSign(light, 3)?"\x1b[41m      \x1b[0m":"      ",
 					isSign(light, 2)?"\x1b[43m      \x1b[0m":"      ",
 					isSign(light, 1)?"\x1b[32m \\    \x1b[0m":"      ",
@@ -249,22 +196,92 @@ class RosNode{
 		
 		}
 		void sectorInfoCallback(const std_msgs::Int32 & msg){
-			cout<<"sectorInfocallback\n";
-			int task_state = (msg.data == -1)?sector_pass_checker.get_present_task():task_state_determiner(static_cast<int>(msg.data));
+			cout<<"\nsectorInfocallback\n";
+
+			int first_unchecked_sector = sector_pass_checker.get_present_task();
+			int second_unchecked_sector = sector_pass_checker.get_next_task();
+			printf("first_unchecked_sector : %d\tsecond_unchecked_sector : %d\n",first_unchecked_sector, second_unchecked_sector);
+
+			if((msg.data != -1) && ((msg.data&0b1111) != first_unchecked_sector) && ((msg.data&0b1111) != second_unchecked_sector)){
+				/////////////////
+				printf("\x1b[41m\n\x1b[0m");
+				printf("\x1b[41m\n\x1b[0m");
+				printf("\x1b[41m\n\x1b[0m");
+				printf("unexpected strange undesireable weird sector : %d",msg.data);
+				printf("\x1b[41m\n\x1b[0m");
+				printf("\x1b[41m\n\x1b[0m");
+				printf("\n\x1b[0m");
+			}
+
+
+			// print sector order and present sector
+			
+			for(int i = 0;i<sector_pass_checker.size;i++){
+				if(sector_pass_checker.check_list[i]) printf("\x1b[42m");
+				else printf("\x1b[0m");
+				int sec = sector_pass_checker.state_list[i];
+				if(sec==X) printf("X ");
+				else printf("%c ",'A'+sec);
+			}
+			printf("\n\n");
+
+			// print each task
+			
+			for(int i = 0;i<sector_pass_checker.size;i++){
+				if(sector_pass_checker.check_list[i]) printf("\x1b[42m");
+				else printf("\x1b[0m");
+				printf("sector : %c  ", (sector_task_order[i].sector==X)?'X':sector_task_order[i].sector+'A');
+				printf("     ");
+				int task = sector_task_order[i].task;
+				switch(task){
+					case DRIVING_SECTION : printf("task : DRIVING_SECTION");
+							       break;
+					case INTERSECTION_STRAIGHT : printf("task : INTERSECTION_STRAIGHT");
+								     break;
+					case INTERSECTION_LEFT : printf("task : INTERSECTION_LEFT");
+								 break;
+					case INTERSECTION_RIGHT : printf("task : INTERSECTION_RIGHT");
+								  break;
+					case INTERSECTION_STRAIGHT_UNSIGNED : printf("task : INTERSECTION_STRAIGHT_UNSIGNED");
+									      break;
+					case INTERSECTION_LEFT_UNSIGNED : printf("task : INTERSECTION_LEFT_UNSIGNED");
+									  break;
+					case INTERSECTION_RIGHT_UNSIGNED : printf("task : INTERSECTION_RIGHT_UNSIGNED");
+									   break;
+					case OBSTACLE_STATIC : printf("task : OBSTACLE_STATIC");
+							       break;
+					case OBSTACLE_SUDDEN : printf("task : OBSTACLE_SUDDEN");
+							       break;
+					case CROSSWALK : printf("task : CROSSWALK");
+							 break;
+					case PARKING : printf("task : PARKING");
+						       break;
+				}
+				printf("\x1b[0m\n");						
+			}
+			printf("\n");
+
+			int task_state;
+			if(msg.data == -1){
+
+				task_state = task_state_determiner(-1);
+
+			}
+			else{
+				task_state = task_state_determiner(static_cast<int>(msg.data));
+			}
 			
 			int motion_state;
-			bool _2far2return{(msg.data & 0b10000) == 0b10000};
-			cout << "prime : " << _2far2return << endl;
+			bool _2far2return{(msg.data != -1) && ((msg.data & 0b10000) == 0b10000)};
 
 			std_msgs::Float32 recommend_vel_msg;
 			recommend_vel_msg.data = recommend_vel_info[sector_pass_checker.get_present_task()];
 			recommend_vel_pub.publish(recommend_vel_msg);
 
 			light_state_determiner(task_state,_2far2return);
-			printf("light state after light_state_determiner : %d\n", light_state);
 			motion_state_determiner(motion_state,task_state,light_state);
 
-			if(debug) print_debug((int)msg.data, task_state, light_state, motion_state);
+			print_debug(task_state, motion_state);
 
 			// sector, task, light, motion (each 4 bits)
 			std_msgs::UInt32 mission_state;
@@ -333,80 +350,82 @@ class RosNode{
 		}
 
 
-		void print_debug(int sector, int task, int light, int motion){
-			switch(sector){
-				case A : ROS_INFO("sector : A");
+		void print_debug(int task, int motion){
+			/*switch(sector){
+				case A : printf("sector : A");
 					break;
-				case B : ROS_INFO("sector : B");
+				case B : printf("sector : B");
 					break;
-				case C : ROS_INFO("sector : C");
+				case C : printf("sector : C");
 					break;
-				case D : ROS_INFO("sector : D");
+				case D : printf("sector : D");
 					break;
-				case E : ROS_INFO("sector : E");
+				case E : printf("sector : E");
 					break;
-				case X : ROS_INFO("sector : X");
+				case X : printf("sector : X");
 					break;
 			}
-
+*/
 			switch(task){
-				case DRIVING_SECTION : ROS_INFO("task : DRIVING_SECTION");
+				case DRIVING_SECTION : printf("task : \t DRIVING_SECTION");
 					break;
-				case INTERSECTION_STRAIGHT : ROS_INFO("task : INTERSECTION_STRAIGHT");
+				case INTERSECTION_STRAIGHT : printf("task : \t INTERSECTION_STRAIGHT");
 					break;
-				case INTERSECTION_LEFT : ROS_INFO("task : INTERSECTION_LEFT");
+				case INTERSECTION_LEFT : printf("task : \t INTERSECTION_LEFT");
 					break;
-				case INTERSECTION_RIGHT : ROS_INFO("task : INTERSECTION_RIGHT");
+				case INTERSECTION_RIGHT : printf("task : \t INTERSECTION_RIGHT");
 					break;
-				case INTERSECTION_STRAIGHT_UNSIGNED : ROS_INFO("task : INTERSECTION_STRAIGHT_UNSIGNED");
+				case INTERSECTION_STRAIGHT_UNSIGNED : printf("task : \t INTERSECTION_STRAIGHT_UNSIGNED");
 					break;
-				case INTERSECTION_LEFT_UNSIGNED : ROS_INFO("task : INTERSECTION_LEFT_UNSIGNED");
+				case INTERSECTION_LEFT_UNSIGNED : printf("task : \t INTERSECTION_LEFT_UNSIGNED");
 					break;
-				case INTERSECTION_RIGHT_UNSIGNED : ROS_INFO("task : INTERSECTION_RIGHT_UNSIGNED");
+				case INTERSECTION_RIGHT_UNSIGNED : printf("task : \t INTERSECTION_RIGHT_UNSIGNED");
 					break;
-				case OBSTACLE_STATIC : ROS_INFO("task : OBSTACLE_STATIC");
+				case OBSTACLE_STATIC : printf("task : \t OBSTACLE_STATIC");
 					break;
-				case OBSTACLE_SUDDEN : ROS_INFO("task : OBSTACLE_SUDDEN");
+				case OBSTACLE_SUDDEN : printf("task : \t OBSTACLE_SUDDEN");
 					break;
-				case CROSSWALK : ROS_INFO("task : CROSSWALK");
+				case CROSSWALK : printf("task : \t CROSSWALK");
 					break;
-				case PARKING : ROS_INFO("task : PARKING");
+				case PARKING : printf("task : \t PARKING");
 					break;
 			}
+			printf("\n");
 
 /*
-			ROS_INFO("light : %s%s%s%s", 
+			printf("light : %s%s%s%s", 
 					isSign(light, 3)?"\x1b[41m  \x1b[0m":"    ",
 					isSign(light, 2)?"\x1b[43m  \x1b[0m":"    ",
 					isSign(light, 1)?"\x1b[32m /____\x1b[0m":"    ",
 					isSign(light, 0)?"\x1b[42m  \x1b[0m":"    "
 				);
-			ROS_INFO("light : %s%s%s%s", 
+			printf("light : %s%s%s%s", 
 					isSign(light, 3)?"\x1b[41m  \x1b[0m":"    ",
 					isSign(light, 2)?"\x1b[43m  \x1b[0m":"    ",
 					isSign(light, 1)?"\x1b[32m \\   \x1b[0m":"    ",
 					isSign(light, 0)?"\x1b[42m  \x1b[0m":"    "
 				);
 *//*
-			if(isSign(light, 0)) ROS_INFO("light : GREEN_LIGHT");
-			if(isSign(light, 1)) ROS_INFO("light : LEFT_LIGHT");
-			if(isSign(light, 2)) ROS_INFO("light : YELLOW_LIGHT");
-			if(isSign(light, 3)) ROS_INFO("light : RED_LIGHT");
+			if(isSign(light, 0)) printf("light : GREEN_LIGHT");
+			if(isSign(light, 1)) printf("light : LEFT_LIGHT");
+			if(isSign(light, 2)) printf("light : YELLOW_LIGHT");
+			if(isSign(light, 3)) printf("light : RED_LIGHT");
 */
 			switch(motion){
-				case FORWARD_MOTION : ROS_INFO("motion : FORWARD_MOTION");
+				case FORWARD_MOTION : printf("motion : FORWARD_MOTION");
 					break;
-				case FORWARD_SLOW_MOTION : ROS_INFO("motion : FORWARD_SLOW_MOTION");
+				case FORWARD_SLOW_MOTION : printf("motion : FORWARD_SLOW_MOTION");
 					break;
-				case HALT_MOTION : ROS_INFO("motion : HALT_MOTION");
+				case HALT_MOTION : printf("motion : HALT_MOTION");
 					break;
-				case LEFT_MOTION : ROS_INFO("motion : LEFT_MOTION");
+				case LEFT_MOTION : printf("motion : LEFT_MOTION");
 					break;
-				case RIGHT_MOTION : ROS_INFO("motion : RIGHT_MOTION");
+				case RIGHT_MOTION : printf("motion : RIGHT_MOTION");
 					break;
-				case PARKING_MOTION : ROS_INFO("motion : PARKING_MOTION");
+				case PARKING_MOTION : printf("motion : PARKING_MOTION");
 					break;
 			}
+			printf("\n");
 		}
 
 
@@ -430,7 +449,6 @@ class RosNode{
 					break;
 
 				case INTERSECTION_RIGHT :
-					printf("light state in motion_State_determiner : case INTERSECTION_RIGHT : %d\n", light_state);
 					if(light_state == 0) motion_state = FORWARD_SLOW_MOTION;
 					else if(isSign(light_state,GREEN_LIGHT)) motion_state = RIGHT_MOTION;
 					else motion_state = HALT_MOTION;
@@ -474,10 +492,18 @@ class RosNode{
 		{
 			static int cnt = 0;
 			static int prev_sector = -1;
+			if(sector_info == -1) sector_info = prev_sector;
+			bool _2far2return = ((sector_info & 0b10000) == 0b10000);
 			sector_info &= 0b1111;
 			int task_state = checker_container[sector_info].get_present_task();
 
-			cout << "prev_sector : " << prev_sector << " sector_info : " << sector_info << " cnt : " << cnt << endl;
+			printf("prev_sector : %c\t sector_info : %c%c\t cnt : %d\n",
+					((prev_sector==-1)?'X' :('A'+prev_sector)),
+					('A'+sector_info),
+					(_2far2return) ? '\'' : ' ',
+					cnt
+				);
+
 			if(prev_sector != sector_info){
 				prev_sector = sector_info;
 				cnt = 0;
@@ -485,12 +511,8 @@ class RosNode{
 			else{
 				++cnt;
 				if(cnt == 20){
-					printf("check %d \n check task %d\n",sector_pass_checker.get_present_task(),checker_container[sector_pass_checker.get_present_task()].get_present_task());
 					checker_container[sector_pass_checker.get_present_task()].check_prior_task();
 					sector_pass_checker.check_prior_task();
-					cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-					cout << "!!!!!!!!!1!!!!!check!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-					printf("check %d \n check task %d\n",sector_pass_checker.get_present_task(),checker_container[sector_pass_checker.get_present_task()].get_present_task());
 				}
 			}
 
@@ -504,7 +526,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "mission_recognizer");
 	RosNode rosnode;
-	ROS_INFO("start");
+	printf("start");
 	
 	ros::spin();
 

@@ -89,12 +89,21 @@ int main(int argc, char **argv)
 // A,D,A,C,A,B,A,D,A
 	pub_one_sector(sector_info_pub, 0, 26);
 	pub_one_sector(sector_info_pub, 3, 22);
-	pub_one_sector(sector_info_pub, 0, 22);
+	pub_one_sector(sector_info_pub, 0, 12);
+	pub_one_sector(sector_info_pub, -1, 5);
+	pub_one_sector(sector_info_pub, 0, 12);
 	pub_one_sector(sector_info_pub, 2, 22);
 	pub_one_sector(sector_info_pub, 0, 22);
 	pub_one_sector(sector_info_pub, 1, 22);
 	pub_one_sector(sector_info_pub, 0, 22);
 	pub_one_sector(sector_info_pub, 3, 22);
+	pub_one_sector(sector_info_pub, -20,3);
+	pub_one_sector(sector_info_pub, 0, 22);
+	pub_one_sector(sector_info_pub, 2, 22);
+	pub_one_sector(sector_info_pub, 0, 22);
+	pub_one_sector(sector_info_pub, 3, 22);
+	pub_one_sector(sector_info_pub, 0, 22);
+	pub_one_sector(sector_info_pub, 1, 22);
 	pub_one_sector(sector_info_pub, 0, 22);
 
 	return 0;
