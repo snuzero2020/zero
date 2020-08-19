@@ -35,8 +35,8 @@ enum motionState{
     PARKING_MOTION
 };
 
+const int SEARCHING_PARKING_SPOT = -1;
 enum parkingState{
-    SEARCHING_PARKING_SPOT,
     PARKING_SPOT_0,
     PARKING_SPOT_1,
     PARKING_SPOT_2,
