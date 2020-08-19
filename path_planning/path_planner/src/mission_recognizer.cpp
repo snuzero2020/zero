@@ -70,9 +70,10 @@ class RosNode{
 	public:
 		Checker sector_pass_checker;
 		vector<Checker> checker_container;
+		vector<Sector_Task> origin_sector_task_order;
 		vector<Sector_Task> sector_task_order;
 		
-		int mission_start{0};
+		int mission_start{1};
 		int isKcity{true};
 		float recommend_vel_info[13] = {1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5};
 		int buff_length{10};
@@ -90,9 +91,10 @@ class RosNode{
 
 			n.getParam("/mission_start", mission_start);
 			n.getParam("/isKcity", isKcity);
+			isKcity = false;
 			
 			if (isKcity){
-				sector_task_order={
+				origin_sector_task_order={
 					Sector_Task(X,0),
                                         Sector_Task(A,PARKING),
                                         Sector_Task(A,DRIVING_SECTION),
@@ -111,7 +113,7 @@ class RosNode{
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(I,INTERSECTION_LEFT),
                                         Sector_Task(A,DRIVING_SECTION),
-                                        Sector_Task(H,INTERSECTION_RIGHT)
+                                        Sector_Task(H,INTERSECTION_RIGHT),
 					Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(G,INTERSECTION_STRAIGHT),
                                         Sector_Task(A,DRIVING_SECTION),
@@ -122,7 +124,7 @@ class RosNode{
 				};
 			}
 			else{
-				sector_task_order={
+				origin_sector_task_order={
 					Sector_Task(X,0),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(D,INTERSECTION_RIGHT),
@@ -133,7 +135,7 @@ class RosNode{
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(D,INTERSECTION_STRAIGHT),
 					Sector_Task(A,DRIVING_SECTION),
-					Sector_Task(C,DRIVING_SECTION),
+					Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(D,INTERSECTION_LEFT),
 					Sector_Task(A,DRIVING_SECTION),
@@ -157,15 +159,21 @@ class RosNode{
 				temp_sector++;
 			}
 */
+			if(mission_start!=0)sector_task_order.push_back(Sector_Task(X,0));
+			for(int i = mission_start;i<origin_sector_task_order.size();i++){
+				sector_task_order.push_back(Sector_Task(origin_sector_task_order[i].sector,origin_sector_task_order[i].task));
+			}
+
+
 			sector_pass_checker = Checker();
-			for (int sector_seq{mission_start}; sector_seq < sector_task_order.size(); ++sector_seq)
+			for (int sector_seq{0}; sector_seq < sector_task_order.size(); ++sector_seq)
 				sector_pass_checker.push_back(sector_task_order[sector_seq].sector);
 			
 
 			checker_container.resize(15, Checker());
 
 //////////////////////////////////////////
-			for (int mission_seq{mission_start}; mission_seq < sector_task_order.size(); mission_seq++)
+			for (int mission_seq{0}; mission_seq < sector_task_order.size(); mission_seq++)
 				checker_container[sector_task_order[mission_seq].sector].push_back(sector_task_order[mission_seq].task);
 
 		}

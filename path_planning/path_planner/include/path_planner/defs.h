@@ -1,6 +1,7 @@
 #ifndef DEFS
 #define DEFS
 
+#include <iostream>
 #include <vector>
 using namespace std;
 
