@@ -485,10 +485,12 @@ class RosNode{
 			else{
 				++cnt;
 				if(cnt == 20){
+					printf("check %d \n check task %d\n",sector_pass_checker.get_present_task(),checker_container[sector_pass_checker.get_present_task()].get_present_task());
 					checker_container[sector_pass_checker.get_present_task()].check_prior_task();
 					sector_pass_checker.check_prior_task();
 					cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 					cout << "!!!!!!!!!1!!!!!check!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+					printf("check %d \n check task %d\n",sector_pass_checker.get_present_task(),checker_container[sector_pass_checker.get_present_task()].get_present_task());
 				}
 			}
 
