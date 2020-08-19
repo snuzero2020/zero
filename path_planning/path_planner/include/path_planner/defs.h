@@ -1,6 +1,7 @@
 #ifndef DEFS
 #define DEFS
 
+#include <iostream>
 #include <vector>
 using namespace std;
 
@@ -34,8 +35,8 @@ enum motionState{
     PARKING_MOTION
 };
 
+const int SEARCHING_PARKING_SPOT = -1;
 enum parkingState{
-    SEARCHING_PARKING_SPOT,
     PARKING_SPOT_0,
     PARKING_SPOT_1,
     PARKING_SPOT_2,
@@ -86,6 +87,19 @@ class Checker
 		}
 		return -1;
 	}
+	
+	// return next task
+	int get_next_task()
+	{
+		int idx=0;
+		for(bool check : check_list){
+			if(check) ++idx;
+			else break;
+		}
+		if(idx+1 >= size) return -2;
+		else return state_list[idx+1];
+	}
+
 
 	// check the first unchecked state
 	void check_prior_task(){
