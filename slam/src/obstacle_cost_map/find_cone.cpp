@@ -150,7 +150,7 @@ class DetectCone{
         std_msgs::Header header;
         header.seq = msg->header.seq;
         header.stamp = ros::Time::now();
-        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, costmap);
+        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costmap);
         img_bridge.toImageMsg(rt);
         pub_.publish(rt);
 
