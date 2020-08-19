@@ -27,7 +27,7 @@ using namespace cv;
 
 class ObstacleImage{
     public:
-    dilation_element = getStructuringElement(MORPH_ELLIPSE, Size(18,18), Point(-1,-1));
+    Mat dilation_element = getStructuringElement(MORPH_ELLIPSE, Size(18,18), Point(-1,-1));
 
 	ObstacleImage(){
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/image_raw", 10);
