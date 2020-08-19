@@ -148,6 +148,14 @@ add_dependencies(obstacle_costmap_publisher slam_generate_messages_cpp)
 #target_link_libraries(video_capture ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(video_capture slam_generate_messages_cpp)
 
+add_executable(obstacle_cost_map_publisher src/obstacle_cost_map/obstacle_cost_map_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(obstacle_cost_map_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(obstacle_cost_map_publisher slam_generate_messages_cpp)
+
+add_executable(obstacle_marker src/obstacle_cost_map/obstacle_marker.cpp lib/XYToPixel.cpp)
+target_link_libraries(obstacle_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(obstacle_marker slam_generate_messages_cpp)
+
 
 catkin_install_python(PROGRAMS 
   src/map_calibration/transform_finder.py
