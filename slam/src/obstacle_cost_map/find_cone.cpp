@@ -29,7 +29,7 @@ class DetectCone{
     DetectCone(){
         count = 0; // CAUTION 1. You should press 'q' before program ends
         element = getStructuringElement(MORPH_RECT, Size(4,4), Point(-1,-1));
-        //ptsub_ = nh_.subscribe("/2d_obstacle_clouds", 1, &DetectCone::callback, this);
+		//ptsub_ = nh_.subscribe("/2d_obstacle_clouds", 1, &DetectCone::callback, this);
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/costmap",10);
         pub_map_ = nh_.advertise<nav_msgs::OccupancyGrid>("/obstacle_cost_map",10);
         imgsub_ = nh_.subscribe("/obstacle_map/image_raw",1,&DetectCone::imagecallback,this);

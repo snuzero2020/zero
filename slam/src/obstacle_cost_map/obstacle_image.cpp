@@ -27,7 +27,9 @@ using namespace cv;
 
 class ObstacleImage{
     public:
-    ObstacleImage(){
+    dilation_element = getStructuringElement(MORPH_ELLIPSE, Size(18,18), Point(-1,-1));
+
+	ObstacleImage(){
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/image_raw", 10);
         sub_ = nh_.subscribe("/point_cloud_clusters", 1, &ObstacleImage::callback, this);
     }
@@ -46,6 +48,7 @@ class ObstacleImage{
                 color[0] = 0; color[1] = 0; color[2] = 0;
             }
         }
+		dilate(obstacle_map, obstacle_map, dilation_element);
         sensor_msgs::Image rt;
         std_msgs::Header header;
         header.seq = msg->header.seq; // user defined counter

@@ -100,6 +100,7 @@ class Checker
 
 	void push_back(int task)
 	{
+		size++;
 		state_list.push_back(task);
 		check_list.push_back(false);
 	}
