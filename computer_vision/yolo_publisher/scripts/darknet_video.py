@@ -131,6 +131,6 @@ def YOLO():
     #out.release()
 
 if __name__ == "__main__":
-    traffic_pub = rospy.Publisher('/traffic_yolo_topic', Int32, queue_size= 10)
+    traffic_pub = rospy.Publisher('/light_state', Int32, queue_size= 10)
     rospy.init_node("traffic_light_publisher_video", anonymous= True)
     YOLO()

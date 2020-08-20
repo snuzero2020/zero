@@ -5,6 +5,7 @@
 #include <cmath>
 #include "ros/ros.h"
 #include "std_msgs/UInt32.h"
+#include "std_msgs/Int32.h"
 #include "nav_msgs/Path.h"
 #include "nav_msgs/OccupancyGrid.h"
 #include "nav_msgs/MapMetaData.h"
@@ -22,7 +23,8 @@ class RosNode{
 private:
 	ros::NodeHandle n;
 	ros::Subscriber cost_map_sub;
-	ros::Subscriber mission_state_sub;	
+	ros::Subscriber mission_state_sub;
+	ros::Subscriber parking_space_sub;	
 	ros::Subscriber goals_sub;
 	ros::Publisher path_pub;
 	ros::Publisher gear_state_pub;
@@ -36,6 +38,7 @@ public:
 	bool isTrackDriving;
 	RosNode(){
 		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 5, &RosNode::costmapCallback, this);
+		parking_space_sub = n.subscribe("parking_space", 5, &RosNode::parkingspaceCallback, this);
 		mission_state_sub = n.subscribe("mission_state", 50, &RosNode::missionstateCallback, this);
 		goals_sub = n.subscribe("goals", 50000, &RosNode::goalsCallback, this);
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
@@ -57,6 +60,10 @@ public:
 		//parking_space = (data>>12) & mask;
 		parking_space = 1;
 		cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
+	}
+
+	void parkingspaceCallback(const std_msgs::Int32 & msg){
+		parking_space = msg.data;
 	}
 
 	void goalsCallback(const nav_msgs::Path & msg){
