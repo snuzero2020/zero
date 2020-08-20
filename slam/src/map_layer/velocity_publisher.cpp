@@ -21,7 +21,7 @@ class velocity_publisher{
         ros::Subscriber sub;
         int pixel_x, pixel_y;
         double recommended_velocity;
-s        bool is_kcity;
+        bool is_kcity;
 
     public:
         cv::Mat velocity_map;

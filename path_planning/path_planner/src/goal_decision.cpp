@@ -118,7 +118,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	double look_ahead_radius;
 	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 100;
-	else if(motion == FORWARD_SLOW_MOTION) look_ahead_radius = 50;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 100;
 	///////////////////////////////////////
 	else if(motion == PARKING_MOTION) look_ahead_radius = 30;
@@ -138,6 +137,9 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	// assign appropriate index which is closest to look_ahead_radius 
 	int sz = goals.size();
+	printf("look_abehad+raisdu : %lf\n",look_ahead_radius);
+	for(int i =0;i<sz;i++) printf("%d", (goals[i].header.seq & 0b1111) );
+
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 		int pose_flag = poseStamped.header.seq & 0b1111;
@@ -164,7 +166,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		else{ // rear motion
 			if(ang_diff > M_PI/2) continue;
 		}
-		
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
 		//printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx][(int)dy+costmap.size()/2]);
@@ -180,6 +181,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		// not sub path
 		//if(flag[pose_flag]!=1){
 		if(pose_flag!=1){
+			printf("i : %d abs(d-l) : %lf key : %lf\n", i, abs(dist - look_ahead_radius) , key);
 			if(abs(dist - look_ahead_radius) > key) continue;
 			key = abs(dist - look_ahead_radius);
 			value = i;
@@ -194,10 +196,12 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		//cout << "(goal decision) all check pass!\n";
 	}
 
+	printf("nearest_obs_seq : %d\n",nearest_obs_seq);
 	// if obstacle sudden, choose goal which is farthest and closer than obstacle
 	if(task == OBSTACLE_SUDDEN){
 		value = -1;
 		value_sub = -1;
+		key = 100000; key_sub = 100000;
 		for(int i = 0; i<sz; i++){
 			geometry_msgs::PoseStamped poseStamped = goals[i];		
 
@@ -227,6 +231,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 			// not sub path
 			if(flag[pose_flag]!=1){
+				printf("i : %d abs(d-l) : %lf key : %lf\n", i, abs(dist - look_ahead_radius) , key);
 				if(abs(dist - look_ahead_radius) > key) continue;
 				key = abs(dist - look_ahead_radius);
 				value = i;
