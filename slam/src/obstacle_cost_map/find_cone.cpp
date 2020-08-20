@@ -34,7 +34,7 @@ class DetectCone{
         pub_map_ = nh_.advertise<nav_msgs::OccupancyGrid>("/obstacle_cost_map",10);
         imgsub_ = nh_.subscribe("/obstacle_map/image_raw",1,&DetectCone::imagecallback,this);
         namedWindow("cone",WINDOW_AUTOSIZE);
-        kernel = getKernel(33); // CAUTION 2. size should be odd! , 3cm/ 1 size
+        kernel = getKernel(31); // CAUTION 2. size should be odd! , 3cm/ 1 size
         kernel_size = kernel.rows;
     }
 
@@ -129,14 +129,18 @@ class DetectCone{
                 else continue;
             }
         }
+        int slice = (kernel_size - 1)/2;
+        costmap_sliced = costmap(Range(slice, padded_map.rows - slice),Range(slice, padded_map.cols - slice));
         ///Rotate pi(rad)
-        Point2f rotation_center(costmap.cols/2, costmap.rows/2);
+
+        Point2f rotation_center(costmap_sliced.cols/2, costmap_sliced.rows/2);
         Mat rotation_matrix = getRotationMatrix2D(rotation_center, 180, 1.0);
-        warpAffine(costmap, costmap, rotation_matrix, costmap.size());
+        warpAffine(costmap_sliced, costmap_sliced, rotation_matrix, costmap_sliced.size());
+
         // Quit if press 'q'
         if(count == 0){
             imshow("cone", map);
-            imshow("costmap",costmap);
+            imshow("costmap",costmap_sliced);
             int key = waitKey(30);
             if(key == 'q') {
                 destroyWindow("cone");
@@ -150,7 +154,7 @@ class DetectCone{
         std_msgs::Header header;
         header.seq = msg->header.seq;
         header.stamp = ros::Time::now();
-        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costmap);
+        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costmap_sliced);
         img_bridge.toImageMsg(rt);
         pub_.publish(rt);
 
@@ -183,13 +187,13 @@ class DetectCone{
     Mat element; // mask size_erode
     Mat kernel; // Kernel that controls the way that spread
     Mat costmap; // For costmap
+    Mat costmap_sliced; // Sliced
 
     cv_bridge::CvImage img_bridge;
 };
 
 
 int main(int argc, char **argv){
-    cout << "hello" << endl;
     ros::init(argc, argv, "obstacle_costmap_publisher");
     DetectCone detect_cone;
     while(ros::ok()){

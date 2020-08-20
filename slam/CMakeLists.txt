@@ -128,6 +128,14 @@ add_executable(obstacle_costmap_publisher src/obstacle_cost_map/find_cone.cpp)
 target_link_libraries(obstacle_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(obstacle_costmap_publisher slam_generate_messages_cpp)
 
+add_executable(decaying_costmap_publisher src/obstacle_cost_map/improved_obstacle_costmap.cpp lib/XYToPixel.cpp)
+target_link_libraries(decaying_costmap_publisher ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(decaying_costmap_publisher slam_generate_messages_cpp)
+
+#add_executable(eigen2cv_tester src/obstacle_cost_map/test_eigen2cv.cpp lib/XYToPixel.cpp)
+#target_link_libraries(eigen2cv_tester ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#add_dependencies(eigen2cv_tester slam_generate_messages_cpp)
+
 #add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
 #target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(yolo_sender slam_generate_messages_cpp)
