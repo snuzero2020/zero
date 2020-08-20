@@ -198,6 +198,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	if(task == OBSTACLE_SUDDEN){
 		value = -1;
 		value_sub = -1;
+		key = 100000; key_sub = 100000;
 		for(int i = 0; i<sz; i++){
 			geometry_msgs::PoseStamped poseStamped = goals[i];		
 
