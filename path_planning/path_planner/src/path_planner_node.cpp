@@ -255,9 +255,9 @@ public:
 			cv::namedWindow("costmap_path");
 			cv::Mat image(h,w,CV_8UC3);
 			for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = cost_map[i][j];	
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = cost_map[i][j];	
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = cost_map[i][j];	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
 			}
 			for(int i = 0;i<path.size()-1;i++)
 				line(image, cv::Point(w-1-path[i].y,h-1-path[i].x), cv::Point(w-1-path[i+1].y,h-1- path[i+1].x), cv::Scalar(100,200,50),1,0);
