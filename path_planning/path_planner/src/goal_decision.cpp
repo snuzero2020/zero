@@ -51,13 +51,15 @@ const static int OBSTACLE = 100;
 //
 //
 Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state){
-	///////////////////////////////////////////////
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
-	///////////////////////////////////////////////
+
+	bool go_sub_path = false;
 	const double angle{0.0};
 	const int x{0};
 	const int y{0};
+
+	printf("parking space : %d\n",parking_space);
 
 	// flag info : main(0), sub (1, = other lane), left(2), right(3), halt(4), parking(5~10)
 	bool flag[12];
@@ -113,6 +115,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		//////////////////////////////
 	}
 
+	printf("flag : ");
 	for(bool flag_check : flag) cout << flag_check << " ";
 	cout << endl;
 
@@ -137,8 +140,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	// assign appropriate index which is closest to look_ahead_radius 
 	int sz = goals.size();
-	printf("look_abehad+raisdu : %lf\n",look_ahead_radius);
-	for(int i =0;i<sz;i++) printf("%d", (goals[i].header.seq & 0b1111) );
 
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
@@ -168,20 +169,24 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
-		//printf("\ndx : %lf dy : %lf\ncost : %lf\n",dx,dy,costmap[(int)dx][(int)dy+costmap.size()/2]);
-		//cout << "(goal decision) obstacle check!\n";
+	
 		// check obstacle
+		
+		double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
+		
 		if(costmap[(int)dx][(int)dy+costmap.size()/2] >= OBSTACLE) {
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
+	
+///////////////////////////////////////
+			if(task == OBSTACLE_STATIC && dist < look_ahead_radius) go_sub_path = true;
+///////////////////////////////////////
 			continue;
 		}
 
-		double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
 
 		// not sub path
 		//if(flag[pose_flag]!=1){
 		if(pose_flag!=1){
-			printf("i : %d abs(d-l) : %lf key : %lf\n", i, abs(dist - look_ahead_radius) , key);
 			if(abs(dist - look_ahead_radius) > key) continue;
 			key = abs(dist - look_ahead_radius);
 			value = i;
@@ -204,7 +209,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		key = 100000; key_sub = 100000;
 		for(int i = 0; i<sz; i++){
 			geometry_msgs::PoseStamped poseStamped = goals[i];		
-
 			int pose_flag = poseStamped.header.seq & 0b1111;
 			int pose_seq = poseStamped.header.seq>>4;
 
@@ -230,8 +234,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
 
 			// not sub path
-			if(flag[pose_flag]!=1){
-				printf("i : %d abs(d-l) : %lf key : %lf\n", i, abs(dist - look_ahead_radius) , key);
+			if(pose_flag!=1){
 				if(abs(dist - look_ahead_radius) > key) continue;
 				key = abs(dist - look_ahead_radius);
 				value = i;
@@ -246,29 +249,38 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 	}
 
+
+
+///////////////////////////////
+	// if OBSTACLE_STATIC and find obstacle in look_ahead_radius, then go sub path
+	if(task == OBSTACLE_STATIC && go_sub_path){
+		// can't find goal, just go straight
+		if(value_sub == -1) return Cor(0,1);
+			
+		// else return sub path
+		double gx = goals[value_sub].pose.position.x;
+		double gy = goals[value_sub].pose.position.y;
+		cout << "current goal seq : " << (goals[value_sub].header.seq >> 4) << endl;
+		cout << "current goal flag : " << (goals[value_sub].header.seq & 0b1111) << endl;
+		cout << "current goal point : (" << gx << ',' << gy << ")\n";
+		return Cor(gx,gy);
+	}
+///////////////////////////////
+
+
+
 	// if we find goal, return
 	if(value != -1){
 		double gx = goals[value].pose.position.x;
 		double gy = goals[value].pose.position.y;
+		cout << "current goal seq : " << (goals[value_sub].header.seq >> 4) << endl;
 		cout << "current goal flag : " << (goals[value].header.seq & 0b1111) << endl;
 		cout << "current goal point : (" << gx << ',' << gy << ")\n";
 		return Cor(gx,gy);
 	}
 
 	
-	if(task == OBSTACLE_STATIC){
-		// can't find goal (main and sub), just go straight
-		if(value_sub == -1) {
-			return Cor(0,1);		
-		}
-
-		// else return sub path
-		double gx = goals[value_sub].pose.position.x;
-		double gy = goals[value_sub].pose.position.y;
-		cout << "current goal flag : " << (goals[value_sub].header.seq & 0b1111) << endl;
-		return Cor(gx,gy);
-	}
-	else if(task == OBSTACLE_SUDDEN){
+	if(task == OBSTACLE_SUDDEN){
 		return Cor(0,0); 
 	}
 
