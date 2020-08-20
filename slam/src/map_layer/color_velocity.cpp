@@ -22,7 +22,7 @@ int main(int argc, char**argv){
     bool is_kcity;
 
     ros::param::get("/is_kcity", is_kcity);
-    is_kcity = true;
+    is_kcity = false;
     if(is_kcity==true){
        path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map-1.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
