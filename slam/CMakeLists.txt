@@ -154,6 +154,7 @@ catkin_install_python(PROGRAMS
   src/sensing/lidar_decoder.py
   src/visualizer/imu_visualizer.py 
   src/visualizer/kalman_fusion_visualizer.py
+  src/visualizer/map_layer_visualizer.py
   src/obstacle_cost_map/object_visualizer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
