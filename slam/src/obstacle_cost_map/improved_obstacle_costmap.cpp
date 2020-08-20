@@ -31,12 +31,13 @@ using namespace Eigen;
 class DecayingCostmap{
     public:
     DecayingCostmap(){
-        pub_ = nh_.advertise<sensor_msgs::Image>("obstacle_map/costmap",10);
+        pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/decaying_costmap",10);
+        pub_occupancy_ = nh_.advertise<nav_msgs::OccupancyGrid>("/obstacle_occupancy/decaying_costmap",10);
         sub_img_ = nh_.subscribe("/obstacle_map/costmap", 1, &DecayingCostmap::img_callback, this);
         sub_pose_ = nh_.subscribe("/filtered_data", 1, &DecayingCostmap::pose_callback, this);
-        final_costmap = Mat::zeros(300, 300, CV_8U);
+        rt_costmap = Mat::zeros(300, 300, CV_8U);
         alpha = (sqrt(5) + 1) / 4; // decay_rate of current costmap
-        beta = (sqrt(5) -1 ) / 4; // decay_rate of past costmap
+        beta = 0.8; // decay_rate of past costmap
     }
 
     //USE VECTOR'S ITERATION    
@@ -47,7 +48,7 @@ class DecayingCostmap{
     }
 
     void img_callback(const sensor_msgs::Image::ConstPtr &msg){
-        
+        clock_t begin = clock();
         cv_bridge::CvImagePtr map_ptr;
         try{
             map_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::MONO8);
@@ -62,18 +63,46 @@ class DecayingCostmap{
         make_poses_list(pose);
         if (poses_list.size() == 2)
         {
-            warpAffine(final_costmap, final_costmap, calibrate_map(poses_list[1], poses_list[0]), costmap.size());
+            warpAffine(rt_costmap, rt_costmap, calibrate_map(poses_list[1], poses_list[0]), costmap.size());
             // Interpolate the influence of the consequential costmaps
             for(int i = 0 ; i < costmap.rows ; i++){
                 for(int j = 0; j < costmap.cols; j++){
-                    final_costmap.at<uchar>(j,i) = saturate_cast<uchar>(alpha * costmap.at<uchar>(j,i) + beta * final_costmap.at<uchar>(j,i));
+                    int final_cost = alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i);
+                    if(final_cost < 100){
+                        rt_costmap.at<uchar>(j,i) = final_cost;
+                    }
+                    else rt_costmap.at<uchar>(j,i) = 100;
+                    // rt_costmap.at<uchar>(j,i) = saturate_cast<uchar>(alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i));
                 }
             }
         }
 
-        imshow("original_costmap", costmap);
-        imshow("improved_costmap", final_costmap);
+        //imshow("original_costmap", costmap);
+        imshow("decaying_costmap", rt_costmap);
         int key = waitKey(30);
+
+        //IMAGE_PUBLISHING
+        sensor_msgs::Image rt;
+        std_msgs::Header header;
+        header.seq = msg->header.seq;
+        header.stamp = ros::Time::now();
+        pub_img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, rt_costmap);
+        pub_img_bridge.toImageMsg(rt);
+        pub_.publish(rt);
+        
+        //Occupacncy Grid Publishing
+        nav_msgs::OccupancyGrid costmap2pp;
+		costmap2pp.info.width = 300;
+		costmap2pp.info.height = 300;
+
+		for (int i = 1; i < 301; i++){
+			for (int j = 1; j < 301; j++) costmap2pp.data.push_back(static_cast<int8_t>(costmap.at<uchar>(300-i,300-j)));
+		}
+		pub_occupancy_.publish(costmap2pp);
+        
+        //About time
+        clock_t end = clock();
+        ROS_INFO("elapsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
         mainclock = ros::Time::now();
     }
 
@@ -142,23 +171,26 @@ class DecayingCostmap{
     void quit_if_end(){
         if((ros::Time::now() - mainclock).sec > 2){
             destroyWindow("original_costmap");
-            destroyWindow("improved_costmap");
+            destroyWindow("decaying_costmap");
         }
     }
 
     private:
     ros::NodeHandle nh_;
     ros::Publisher pub_;
+    ros::Publisher pub_occupancy_;
     ros::Subscriber sub_img_;
     ros::Subscriber sub_pose_;
     ros::Time mainclock;
 
     double alpha, beta;
     slam::Data pose;
-    Mat final_costmap;
+    Mat rt_costmap;
     Mat costmap;
     // vector<Mat> costmaps_list;
     vector<slam::Data> poses_list;
+
+    cv_bridge::CvImage pub_img_bridge;
 };
 
 int main(int argc, char **argv){

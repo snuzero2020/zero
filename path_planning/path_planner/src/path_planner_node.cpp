@@ -57,8 +57,6 @@ public:
 		motion = data & mask;
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
-		//parking_space = (data>>12) & mask;
-		parking_space = 1;
 		cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 	}
 
@@ -73,6 +71,13 @@ public:
 	void costmapCallback(const nav_msgs::OccupancyGrid & map){
 		static int time_parking_complished{0};
 		static int gear_state{0};
+
+//////////////
+		isTrackDriving = false;
+		task = OBSTACLE_SUDDEN;
+		light = 0;
+		motion = FORWARD_MOTION;
+////////////
 
 		cout<<"cost_map callback\n";
 		if(isTrackDriving){
@@ -150,19 +155,19 @@ public:
 			if(goals.poses.empty()) return;
 			if(task == -1) return;
 			
-			int iternum;
-			double radius;
-			double stepsize;
-			double threshold;
-			double threshold2;
-			double cost_scale;
-			n.getParam("/iternum", iternum);
+			int iternum = 500;
+			double radius = 30;
+			double stepsize = 1;
+			double threshold = 100;
+			double threshold2 = 50;
+			double cost_scale = 80;
+			/*n.getParam("/iternum", iternum);
 			n.getParam("/radius", radius);
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);
 			n.getParam("/cost_scale", cost_scale); // 66-> 100 to 66
-			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
+			*/RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			int t = clock();
 
 			// get costmap	
@@ -255,9 +260,9 @@ public:
 			cv::namedWindow("costmap_path");
 			cv::Mat image(h,w,CV_8UC3);
 			for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = cost_map[i][j];	
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = cost_map[i][j];	
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = cost_map[i][j];	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+				image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
 			}
 			for(int i = 0;i<path.size()-1;i++)
 				line(image, cv::Point(w-1-path[i].y,h-1-path[i].x), cv::Point(w-1-path[i+1].y,h-1- path[i+1].x), cv::Scalar(100,200,50),1,0);
@@ -308,7 +313,6 @@ public:
 			if (gear_state == 1)
 				local_path.header.stamp.sec +=2;
 
-			cout << "local_path.header.stamp.sec = " << local_path.header.stamp.sec << endl;
 			// publish
 			path_pub.publish(local_path);
 

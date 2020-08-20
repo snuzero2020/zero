@@ -98,12 +98,13 @@ class LocalPathPublisher{
         geometry_msgs::PoseStamped pose_change;
         nav_msgs::OccupancyGrid local_goal;
         if(!gear_state){
-			for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++){
+		int cnt = 1;
+			for (auto iter = global_path_.begin(); iter != global_path_.end(); iter++, cnt++){
 
             	pose.x = (*iter).x;
             	pose.y = (*iter).y;
             	pose.theta = (*iter).theta;
-            	pose.flag = (*iter).flag;
+            	pose.flag = ((*iter).flag) | (cnt<<4);
 
             	double X = pose.x - current_pose.x - length/2.0 * sin(current_pose.theta);
             	double Y = pose.y - current_pose.y + length/2.0 * cos(current_pose.theta);

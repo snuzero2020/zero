@@ -17,6 +17,9 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include "multi_img_utils.h"
 #include <cmath>
+#include "sensor_msgs/image_encodings.h"
+#include "sensor_msgs/Image.h"
+#include "cv_bridge/cv_bridge.h"
 
 using namespace cv;
 using namespace std;
@@ -86,9 +89,19 @@ void birdeye(vector<int> one_indice, cv::Mat birdmat, vector<vector<int>> &clust
     double z_double = birdmat.at<double>(2,0)*one_indice[0]+birdmat.at<double>(2,1)*one_indice[1]+birdmat.at<double>(2,2)*one_indice[2];
     bird_indice.push_back(static_cast<int>((birdmat.at<double>(0,0)*one_indice[0]+birdmat.at<double>(0,1)*one_indice[1]+birdmat.at<double>(0,2)*one_indice[2])/z_double));
     bird_indice.push_back(static_cast<int>((birdmat.at<double>(1,0)*one_indice[0]+birdmat.at<double>(1,1)*one_indice[1]+birdmat.at<double>(1,2)*one_indice[2])/z_double));
-    if(bird_indice[0]<200 && bird_indice[0]>=0 && bird_indice[1]<200 && bird_indice[1]>=0){
+    if(bird_indice[0]<267 && bird_indice[0]>=0 && bird_indice[1]<200 && bird_indice[1]>=0){
                 cluster_indices.push_back(bird_indice);
     }
+}
+
+bool is_birdeye_included(cv::Mat birdmat, int y, int x){
+    double z_double = birdmat.at<double>(2,0)*y+birdmat.at<double>(2,1)*x+birdmat.at<double>(2,2);
+    int y_new = static_cast<int>((birdmat.at<double>(0,0)*y+birdmat.at<double>(0,1)*x+birdmat.at<double>(0,2))/z_double);
+    int x_new = static_cast<int>((birdmat.at<double>(1,0)*y+birdmat.at<double>(1,1)*x+birdmat.at<double>(1,2))/z_double);
+    if(y_new >=0 && y_new < 267 && x_new >= 0 && x_new < 200){
+        return true;
+    }
+    return false;
 }
 
 void getcoeff(vector<vector<int>> clus_indices, double* coeff){
@@ -184,21 +197,30 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     
     vector<int> left_seg_x, right_seg_x;
     vector<int> left_seg_y, right_seg_y;
+    
+    cv::Mat birdmat_left = find_birdmat_left();
+    cv::Mat birdmat_right = find_birdmat_right();
 
     for(int h=0; h<480; h++){
         for(int w=0; w<640; w++){
             if(msg->data[h*640 + w] < msg->data[480*640 + h*640 + w]){
                 //left_binary_seg.at<uchar>(h,w) = 255;
-                left_seg_x.push_back(w);
-                left_seg_y.push_back(h);
+                if(is_birdeye_included(birdmat_left, h, w)){
+                    left_seg_x.push_back(w);
+                    left_seg_y.push_back(h);
+                }
             }
             if(msg->data[2*640*480 + h*640 + w] < msg->data[2*640*480 + 480*640 + h*640 + w]){
                 //right_binary_seg.at<uchar>(h,w) = 255;
-                right_seg_x.push_back(w);
-                right_seg_y.push_back(h);
+                if(is_birdeye_included(birdmat_right, h, w)){
+                    right_seg_x.push_back(w);
+                    right_seg_y.push_back(h);
+                }
             }
         }
     }
+    //std::cout<<left_seg_x.size()<<std::endl;
+
     cloud_left->height = 1;
     cloud_left->width = left_seg_x.size();
     cloud_left->points.resize(left_seg_x.size());
@@ -206,7 +228,6 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     cloud_right->height = 1;
     cloud_right->width = right_seg_x.size();
     cloud_right->points.resize(right_seg_x.size());
-    
     
     for(int i=0; i< cloud_left->size(); i++){
         cloud_left->points[i].x = msg->data[2*2*640*480 + left_seg_y[i]*640 + left_seg_x[i]];
@@ -230,7 +251,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
 
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_left;
     ec_left.setClusterTolerance(0.15);
-    ec_left.setMinClusterSize(50);
+    ec_left.setMinClusterSize(10);
     ec_left.setMaxClusterSize(5000);
     ec_left.setSearchMethod(left_tree);
     ec_left.setInputCloud(cloud_left);
@@ -242,7 +263,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     vector<vector<int>> cluster_indices;
     vector<vector<vector<int>>> all_indices;
 
-    cv::Mat birdmat_left = find_birdmat_left();
+
 
     for(std::vector<pcl::PointIndices>::const_iterator it = left_cluster_indices.begin();it != left_cluster_indices.end();++it){
         for(std::vector<int>::const_iterator pit = it->indices.begin(); pit != it->indices.end(); ++pit){
@@ -257,7 +278,6 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
         cluster_indices.clear();
         count++;
     }
-
 
     int left_lane = 0;
     double center[2] = {0, 0};
@@ -275,7 +295,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
         left_lane = 1;
 
 
-    cv::Mat birdeye_img = cv::Mat::zeros(200, 200, CV_8UC1);
+    cv::Mat birdeye_img = cv::Mat::zeros(267, 200, CV_8UC1);
 
     for(int j = 0; j<all_indices[left_lane].size(); j++){
         birdeye_img.at<uchar>(all_indices[left_lane][j][0], all_indices[left_lane][j][1]) = 255;
@@ -289,7 +309,7 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_right;
 
     ec_right.setClusterTolerance(0.15);
-    ec_right.setMinClusterSize(50);
+    ec_right.setMinClusterSize(10);
     ec_right.setMaxClusterSize(5000);;
     ec_right.setSearchMethod(right_tree);
     ec_right.setInputCloud(cloud_right);
@@ -300,8 +320,6 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     count = 1;
     cluster_indices.clear();
     all_indices.clear();
-
-    cv::Mat birdmat_right = find_birdmat_right();
 
     for(std::vector<pcl::PointIndices>::const_iterator it = right_cluster_indices.begin();it != right_cluster_indices.end();++it){
         for(std::vector<int>::const_iterator pit = it->indices.begin(); pit != it->indices.end(); ++pit){
@@ -346,23 +364,23 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     cv::waitKey(1);
     // std::cout << all_indices.size() << std::endl;
 
-    cv::Mat fitting_img = cv::Mat::zeros(200, 200, CV_8UC1);
-    cv::Mat costMap = cv::Mat::zeros(200, 200, CV_8UC1);
+    //cv::Mat fitting_img = cv::Mat::zeros(200, 200, CV_8UC1);
+    cv::Mat costMap = cv::Mat::zeros(267, 200, CV_8UC1);
 
     int j_left, j_right;
 
-    for(int i=0; i<200; i++){
+    for(int i=0; i<267; i++){
         j_left = coeff_left[0]+coeff_left[1]*i+coeff_left[2]*i*i+coeff_left[3]*i*i*i;
         j_right = coeff_right[0]+coeff_right[1]*i+coeff_right[2]*i*i+coeff_right[3]*i*i*i;
         int fifth = (j_right-j_left)/5;
-        for(int j = j_left-2; j<j_left; j++){
+        /*for(int j = j_left-2; j<j_left; j++){
             if(j<200 && j>=0)
                 fitting_img.at<uchar>(i,j) = 255;
         }
         for(int j = j_right+1; j<j_right+3; j++){
             if(j<200 && j>=0)
                 fitting_img.at<uchar>(i,j) = 255;
-        }
+        }*/
         for(int j = j_left; j<j_left+fifth; j++){
             if(j<200 && j>=0)
                 costMap.at<uchar>(i,j) = 200;
@@ -391,8 +409,20 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
     //cv::imshow("costMap", costMap);
 
     std::cout<<"C++ lane_postprocessing time : "<<(double)(clock()-start)/CLOCKS_PER_SEC<<std::endl;
-    ShowManyImages("Cluster_image", 3, birdeye_img, fitting_img, costMap);
+    //ShowManyImages("Cluster_image", 2, birdeye_img, costMap);
 
+    cv::imshow("birdeye_img", birdeye_img);
+    cv::imshow("costMap", costMap);
+    
+    ros::NodeHandle nh;
+    ros::Publisher costMap_pub = nh.advertise<sensor_msgs::Image>("/lanenet_costMap", 2);
+
+    cv_bridge::CvImage img_bridge;
+	sensor_msgs::Image img_msg;
+	std_msgs::Header header;
+	img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costMap);
+	img_bridge.toImageMsg(img_msg);
+	costMap_pub.publish(img_msg);
     //cv::imshow("right_cluster", right_cluster);
     //cv::imshow("left_cluster", left_cluster);
     // ShowManyImages("Cluster_image",2, left_cluster, right_cluster);
