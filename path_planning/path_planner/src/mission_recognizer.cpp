@@ -126,7 +126,8 @@ class RosNode{
 			else{
 				origin_sector_task_order={
 					Sector_Task(X,0),
-					Sector_Task(A,DRIVING_SECTION),
+					//Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(A,OBSTACLE_SUDDEN),
 					Sector_Task(D,INTERSECTION_RIGHT),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),

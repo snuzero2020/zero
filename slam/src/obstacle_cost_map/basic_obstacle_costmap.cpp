@@ -125,8 +125,8 @@ class DetectCone{
                             int cost = kernel.at<uchar>(jj,ii);
                             int present = costmap.at<uchar>(j+jj,i+ii);
                             if (cost == 0) continue;
-                            if(present < cost * (255-center)/100){
-                                costmap.at<uchar>(j+jj,i+ii) = saturate_cast<uchar>(cost*(255-center)/100); //CAUTION : BLACK OR WHITE
+                            if(present < cost * (100-center)/100){
+                                costmap.at<uchar>(j+jj,i+ii) = saturate_cast<uchar>(cost*(100-center)/100); //CAUTION : BLACK OR WHITE
                             }
                         }
                     }

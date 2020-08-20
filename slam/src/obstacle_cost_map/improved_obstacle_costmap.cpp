@@ -37,7 +37,7 @@ class DecayingCostmap{
         sub_pose_ = nh_.subscribe("/filtered_data", 1, &DecayingCostmap::pose_callback, this);
         rt_costmap = Mat::zeros(300, 300, CV_8U);
         alpha = (sqrt(5) + 1) / 4; // decay_rate of current costmap
-        beta = (sqrt(5) -1 ) / 4; // decay_rate of past costmap
+        beta = 0.8; // decay_rate of past costmap
     }
 
     //USE VECTOR'S ITERATION    
@@ -67,7 +67,12 @@ class DecayingCostmap{
             // Interpolate the influence of the consequential costmaps
             for(int i = 0 ; i < costmap.rows ; i++){
                 for(int j = 0; j < costmap.cols; j++){
-                    rt_costmap.at<uchar>(j,i) = saturate_cast<uchar>(alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i));
+                    int final_cost = alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i);
+                    if(final_cost < 100){
+                        rt_costmap.at<uchar>(j,i) = final_cost;
+                    }
+                    else rt_costmap.at<uchar>(j,i) = 100;
+                    // rt_costmap.at<uchar>(j,i) = saturate_cast<uchar>(alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i));
                 }
             }
         }

@@ -163,7 +163,7 @@ class Local_costmap_publisher{
 			}
 			
 			// in the obstacle mission area
-			if(mission_state == 2049){
+			if(((mission_state>>8) == 8) || ((mission_state>>8) == 7)){
 				ROS_INFO("mission state is obstacle");
 				for(int i = 0;i<300;i++){
 					for(int j = 0;j<300;j++) local_costmap.at<uchar>(i,j) = max(local_costmap.at<uchar>(i,j), obstacle_costmap.at<uchar>(i,j));
