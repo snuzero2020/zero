@@ -21,7 +21,7 @@ class velocity_publisher{
         ros::Subscriber sub;
         int pixel_x, pixel_y;
         double recommended_velocity;
-s        bool is_kcity;
+        bool is_kcity;
 
     public:
         cv::Mat velocity_map;
@@ -72,7 +72,7 @@ s        bool is_kcity;
                 std::cout<<"on map"<<std::endl;
                 recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
                 std_msgs::Float64 rt;
-                rt.data = recommended_velocity/85;
+                rt.data = recommended_velocity/255*3;
                 pub.publish(rt);
             }
         }

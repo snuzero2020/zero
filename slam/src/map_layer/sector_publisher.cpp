@@ -48,7 +48,7 @@ class sector_publisher{
                     ROS_INFO("FMTC loaded");
                 }     
             }  
-            pub = nh.advertise<std_msgs::Int32>("/sector_info", 2);
+            pub = nh.advertise<std_msgs::Int32>("/sector_info", 1);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
         }
 
@@ -152,6 +152,7 @@ class sector_publisher{
                     else if(nRed == 140 && nGreen == 0){
                         rt.data = 9;
                         ROS_INFO("Sector J");
+                        
                     }
                     else if(nRed == 140 && nGreen == 100){
                         rt.data = 9|(1<<4);
@@ -169,7 +170,7 @@ class sector_publisher{
                     {
                         rt.data = 1;
                         ROS_INFO("Sector B");
-                    }
+                     }
                     else if(nBlue==0 && nGreen==140){
                         rt.data = 4;
                         ROS_INFO("Sector E");
@@ -204,9 +205,7 @@ class sector_publisher{
                     rt.data = -1;
                     ROS_INFO("Sector X");                    
                 }
-                
-                 std::cout<<"Published: "<<rt.data<<std::endl;
-                 pub.publish(rt);
+                pub.publish(rt);
                  //previous_data = rt.data;
                  
             }
