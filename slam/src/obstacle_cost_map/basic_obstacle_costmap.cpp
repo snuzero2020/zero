@@ -33,11 +33,10 @@ class DetectCone{
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/costmap",10);
         pub_map_ = nh_.advertise<nav_msgs::OccupancyGrid>("/obstacle_cost_map",10);
         imgsub_ = nh_.subscribe("/obstacle_map/image_raw",1,&DetectCone::imagecallback,this);
-        namedWindow("cone",WINDOW_AUTOSIZE);
-        kernel = getKernel(31); // CAUTION 2. size should be odd! , 3cm/ 1 size
+        // namedWindow("cone",WINDOW_AUTOSIZE);
+        kernel = getKernel(67); // CAUTION 2. size should be odd! , 3cm/ 1 size
         kernel_size = kernel.rows;
     }
-
     ~DetectCone(){
         destroyWindow("cone");
         destroyWindow("costmap");
@@ -52,13 +51,18 @@ class DetectCone{
     //get kernel matrix: should be handled
     Mat getKernel(int kernel_size){
         Mat rt = Mat::zeros(Size(kernel_size,kernel_size),CV_8UC1);
+        int input = 0;
         int cen_x = int(rt.cols/2);
         int cen_y = int(rt.rows/2);
         for(int j=0; j<rt.rows ; j++){
             for(int i=0; i<rt.cols; i++ ){
-                int distance = 100 - 5 * ceil(pixel_dist(cen_x,cen_y,i,j)); // CAUTION : change
-                if (distance < 0) distance = 0;
-                rt.at<uchar>(j,i) = static_cast<uchar>(distance);
+                int distance = ceil(pixel_dist(cen_x, cen_y, i, j));
+                if(distance < 17) input = 100;
+                else if( distance >= 17 && distance < 34){
+                    input = 100 - 6 * (distance - 17);
+                }
+                else input = 0;
+                rt.at<uchar>(j,i) = static_cast<uchar>(input);
             }
         }
         //cout << rt << endl;
@@ -88,8 +92,9 @@ class DetectCone{
         map = map_ptr->image;
         
         // Preprocessing Image
-        erode(map, dilate_map, element);
-        cvtColor(dilate_map, gray, COLOR_BGR2GRAY);
+        //erode(map, dilate_map, element);
+        // cvtColor(dilate_map, gray, COLOR_BGR2GRAY);
+        cvtColor(map, gray, COLOR_BGR2GRAY);
         int pad_size = (kernel_size-1)/2;
         copyMakeBorder(gray, padded_map,pad_size,pad_size,pad_size,pad_size,BORDER_CONSTANT,Scalar(0)); // zero-padding
         
@@ -138,16 +143,16 @@ class DetectCone{
         warpAffine(costmap_sliced, costmap_sliced, rotation_matrix, costmap_sliced.size());
 
         // Quit if press 'q'
-        if(count == 0){
-            imshow("cone", map);
-            imshow("costmap",costmap_sliced);
-            int key = waitKey(30);
-            if(key == 'q') {
-                destroyWindow("cone");
-                destroyWindow("costmap");
-                count += 1;
-            }
-        }
+        // if(count == 0){
+        //     imshow("cone", map);
+        //     imshow("costmap",costmap_sliced);
+        //     int key = waitKey(30);
+        //     if(key == 'q') {
+        //         destroyWindow("cone");
+        //         destroyWindow("costmap");
+        //         count += 1;
+        //     }
+        // }
 
         // Publish Code <type> :: Image
         sensor_msgs::Image rt;
@@ -183,6 +188,9 @@ class DetectCone{
     ros::Time mainclock; 
     int count;
     int kernel_size; // Kernel's size
+    int pixel_resolution;
+    int car_width;
+    int cost_limit;
     
     Mat element; // mask size_erode
     Mat kernel; // Kernel that controls the way that spread
