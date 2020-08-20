@@ -63,6 +63,13 @@ add_executable(global_visual src/visualizer/global_path_visualizer.cpp lib/XYToP
 target_link_libraries(global_visual ${catkin_LIBRARIES})
 add_dependencies(global_visual slam_generate_messages_cpp)
 
+##add_excutable for line_matching
+add_executable(map_lane_extractor src/lane_matching/map_lane_extractor.cpp)
+target_link_libraries(map_lane_extractor ${catkin_LIBRARIES})
+
+add_executable(lane_matcher src/lane_matching/lane_matcher.cpp)
+target_link_libraries(lane_matcher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 ##add_executable for map_calibration
 add_executable(gps_collector src/map_calibration/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
@@ -155,6 +162,14 @@ add_dependencies(decaying_costmap_publisher slam_generate_messages_cpp)
 #add_executable(video_capture src/obstacle_cost_map/video_capture.cpp)
 #target_link_libraries(video_capture ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(video_capture slam_generate_messages_cpp)
+
+add_executable(obstacle_cost_map_publisher src/obstacle_cost_map/obstacle_cost_map_publisher.cpp lib/XYToPixel.cpp)
+target_link_libraries(obstacle_cost_map_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(obstacle_cost_map_publisher slam_generate_messages_cpp)
+
+add_executable(obstacle_marker src/obstacle_cost_map/obstacle_marker.cpp lib/XYToPixel.cpp)
+target_link_libraries(obstacle_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(obstacle_marker slam_generate_messages_cpp)
 
 
 catkin_install_python(PROGRAMS 

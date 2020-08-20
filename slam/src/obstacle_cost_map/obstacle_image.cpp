@@ -27,6 +27,7 @@ using namespace cv;
 
 class ObstacleImage{
     public:
+
 	ObstacleImage(){
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/image_raw", 10);
         sub_ = nh_.subscribe("/point_cloud_clusters", 1, &ObstacleImage::callback, this);
