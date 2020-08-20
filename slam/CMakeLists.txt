@@ -131,7 +131,7 @@ add_executable(obstacle_image src/obstacle_cost_map/obstacle_image.cpp)
 target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(obstacle_image slam_generate_messages_cpp)
 
-add_executable(obstacle_costmap_publisher src/obstacle_cost_map/find_cone.cpp)
+add_executable(obstacle_costmap_publisher src/obstacle_cost_map/basic_obstacle_costmap.cpp)
 target_link_libraries(obstacle_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(obstacle_costmap_publisher slam_generate_messages_cpp)
 

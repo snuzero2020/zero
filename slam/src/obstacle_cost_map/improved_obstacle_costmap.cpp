@@ -1,8 +1,6 @@
-#include <algorithm>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
-#include <string>
 #include <vector>
 #include <math.h>
 
@@ -37,9 +35,8 @@ class DecayingCostmap{
         sub_img_ = nh_.subscribe("/obstacle_map/costmap", 1, &DecayingCostmap::img_callback, this);
         sub_pose_ = nh_.subscribe("/filtered_data", 1, &DecayingCostmap::pose_callback, this);
         final_costmap = Mat::zeros(300, 300, CV_8U);
-        calibrated_costmap = Mat::zeros(300, 300, CV_8U);
-        alpha = (sqrt(5) + 1) / 4; // decay_rate
-        beta = (sqrt(5) -1 ) / 4;
+        alpha = (sqrt(5) + 1) / 4; // decay_rate of current costmap
+        beta = (sqrt(5) -1 ) / 4; // decay_rate of past costmap
     }
 
     //USE VECTOR'S ITERATION    
@@ -65,7 +62,6 @@ class DecayingCostmap{
         make_poses_list(pose);
         if (poses_list.size() == 2)
         {
-            //calibrated_costmap = calibrate_map(final_costmap, poses_list[0], poses_list[1]);
             warpAffine(final_costmap, final_costmap, calibrate_map(poses_list[1], poses_list[0]), costmap.size());
             // Interpolate the influence of the consequential costmaps
             for(int i = 0 ; i < costmap.rows ; i++){
@@ -77,11 +73,15 @@ class DecayingCostmap{
 
         imshow("original_costmap", costmap);
         imshow("improved_costmap", final_costmap);
-        //imshow("calbirated_costmap",calibrated_costmap);
         int key = waitKey(30);
-
         mainclock = ros::Time::now();
     }
+
+    // Using current pose and past pose, calibrate past lidar data into current pose's view.
+    // 1. Reference Frame Change between past and current pose
+    // 2. Reference Frame Change between car's point(300,150) and image pixel zero point(0,0)
+    // 3. Make Jordan Similar Matrix and compute it
+    // 4. Return Calibration Matrix 
 
     Mat calibrate_map(slam::Data current_pose, slam::Data past_pose){
         int current_pixel_x, current_pixel_y, past_pixel_x, past_pixel_y, trans_x, trans_y;
@@ -91,7 +91,7 @@ class DecayingCostmap{
         current_theta = current_pose.theta / 180 * M_PI;
         past_theta = past_pose.theta / 180 * M_PI;
         
-        //Calibrate the difference between consequential costmaps
+        //1. Reference frame change between past and current pose
         MatrixXd calibrationMatrix(3,3);
         MatrixXd T_current(3,3);
         MatrixXd T_past(3,3);
@@ -110,20 +110,25 @@ class DecayingCostmap{
         
         calibrationMatrix = T_current.inverse() * T_past;
 
-        //Move Zero Point from car's position to (0,0)
+        //2. Reference frame change between car's point and zero point in the image pixel world
         MatrixXd moveZeropoint(3,3);
         moveZeropoint << 0, 1, -150,
                         -1, 0, 300,
                         0, 0, 1;
         
-        
+        //3. Make Jordan Similar Matrix P-1AP
         finalMatrix_Eigen = moveZeropoint.inverse() * calibrationMatrix * moveZeropoint;
+        //4. Put Eigen to CV Function
         eigen2cv(finalMatrix_Eigen, finalMatrix_CV);
+        //5. Pop up last row
         finalMatrix_CV_test = finalMatrix_CV(Range(0,2),Range(0,3));
 
         return finalMatrix_CV_test;
     }
 
+    // Put car's pose into the pose vector (size : 2)
+    // 1. Delete old one 2. Push back new pose
+    // Vector of past pose and current pose
     void make_poses_list(slam::Data pose){
         if(poses_list.size() < 2) poses_list.push_back(pose);
         else{
@@ -133,21 +138,13 @@ class DecayingCostmap{
         }
     }
 
+    // If no topics are subscribed for 2 seconds, then quit!
     void quit_if_end(){
         if((ros::Time::now() - mainclock).sec > 2){
             destroyWindow("original_costmap");
             destroyWindow("improved_costmap");
         }
     }
-
-    // void make_costmaps_list(Mat costmap){
-    //     if(costmaps_list.size() < 5) costmaps_list.push_back(costmap);
-    //     else{
-    //         vector<Mat>::iterator it = costmaps_list.begin();
-    //         it = costmaps_list.erase(it);
-    //         costmaps_list.push_back(costmap);
-    //     }
-    // }
 
     private:
     ros::NodeHandle nh_;
@@ -160,7 +157,6 @@ class DecayingCostmap{
     slam::Data pose;
     Mat final_costmap;
     Mat costmap;
-    Mat calibrated_costmap;
     // vector<Mat> costmaps_list;
     vector<slam::Data> poses_list;
 };

@@ -131,8 +131,8 @@ class DetectCone{
         }
         int slice = (kernel_size - 1)/2;
         costmap_sliced = costmap(Range(slice, padded_map.rows - slice),Range(slice, padded_map.cols - slice));
+        
         ///Rotate pi(rad)
-
         Point2f rotation_center(costmap_sliced.cols/2, costmap_sliced.rows/2);
         Mat rotation_matrix = getRotationMatrix2D(rotation_center, 180, 1.0);
         warpAffine(costmap_sliced, costmap_sliced, rotation_matrix, costmap_sliced.size());
