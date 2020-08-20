@@ -17,6 +17,9 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include "multi_img_utils.h"
 #include <cmath>
+#include "sensor_msgs/image_encodings.h"
+#include "sensor_msgs/Image.h"
+#include "cv_bridge/cv_bridge.h"
 
 using namespace cv;
 using namespace std;
@@ -410,7 +413,16 @@ void lanenet_callback(const lanenet_lane_detection::lanenet_clus_msg::ConstPtr &
 
     cv::imshow("birdeye_img", birdeye_img);
     cv::imshow("costMap", costMap);
+    
+    ros::NodeHandle nh;
+    ros::Publisher costMap_pub = nh.advertise<sensor_msgs::Image>("/lanenet_costMap", 2);
 
+    cv_bridge::CvImage img_bridge;
+	sensor_msgs::Image img_msg;
+	std_msgs::Header header;
+	img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costMap);
+	img_bridge.toImageMsg(img_msg);
+	costMap_pub.publish(img_msg);
     //cv::imshow("right_cluster", right_cluster);
     //cv::imshow("left_cluster", left_cluster);
     // ShowManyImages("Cluster_image",2, left_cluster, right_cluster);

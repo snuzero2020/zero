@@ -6,6 +6,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  sensor_msgs
+  cv_bridge
 )
 
 find_package(OpenCV 3 REQUIRED)
@@ -24,7 +26,7 @@ generate_messages(
 
 catkin_package(
 	INCLUDE_DIRS include
-	CATKIN_DEPENDS roscpp std_msgs
+	CATKIN_DEPENDS roscpp std_msgs sensor_msgs cv_bridge
 
 	DEPENDS
 	opencv_highgui opencv_imgproc
@@ -48,7 +50,9 @@ set (HEADERS
 add_executable(lanenet_seg_subscriber src/LaneNet_seg_subscriber.cpp ${HEADERS} ${SOURCES})
 add_dependencies(lanenet_seg_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(lanenet_seg_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES})
+set_target_properties(lanenet_seg_subscriber PROPERTIES COMPILE_FLAGS "-O3")
 
 add_executable(lanenet_cluster_subscriber src/Lanenet_cluster_sub.cpp ${HEADERS} ${SOURCES})
 add_dependencies(lanenet_cluster_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(lanenet_cluster_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES})
+set_target_properties(lanenet_cluster_subscriber PROPERTIES COMPILE_FLAGS "-O3")
