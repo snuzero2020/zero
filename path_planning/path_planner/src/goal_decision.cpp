@@ -61,7 +61,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	printf("parking space : %d\n",parking_space);
 
-	// flag info : main(0), sub (1, = other lane), left(2), right(3), halt(4), parking(5~10)
+	// flag info : main(0), sub (1, = other lane), left(2), right(3), straight(4), parking(5~10)
 	bool flag[12];
 	for(int i = 0;i<12;i++) flag[i] = false;
 	switch(motion){
@@ -85,7 +85,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			flag[1] = true;
 			flag[3] = true;
 			break;
-		//////////////////////////////
 		case PARKING_MOTION :
 			switch(parking_space){
 				case SEARCHING_PARKING_SPOT :
@@ -112,7 +111,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 					break;
 			}
 			break;
-		//////////////////////////////
 	}
 
 	printf("flag : ");
@@ -122,9 +120,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	double look_ahead_radius;
 	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 100;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 100;
-	///////////////////////////////////////
 	else if(motion == PARKING_MOTION) look_ahead_radius = 30;
-	///////////////////////////////////////
 	else look_ahead_radius = 200;
 
 
@@ -135,7 +131,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	////// in case obstacle sudden, slam team must give sequence of path so that
 	////// we can know where obstacle is, and determine goal
-	////// by checking nearest(smallest) sequence index of obstacle 
+	////// by checking nearest(smallest) sequence index of goal point on obstacle 
 	int nearest_obs_seq = 1000000;
 
 	// assign appropriate index which is closest to look_ahead_radius 
@@ -170,6 +166,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
 	
+		//if(dx < 20) continue;
+
 		// check obstacle
 		
 		double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
@@ -283,8 +281,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	if(task == OBSTACLE_SUDDEN){
 		return Cor(0,0); 
 	}
-
-	/////////////////////////////////////////
+	
 	// we check whether parking or unparking complished by no goal available
 	// when parking complished or unparking complished stop!
 	else if(motion==PARKING_MOTION){
@@ -305,7 +302,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			return Cor(0,0);
 		}
 	}
-	/////////////////////////////////////////
 	// please don't go into this condition
 	// when there is no goal available stop! ////////////////////////should be checked!!
 	else{

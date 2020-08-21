@@ -46,7 +46,9 @@ public:
 		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished",10);
 
 		task = light = motion = parking_space = -1;
+//////////////////////////		
 		isTrackDriving = false;
+//////////////////////////
 		//n.getParam("/isTrackDriving", isTrackDriving);
 		//n.getParam("/stepsize_pp", stepsize_pp_value);
 	}
@@ -72,12 +74,12 @@ public:
 		static int time_parking_complished{0};
 		static int gear_state{0};
 
-//////////////
+/*
 		isTrackDriving = false;
-		task = OBSTACLE_SUDDEN;
+		task = OBSTACLE_STATIC;
 		light = 0;
 		motion = FORWARD_MOTION;
-////////////
+*/
 
 		cout<<"cost_map callback\n";
 		if(isTrackDriving){
@@ -155,19 +157,19 @@ public:
 			if(goals.poses.empty()) return;
 			if(task == -1) return;
 			
-			int iternum = 500;
-			double radius = 30;
-			double stepsize = 1;
-			double threshold = 100;
-			double threshold2 = 50;
-			double cost_scale = 80;
-			/*n.getParam("/iternum", iternum);
+			int iternum;
+			double radius;
+			double stepsize;
+			double threshold;
+			double threshold2;
+			double cost_scale;
+			n.getParam("/iternum", iternum);
 			n.getParam("/radius", radius);
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);
 			n.getParam("/cost_scale", cost_scale); // 66-> 100 to 66
-			*/RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
+			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			int t = clock();
 
 			// get costmap	
