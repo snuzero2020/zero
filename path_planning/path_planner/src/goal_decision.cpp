@@ -54,6 +54,10 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
 
+	int lidar_detect_dist;
+	
+	ros::param::get("/lidar_detect_dist",lidar_detect_dist);
+
 	bool go_sub_path = false;
 	const double angle{0.0};
 	const int x{0};
@@ -120,7 +124,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	double look_ahead_radius;
 	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 100;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 100;
-	else if(motion == PARKING_MOTION) look_ahead_radius = 30;
+	else if(motion == PARKING_MOTION) look_ahead_radius = 60;
 	else look_ahead_radius = 200;
 
 
@@ -163,6 +167,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		else{ // rear motion
 			if(ang_diff > M_PI/2) continue;
 		}
+
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
 	
@@ -176,7 +181,10 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
 	
 ///////////////////////////////////////
-			if(task == OBSTACLE_STATIC && dist < look_ahead_radius) go_sub_path = true;
+			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0){
+			       	cout << "(" << dx << ',' << dy << ") cost : " << costmap[(int)dx][(int)dy+costmap.size()/2] << "\n";
+				go_sub_path = true;
+			}
 ///////////////////////////////////////
 			continue;
 		}
@@ -227,7 +235,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(costmap[(int)dx][(int)dy+costmap.size()/2] >= OBSTACLE) continue;
 
 			// check closer than obstacle
-			if(pose_seq >= nearest_obs_seq) continue;
+			if(pose_seq >= nearest_obs_seq - lidar_detect_dist) continue;
 
 			double dist = sqrt((dx-x)*(dx-x) + (dy-y)*(dy-y));
 
@@ -252,6 +260,9 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 ///////////////////////////////
 	// if OBSTACLE_STATIC and find obstacle in look_ahead_radius, then go sub path
 	if(task == OBSTACLE_STATIC && go_sub_path){
+
+		cout << "looking sub path!\n";
+
 		// can't find goal, just go straight
 		if(value_sub == -1) return Cor(0,1);
 			

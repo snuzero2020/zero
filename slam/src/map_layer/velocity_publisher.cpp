@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "std_msgs/Float64.h"
+#include "std_msgs/Float32.h"
 
 #include "slam/Pixel.h"
 #include "slam/Data.h"
@@ -23,6 +24,8 @@ class velocity_publisher{
         double recommended_velocity;
         double max_velocity;
         bool is_kcity;
+        int sigma;
+        int kernelSize;
 
     public:
         cv::Mat velocity_map;
@@ -30,6 +33,8 @@ class velocity_publisher{
 
         velocity_publisher(){
             ros::param::get("/is_kcity", is_kcity);
+            ros::param::get("/sigma", sigma);
+            ros::param::get("/kernelSize", kernelSize);
 
             if(is_kcity==true){
             	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map.png";
@@ -40,14 +45,15 @@ class velocity_publisher{
                 }   
             }
             else if(is_kcity==false){
-            	path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_velocity_map.png";
+            	path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_velocity_map_"<<kernelSize<<"_"<<sigma<<".png";
                 velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
                    if(!velocity_map.empty()){
                         ROS_INFO("FMTC loaded");
                     }   
             }
  
-            pub = nh.advertise<std_msgs::Float64>("/recommended_velocity", 2);
+            //pub = nh.advertise<std_msgs::Float64>("/recommend_vel", 2);
+            pub = nh.advertise<std_msgs::Float32>("/recommend_vel", 2);
             sub = nh.subscribe("/filtered_data",2, &velocity_publisher::callback, this);
         }
 
@@ -72,7 +78,8 @@ class velocity_publisher{
             if(x_inRange&&y_inRange){
                 std::cout<<"on map"<<std::endl;
                 recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
-                std_msgs::Float64 rt;
+                //std_msgs::Float64 rt;
+                std_msgs::Float32 rt;
                 rt.data = recommended_velocity/255*max_velocity;
                 pub.publish(rt);
             }
