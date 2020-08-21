@@ -32,8 +32,8 @@ class LanenetCluster{
     
     public:
         LanenetCluster() {
-            costMap_pub = nh.advertise<sensor_msgs::Image>("/lanenet_costMap", 2);
-            lanenet_sub = nh.subscribe("/lane_cluster_topic", 2 , &LanenetCluster::lanenet_callback, this);
+            costMap_pub = nh.advertise<sensor_msgs::Image>("/lanenet_costMap", 1);
+            lanenet_sub = nh.subscribe("/lane_cluster_topic", 1 , &LanenetCluster::lanenet_callback, this);
             ROS_INFO("LanenetCluster loaded");
         }
         int x_and_y_pow(int x, int x_n, int y, int y_n){
@@ -275,7 +275,7 @@ class LanenetCluster{
             std::vector<pcl::PointIndices> right_cluster_indices;
 
             pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_left;
-            ec_left.setClusterTolerance(0.2);
+            ec_left.setClusterTolerance(0.15);
             ec_left.setMinClusterSize(10);
             ec_left.setMaxClusterSize(5000);
             ec_left.setSearchMethod(left_tree);
@@ -315,7 +315,7 @@ class LanenetCluster{
 
             pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_right;
 
-            ec_right.setClusterTolerance(0.2);
+            ec_right.setClusterTolerance(0.15);
             ec_right.setMinClusterSize(10);
             ec_right.setMaxClusterSize(5000);;
             ec_right.setSearchMethod(right_tree);
