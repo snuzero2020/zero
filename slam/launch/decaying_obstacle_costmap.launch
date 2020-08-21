@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find slam)/launch/obstacle_cost_map.launch"/>
+  <node name ="obstacle_image" pkg="slam" type="obstacle_image" output="screen"/>
+  <node name ="obstacle_costmap_publisher" pkg="slam" type="obstacle_costmap_publisher" output="screen"/>
+  <node name ="decaying_costmap_publisher" pkg="slam" type="decaying_costmap_publisher" output="screen"/>
+</launch>
