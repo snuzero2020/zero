@@ -36,8 +36,7 @@ class DecayingCostmap{
         sub_img_ = nh_.subscribe("/obstacle_map/costmap", 1, &DecayingCostmap::img_callback, this);
         sub_pose_ = nh_.subscribe("/filtered_data", 1, &DecayingCostmap::pose_callback, this);
         rt_costmap = Mat::zeros(300, 300, CV_8U);
-        alpha = (sqrt(5) + 1) / 4; // decay_rate of current costmap
-        beta = 0.8; // decay_rate of past costmap
+        namedWindow("decaying_costmap");
     }
 
     //USE VECTOR'S ITERATION    
@@ -66,8 +65,15 @@ class DecayingCostmap{
             warpAffine(rt_costmap, rt_costmap, calibrate_map(poses_list[1], poses_list[0]), costmap.size());
             // Interpolate the influence of the consequential costmaps
             for(int i = 0 ; i < costmap.rows ; i++){
+                alpha = 1;
+                beta = 0.8;
                 for(int j = 0; j < costmap.cols; j++){
+                    if(j > 280) {
+                        alpha = 0;
+                        beta = 0.97;
+                    }
                     int final_cost = alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i);
+
                     if(final_cost < 100){
                         rt_costmap.at<uchar>(j,i) = final_cost;
                     }
@@ -102,7 +108,12 @@ class DecayingCostmap{
         
         //About time
         clock_t end = clock();
-        ROS_INFO("elapsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
+
+        if(max_time < double(end-begin)/CLOCKS_PER_SEC){
+            max_time = double(end-begin)/CLOCKS_PER_SEC;
+        }
+        ROS_INFO("max elapsed time (2): %lf", max_time);
+        ROS_INFO("elapsed time (2): %lf", double(end-begin)/CLOCKS_PER_SEC);
         mainclock = ros::Time::now();
     }
 
@@ -191,6 +202,8 @@ class DecayingCostmap{
     vector<slam::Data> poses_list;
 
     cv_bridge::CvImage pub_img_bridge;
+
+    double max_time;
 };
 
 int main(int argc, char **argv){

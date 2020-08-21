@@ -176,7 +176,11 @@ class DetectCone{
         // Measure time taken at code
         clock_t end = clock();
         mainclock = ros::Time::now();
-        ROS_INFO("elaspsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
+        //ROS_INFO("elaspsed time (1): %lf", double(end-begin)/CLOCKS_PER_SEC);
+        if(max_time < double(end-begin)/CLOCKS_PER_SEC){
+            max_time = double(end-begin)/CLOCKS_PER_SEC;
+        }
+        ROS_INFO("max elapsed time (1) : %lf", max_time);
     }
 
     private:
@@ -198,6 +202,7 @@ class DetectCone{
     Mat costmap_sliced; // Sliced
 
     cv_bridge::CvImage img_bridge;
+    double max_time;
 };
 
 

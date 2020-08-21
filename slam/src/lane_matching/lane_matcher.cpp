@@ -24,28 +24,30 @@ using namespace std;
 void imshowall(vector<Mat> imgs);
 //imgs의 원소 img들을 가로로 순서대로 붙여서 imshow
 
-Mat warpEuclid(Mat img, int dx, int dy, double dth, bool inverse = false); 
+void warpEuclid(Mat& img, Mat& res, int dx, int dy, double dth, bool inverse = false); 
 //img를 x방향으로 dx, y방향으로 dy, th방향으로 dth 강체이동한 새 이미지 리턴
 
 void recurMatch(int& dx, int& dy, double& dth, Mat img1, Mat img2, int iter){
     if(iter==0){
         return;
     }
-    Mat small_img1;
-    Mat small_img2;
     Mat temp_img1;
     Mat temp_img2;
-    resize(img1, small_img1, img1.size()/2, 0, 0, INTER_AREA);
-    resize(img2, small_img2, img2.size()/2, 0, 0, INTER_AREA);
-    recurMatch(dx,dy,dth,small_img1,small_img2,iter-1);
-    dx *= 2;
-    dy *= 2;
+    if(iter>1){
+        Mat small_img1;
+        Mat small_img2;
+        resize(img1, small_img1, img1.size()/2, 0, 0, INTER_AREA);
+        resize(img2, small_img2, img2.size()/2, 0, 0, INTER_AREA);
+        recurMatch(dx,dy,dth,small_img1,small_img2,iter-1);
+        dx *= 2;
+        dy *= 2;
+    }
     Rect lane_rect = Rect((img1.cols-img2.cols)/2, img1.rows/2-img2.rows, img2.cols, img2.rows); 
     int min_cross = 200*200;
     double min_dth = dth;
-    int ang_step_n_2 = (iter<=1)?(M_PI_2/ANG_STEP):(STEP_N_2);
+    int ang_step_n_2 = M_PI_2/ANG_STEP;
     for(int i = -ang_step_n_2; i<=ang_step_n_2; i++){
-        temp_img1=warpEuclid(img1,dx,dy,dth+i*ANG_STEP/(1<<iter),true);
+        warpEuclid(img1,temp_img1,dx,dy,dth+i*ANG_STEP/(1<<iter),true);
         int cross = norm(temp_img1(lane_rect),img2);
         if(cross<min_cross){
             min_cross = cross;
@@ -53,12 +55,13 @@ void recurMatch(int& dx, int& dy, double& dth, Mat img1, Mat img2, int iter){
         }
     }
     dth=min_dth;
+    warpEuclid(img1,temp_img1,dx,dy,dth,true);    
     min_cross = 200*200;
     double min_dx = dx;
     double min_dy = dy;
     for(int i = -STEP_N_2; i<=STEP_N_2; i++){
         for(int j = -STEP_N_2; j<=STEP_N_2; j++){
-            temp_img1=warpEuclid(img1,dx+i*POS_STEP,dy+j*POS_STEP,dth,true);
+            lane_rect = Rect((img1.cols-img2.cols)/2+i*POS_STEP, img1.rows/2-img2.rows+j*POS_STEP, img2.cols, img2.rows);
             int cross = norm(temp_img1(lane_rect),img2);
             if(cross<min_cross){
                 min_cross = cross;
@@ -70,7 +73,7 @@ void recurMatch(int& dx, int& dy, double& dth, Mat img1, Mat img2, int iter){
     dx = min_dx;
     dy = min_dy;
 
-    temp_img1=warpEuclid(img1,dx,dy,dth,true);    
+    //temp_img1=warpEuclid(img1,dx,dy,dth,true);    
     //imshowall({img1(lane_rect), img2, temp_img1(lane_rect), temp_img1(lane_rect)-img2+128.});
     //ROS_INFO("%d %d %lf",dx,dy,dth);
 }
@@ -94,7 +97,7 @@ int main(int argc, char **argv)
     int realx = 19;  //////////////////////////////////////////////////////
     int realy = 19;    ////////////////////////////////////////////////////
     double realth = 0.51;  ////////////////////////////////////////////////////
-    img1=warpEuclid(img1,realx,realy,realth,false);
+    warpEuclid(img1,img1,realx,realy,realth,false);
 
     img2= cv::imread(path_stream2.str(),cv::IMREAD_GRAYSCALE);
     if(img2.empty()){
@@ -113,7 +116,8 @@ int main(int argc, char **argv)
     recurMatch(estx, esty, estth, img1, img2, 5);
     ROS_INFO("%d %d %lf",estx,esty,estth);
     ROS_INFO("%lf", (ros::Time::now()-t0).toSec());
-    Mat resimg = warpEuclid(img1,estx,esty,estth,true);
+    Mat resimg;
+    warpEuclid(img1,resimg,estx,esty,estth,true);
     imshowall({img1(lane_rect), img2, resimg(lane_rect), resimg(lane_rect)-img2+128.});
     return 0;
 }
@@ -131,7 +135,7 @@ void imshowall(vector<Mat> imgs){
     cv::waitKey(1000000);
 }
 
-Mat warpEuclid(Mat img, int x, int y, double th, bool inverse){
+void warpEuclid(Mat& img, Mat& res, int x, int y, double th, bool inverse){
     double x0=img.cols*CENTER_X_PER_IMG_COLS;
     double y0=img.rows*CENTER_Y_PER_IMG_ROWS;
     Point2f srcPoint[] = {Point2f(x0, y0), Point2f(x0+1., y0), Point2f(x0, y0+1.)};
@@ -146,7 +150,5 @@ Mat warpEuclid(Mat img, int x, int y, double th, bool inverse){
     }else{
         trans = getAffineTransform(dstPoint,srcPoint);
     }
-    Mat res;
     warpAffine(img,res,trans,img.size());
-    return res;
 }

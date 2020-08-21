@@ -21,7 +21,10 @@ class velocity_publisher{
         ros::Subscriber sub;
         int pixel_x, pixel_y;
         double recommended_velocity;
+        double max_velocity;
         bool is_kcity;
+        int sigma;
+        int kernelSize;
 
     public:
         cv::Mat velocity_map;
@@ -29,6 +32,8 @@ class velocity_publisher{
 
         velocity_publisher(){
             ros::param::get("/is_kcity", is_kcity);
+            ros::param::get("/sigma", sigma);
+            ros::param::get("/kernelSize", kernelSize);
 
             if(is_kcity==true){
             	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map.png";
@@ -39,7 +44,7 @@ class velocity_publisher{
                 }   
             }
             else if(is_kcity==false){
-            	path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_velocity_map.png";
+            	path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_velocity_map_"<<kernelSize<<"_"<<sigma<<".png";
                 velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
                    if(!velocity_map.empty()){
                         ROS_INFO("FMTC loaded");
@@ -52,7 +57,7 @@ class velocity_publisher{
 
         void callback(const slam::Data::ConstPtr& msg){
             bool x_inRange, y_inRange;
-
+            ros::param::get("/max_velocity", max_velocity);
  
             XYToPixel(pixel_y, pixel_x, msg->x, msg->y, is_kcity); // pixel_y here is x in cv graphics and column in cv Mat
             
@@ -72,7 +77,7 @@ class velocity_publisher{
                 std::cout<<"on map"<<std::endl;
                 recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
                 std_msgs::Float64 rt;
-                rt.data = recommended_velocity/255*3;
+                rt.data = recommended_velocity/255*max_velocity;
                 pub.publish(rt);
             }
         }

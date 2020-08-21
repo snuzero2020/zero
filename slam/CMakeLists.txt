@@ -162,6 +162,11 @@ target_link_libraries(decaying_costmap_publisher ${Eigen_LIBRARIES} ${catkin_LIB
 set_target_properties(decaying_costmap_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(decaying_costmap_publisher slam_generate_messages_cpp)
 
+add_executable(erode_png src/redundancy/dilate_png.cpp)
+target_link_libraries(erode_png ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+set_target_properties(erode_png PROPERTIES COMPILE_FLAGS "-O3")
+add_dependencies(erode_png slam_generate_messages_cpp)
+
 #add_executable(eigen2cv_tester src/obstacle_cost_map/test_eigen2cv.cpp lib/XYToPixel.cpp)
 #target_link_libraries(eigen2cv_tester ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #set_target_properties(eigen2cv_tester PROPERTIES COMPILE_FLAGS "-O3")
