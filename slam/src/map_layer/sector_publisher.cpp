@@ -48,7 +48,7 @@ class sector_publisher{
                     ROS_INFO("FMTC loaded");
                 }     
             }  
-            pub = nh.advertise<std_msgs::Int32>("/sector_info", 1);
+            pub = nh.advertise<std_msgs::Int32>("/sector_info_test", 1);
             sub = nh.subscribe("/filtered_data",2, &sector_publisher::callback, this);
         }
 
