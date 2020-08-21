@@ -31,6 +31,7 @@ class ObstacleImage{
 	ObstacleImage(){
         pub_ = nh_.advertise<sensor_msgs::Image>("/obstacle_map/image_raw", 10);
         sub_ = nh_.subscribe("/point_cloud_clusters", 1, &ObstacleImage::callback, this);
+        max_time = 0;
     }
 
     void callback(const slam::Clusters::ConstPtr& msg){
@@ -55,7 +56,12 @@ class ObstacleImage{
         img_bridge.toImageMsg(rt); // from cv_bridge to sensor_msgs::Image
         pub_.publish(rt); // ros::Publisher pub_img = node.advertise<sensor_msgs::Image>("topic", queuesize);
         clock_t end = clock();
-        ROS_INFO("elapsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
+
+        if(max_time < double(end-begin)/CLOCKS_PER_SEC){
+            max_time = double(end-begin)/CLOCKS_PER_SEC;
+        }
+        ROS_INFO("max elapsed time(3) : %lf", max_time);
+        //ROS_INFO("elapsed time(3): %lf", double(end-begin)/CLOCKS_PER_SEC);
     }
 
     private:
@@ -67,6 +73,7 @@ class ObstacleImage{
     double resolution_ = 0.03;
     vector<slam::Cluster> clusters_;
     cv_bridge::CvImage img_bridge;
+    double max_time;
 };
 
 int main(int argc, char **argv){

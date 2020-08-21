@@ -36,6 +36,7 @@ class DecayingCostmap{
         sub_img_ = nh_.subscribe("/obstacle_map/costmap", 1, &DecayingCostmap::img_callback, this);
         sub_pose_ = nh_.subscribe("/filtered_data", 1, &DecayingCostmap::pose_callback, this);
         rt_costmap = Mat::zeros(300, 300, CV_8U);
+        namedWindow("decaying_costmap");
     }
 
     //USE VECTOR'S ITERATION    
@@ -82,7 +83,7 @@ class DecayingCostmap{
             }
         }
 
-        imshow("original_costmap", costmap);
+        //imshow("original_costmap", costmap);
         imshow("decaying_costmap", rt_costmap);
         int key = waitKey(30);
 
@@ -107,7 +108,12 @@ class DecayingCostmap{
         
         //About time
         clock_t end = clock();
-        ROS_INFO("elapsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
+
+        if(max_time < double(end-begin)/CLOCKS_PER_SEC){
+            max_time = double(end-begin)/CLOCKS_PER_SEC;
+        }
+        ROS_INFO("max elapsed time (2): %lf", max_time);
+        ROS_INFO("elapsed time (2): %lf", double(end-begin)/CLOCKS_PER_SEC);
         mainclock = ros::Time::now();
     }
 
@@ -196,6 +202,8 @@ class DecayingCostmap{
     vector<slam::Data> poses_list;
 
     cv_bridge::CvImage pub_img_bridge;
+
+    double max_time;
 };
 
 int main(int argc, char **argv){
