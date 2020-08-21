@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	int tmp = 10;
 	for(int i = 0;i<300;i++){
 		for(int j = 0;j<300;j++){
-				if(i >=140 && i<=160 && j >=140 && j<=180)
+				if(i >=200 && i<=260 && j >=140 && j<=180)
 				{
 					cost_map.data.push_back((int8_t)100);
 					//cost_map.data.push_back((int8_t)tmp);
@@ -55,6 +55,10 @@ int main(int argc, char **argv)
 			pose.pose.position.x = i*10;
 			pose.pose.position.y = 0;
 			pose.header.seq = (i<<4);
+			goals.poses.push_back(pose);
+			pose.pose.position.x = i*10;
+			pose.pose.position.y = -100;
+			pose.header.seq = ((i+30)<<4)+1;
 			goals.poses.push_back(pose);
 		}
 
