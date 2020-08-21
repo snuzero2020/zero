@@ -162,14 +162,26 @@ public:
 			double stepsize;
 			double threshold;
 			double threshold2;
+			double threshold2_obstacle_static;
 			double cost_scale;
+			double cost_scale_obstacle_static;
 			n.getParam("/iternum", iternum);
 			n.getParam("/radius", radius);
 			n.getParam("/stepsize_rrt", stepsize);
 			n.getParam("/threshold", threshold);
 			n.getParam("/threshold2", threshold2);
+			n.getParam("/threshold2_obstacle_static", threshold2_obstacle_static);
 			n.getParam("/cost_scale", cost_scale); // 66-> 100 to 66
+			n.getParam("/cost_scale_obstacle_static", cost_scale_obstacle_static); // 66-> 100 to 66
+
+
+			if (task == OBSTACLE_STATIC){
+				threshold2 = threshold2_obstacle_static;
+				cost_scale = cost_scale_obstacle_static;
+			}
+
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
+			
 			int t = clock();
 
 			// get costmap	
@@ -179,7 +191,12 @@ public:
 			for(int i = 0; i<h; i++){
 				for(int j = 0; j<w;j++){
 					cost_map[i][j] = (double)(map.data[i*w+j]*cost_scale/100.0 + (101-cost_scale));
-				}
+/*
+					if (task != OBSTACLE_STATIC)
+						cost_map[i][j] = (double)(map.data[i*w+j]*cost_scale/100.0 + (101-cost_scale));
+					else
+						cost_map[i][j] = (double)(map.data[i*w+j]*cost_scale_obstacle_static/100.0 + (101-cost_scale_obstacle_static));
+			*/	}
 			}
 
 			// rrt star algorithm
@@ -262,10 +279,27 @@ public:
 			cv::namedWindow("costmap_path");
 			cv::Mat image(h,w,CV_8UC3);
 			for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
-				image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
 			}
+/*
+			if (task != OBSTACLE_STATIC){
+				for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = (cost_map[i][j]-(100-cost_scale))*100.0/(double)cost_scale;	
+				}
+			}
+			else{
+				for(int i = 0;i<h;i++) for(int j = 0;j<w;j++){
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[0] = (cost_map[i][j]-(100-cost_scale_obstacle_static))*100.0/(double)cost_scale_obstacle_static;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[1] = (cost_map[i][j]-(100-cost_scale_obstacle_static))*100.0/(double)cost_scale_obstacle_static;	
+					image.at<cv::Vec3b>(h-1-i,w-1-j)[2] = (cost_map[i][j]-(100-cost_scale_obstacle_static))*100.0/(double)cost_scale_obstacle_static;	
+				}
+			}
+
+*/
 			for(int i = 0;i<path.size()-1;i++)
 				line(image, cv::Point(w-1-path[i].y,h-1-path[i].x), cv::Point(w-1-path[i+1].y,h-1- path[i+1].x), cv::Scalar(100,200,50),1,0);
 

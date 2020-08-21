@@ -109,6 +109,7 @@ class Tracker
 		int decel_level = 0;
 		int decel_check = 0;
 
+		int prev_gear_state{0};
 
 	public:
 
@@ -118,6 +119,7 @@ class Tracker
 		ros::Subscriber current_vel_sub;
 		ros::Subscriber recommend_vel_sub;
 		ros::Subscriber mission_state_sub;
+		ros::Subscriber gear_state_sub;
 
 		int motion{-1};
 		int light{-1};
@@ -135,6 +137,7 @@ class Tracker
 			current_vel_sub = nh.subscribe("filter_encoder_data",100, &Tracker::current_vel_callback, this);
 			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
 			mission_state_sub = nh.subscribe("mission_state", 50, &Tracker::missionstateCallback, this);
+			gear_state_sub = nh.subscribe("gear_state", 10, &Tracker::gear_state_callback, this);
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
 			nh.getParam("/D_gain", D_gain);
@@ -153,6 +156,7 @@ class Tracker
 		void current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg);
 		void recommend_vel_callback(const Float32::ConstPtr msg);
 		void missionstateCallback(const std_msgs::UInt32 & msg);
+		void gear_state_callback(const std_msgs::UInt32 & msg);
 
 
 		// Fuctions for determind steering angle
@@ -254,6 +258,13 @@ void Tracker::recommend_vel_callback(const Float32::ConstPtr msg)
 void Tracker::current_vel_callback(const core_msgs::Encoderfilter::ConstPtr msg){
 	current_vel = msg->filtered_encoder;
 	slope = msg->slope;
+}
+
+
+void Tracker::gear_state_callback(const std_msgs::UInt32 & msg){
+	if(prev_gear_state != msg.data)
+		integral_error = 0;
+	prev_gear_state = msg.data;
 }
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
@@ -424,6 +435,10 @@ void Tracker::calculate_input_signal(){
 		first = false;
 		return;
 	}
+	
+	// when gear_state is 1 -> rear gear, velocity input should be negetive.
+	if (prev_gear_state==1)
+		current_vel = abs(current_vel);
 
 	error = calculate_desired_vel() - current_vel;
 	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
@@ -458,7 +473,7 @@ void Tracker::vehicle_output_signal(){
 	if(decel_check == 1){
 		cout << "decceleration\n";
 		if (desired_vel_after < 0.2){
-			//msg.brake = 20;
+			msg.brake = 50;
 			integral_error = 0;
 			msg.speed = 0;
 			decel_check = 0;
