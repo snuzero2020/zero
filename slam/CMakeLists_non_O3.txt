@@ -45,161 +45,130 @@ target_link_libraries(map_cost_spreader ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 ##add_executable for global_path
 add_executable(outlier_eliminator src/global_path/auto_outlier_eliminator.cpp)
 target_link_libraries(outlier_eliminator ${catkin_LIBRARIES})
-set_target_properties(outlier_eliminator PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(outlier_eliminator slam_generate_messages_cpp)
 
 add_executable(global_path_generator src/global_path/global_path_generator.cpp)
 target_link_libraries(global_path_generator ${catkin_LIBRARIES})
-set_target_properties(global_path_generator PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(global_path_generator slam_generate_messages_cpp)
 
 add_executable(global_path_graph_generator src/global_path/global_path_graph_generator.cpp)
 target_link_libraries(global_path_graph_generator ${catkin_LIBRARIES})
-set_target_properties(global_path_graph_generator PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(global_path_graph_generator slam_generate_messages_cpp)
 
 add_executable(local_path_publisher src/global_path/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher ${catkin_LIBRARIES})
-set_target_properties(local_path_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(local_path_publisher slam_generate_messages_cpp)
 
 add_executable(global_visual src/visualizer/global_path_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(global_visual ${catkin_LIBRARIES})
-set_target_properties(global_visual PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(global_visual slam_generate_messages_cpp)
 
 ##add_excutable for line_matching
 add_executable(map_lane_extractor src/lane_matching/map_lane_extractor.cpp)
 target_link_libraries(map_lane_extractor ${catkin_LIBRARIES})
-set_target_properties(map_lane_extractor PROPERTIES COMPILE_FLAGS "-O3")
 
 add_executable(lane_matcher src/lane_matching/lane_matcher.cpp)
 target_link_libraries(lane_matcher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(lane_matcher PROPERTIES COMPILE_FLAGS "-O3")
 
 ##add_executable for map_calibration
 add_executable(gps_collector src/map_calibration/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(gps_collector PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(gps_collector slam_generate_messages_cpp)
 
 ##add_executable for map_layer
 add_executable(sector_publisher src/map_layer/sector_publisher.cpp lib/XYToPixel.cpp)
 target_link_libraries(sector_publisher ${catkin_LIBRARIES})
-set_target_properties(sector_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(sector_publisher slam_generate_messages_cpp)
 
 add_executable(color_velocity src/map_layer/color_velocity.cpp)
 target_link_libraries(color_velocity ${catkin_LIBRARIES})
-set_target_properties(color_velocity PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(color_velocity slam_generate_messages_cpp)
 
 add_executable(velocity_publisher src/map_layer/velocity_publisher.cpp lib/XYToPixel.cpp)
 target_link_libraries(velocity_publisher ${catkin_LIBRARIES})
-set_target_properties(velocity_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(velocity_publisher slam_generate_messages_cpp)
 
 ##add_executable for obstacle_cost_map
 add_executable(obstacle_detector src/obstacle_cost_map/obstacle_detector.cpp lib/XYToPixel.cpp)
 target_link_libraries(obstacle_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-set_target_properties(obstacle_detector PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(obstacle_detector slam_generate_messages_cpp)
 
 #add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
 #target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-#set_target_properties(lidar_pose_estimator PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
 
 ##add_executable for sensing
 add_executable(gps_decoder src/sensing/gps_decoder.cpp lib/UTM.cpp)
 target_link_libraries(gps_decoder ${catkin_LIBRARIES})
-set_target_properties(gps_decoder PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(gps_decoder slam_generate_messages_cpp)
 
 add_executable(imu_decoder src/sensing/imu_decoder.cpp lib/UnixtimeToSec.cpp)
 target_link_libraries(imu_decoder ${catkin_LIBRARIES})
-set_target_properties(imu_decoder PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(imu_decoder slam_generate_messages_cpp)
 
 add_executable(kalman_fusion src/sensing/kalman_fusion.cpp)
 target_link_libraries(kalman_fusion ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
-set_target_properties(kalman_fusion PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(kalman_fusion slam_generate_messages_cpp)
 
 ##add_executable for visualizer
 add_executable(gps_marker src/visualizer/gps_marker.cpp lib/XYToPixel.cpp)
 target_link_libraries(gps_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(gps_marker PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(gps_marker slam_generate_messages_cpp)
 
 add_executable(minimap_publisher src/visualizer/minimap_publisher.cpp lib/XYToPixel.cpp)
 target_link_libraries(minimap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(minimap_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(minimap_publisher slam_generate_messages_cpp)
 
 add_executable(slam_visualizer src/visualizer/slam_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(slam_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(slam_visualizer PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(slam_visualizer slam_generate_messages_cpp)
 
 add_executable(pp_visualizer src/visualizer/pp_visualizer.cpp lib/XYToPixel.cpp)
 target_link_libraries(pp_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-set_target_properties(pp_visualizer PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(pp_visualizer slam_generate_messages_cpp)
 
 add_executable(obstacle_image src/obstacle_cost_map/obstacle_image.cpp)
 target_link_libraries(obstacle_image ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(obstacle_image PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(obstacle_image slam_generate_messages_cpp)
 
 add_executable(obstacle_costmap_publisher src/obstacle_cost_map/basic_obstacle_costmap.cpp)
 target_link_libraries(obstacle_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(obstacle_costmap_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(obstacle_costmap_publisher slam_generate_messages_cpp)
 
 add_executable(decaying_costmap_publisher src/obstacle_cost_map/improved_obstacle_costmap.cpp lib/XYToPixel.cpp)
 target_link_libraries(decaying_costmap_publisher ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(decaying_costmap_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(decaying_costmap_publisher slam_generate_messages_cpp)
 
 #add_executable(eigen2cv_tester src/obstacle_cost_map/test_eigen2cv.cpp lib/XYToPixel.cpp)
 #target_link_libraries(eigen2cv_tester ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#set_target_properties(eigen2cv_tester PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(eigen2cv_tester slam_generate_messages_cpp)
 
 #add_executable(yolo_sender src/obstacle_cost_map/send_yolo.cpp)
 #target_link_libraries(yolo_sender ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#set_target_properties(yolo_sender PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(yolo_sender slam_generate_messages_cpp)
 
 #add_executable(yolo_lidar src/obstacle_cost_map/yolo_lidar_fusion.cpp)
 #target_link_libraries(yolo_lidar ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#set_target_properties(yolo_lidar PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(yolo_lidar slam_generate_messages_cpp)
 
 #add_executable(calib_matrix src/obstacle_cost_map/calib_mtx.cpp)
 #target_link_libraries(calib_matrix ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${OpenCV_LIBRARIES})
-#set_target_properties(calib_matrix PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(calib_matrix slam_generate_messages_cpp)
 
 #add_executable(lidar_visualizer src/obstacle_cost_map/lidar_visualizer.cpp)
 #target_link_libraries(lidar_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#set_target_properties(lidar_visualizer PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(lidar_visualizer slam_generate_messages_cpp)
 
 #add_executable(video_capture src/obstacle_cost_map/video_capture.cpp)
 #target_link_libraries(video_capture ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-#set_target_properties(video_capture PROPERTIES COMPILE_FLAGS "-O3")
 #add_dependencies(video_capture slam_generate_messages_cpp)
 
 add_executable(obstacle_cost_map_publisher src/obstacle_cost_map/obstacle_cost_map_publisher.cpp lib/XYToPixel.cpp)
 target_link_libraries(obstacle_cost_map_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(obstacle_cost_map_publisher PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(obstacle_cost_map_publisher slam_generate_messages_cpp)
 
 add_executable(obstacle_marker src/obstacle_cost_map/obstacle_marker.cpp lib/XYToPixel.cpp)
 target_link_libraries(obstacle_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-set_target_properties(obstacle_marker PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(obstacle_marker slam_generate_messages_cpp)
 
 
