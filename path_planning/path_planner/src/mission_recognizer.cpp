@@ -60,7 +60,7 @@ class RosNode{
 		ros::Subscriber sector_info_sub;
 		ros::Subscriber parking_complished_sub;
 		ros::Publisher mission_state_pub;
-		ros::Publisher recommend_vel_pub;
+		//ros::Publisher recommend_vel_pub;
 
 		int light_state;
 		double min_weight{0.5};
@@ -84,7 +84,7 @@ class RosNode{
 			sector_info_sub = n.subscribe("/sector_info", 50, &RosNode::sectorInfoCallback, this);
 			parking_complished_sub = n.subscribe("parking_complished", 50, &RosNode::parkingcomplishedCallback, this);
 			mission_state_pub = n.advertise<std_msgs::UInt32>("mission_state", 50);
-			recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 50);
+			//recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 50);
 
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
@@ -283,9 +283,11 @@ class RosNode{
 			int motion_state;
 			bool _2far2return{(msg.data != -1) && ((msg.data & 0b10000) == 0b10000)};
 
+			/*
 			std_msgs::Float32 recommend_vel_msg;
 			recommend_vel_msg.data = recommend_vel_info[sector_pass_checker.get_present_task()];
 			recommend_vel_pub.publish(recommend_vel_msg);
+			*/
 
 			light_state_determiner(task_state,_2far2return);
 			motion_state_determiner(motion_state,task_state,light_state);

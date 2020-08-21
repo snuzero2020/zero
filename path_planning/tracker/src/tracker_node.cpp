@@ -419,6 +419,9 @@ double Tracker::calculate_desired_vel(){
 		desired_vel_buff = desired_vel_after;
 	}
 
+	if (task == OBSTACLE_STATIC || task == OBSTACLE_SUDDEN)
+		desired_vel_after /= 2;
+
 	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
 	cout << "desired_vel_before : " << desired_vel_before << endl;
 	cout << "desired_vel_after : " << desired_vel_after << endl;
