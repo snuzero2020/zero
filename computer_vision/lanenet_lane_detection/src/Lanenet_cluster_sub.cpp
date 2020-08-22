@@ -274,13 +274,13 @@ class LanenetCluster{
             std::vector<pcl::PointIndices> left_cluster_indices;
             std::vector<pcl::PointIndices> right_cluster_indices;
 
-            pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_left;
-            ec_left.setClusterTolerance(0.15);
-            ec_left.setMinClusterSize(10);
-            ec_left.setMaxClusterSize(5000);
-            ec_left.setSearchMethod(left_tree);
-            ec_left.setInputCloud(cloud_left);
-            ec_left.extract(left_cluster_indices);
+            pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+            ec.setClusterTolerance(0.15);
+            ec.setMinClusterSize(5);
+            ec.setMaxClusterSize(5000);
+            ec.setSearchMethod(left_tree);
+            ec.setInputCloud(cloud_left);
+            ec.extract(left_cluster_indices);
 
             int count = 1;
             vector<vector<int>> cluster_indices;
@@ -311,16 +311,9 @@ class LanenetCluster{
             double coeff_left[4] = {0, 0, 0, 0};
             getcoeff(all_indices[left_lane], coeff_left);
 
-            //std::cout << coeff_left[0] <<" "<<coeff_left[1] << " " << coeff_left[2] << " " << coeff_left[3] << std::endl;
-
-            pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec_right;
-
-            ec_right.setClusterTolerance(0.15);
-            ec_right.setMinClusterSize(10);
-            ec_right.setMaxClusterSize(5000);;
-            ec_right.setSearchMethod(right_tree);
-            ec_right.setInputCloud(cloud_right);
-            ec_right.extract(right_cluster_indices);
+            ec.setSearchMethod(right_tree);
+            ec.setInputCloud(cloud_right);
+            ec.extract(right_cluster_indices);
             
             count = 1;
             cluster_indices.clear();
@@ -328,7 +321,6 @@ class LanenetCluster{
 
             for(std::vector<pcl::PointIndices>::const_iterator it = right_cluster_indices.begin();it != right_cluster_indices.end();++it){
                 for(std::vector<int>::const_iterator pit = it->indices.begin(); pit != it->indices.end(); ++pit){
-                    // right_cluster.at<uchar>(right_seg_y[*pit], right_seg_x[*pit]) = static_cast<int>(255/(count));
                     vector<int> one_indice;
                     one_indice.push_back(right_seg_y[*pit]);
                     one_indice.push_back(right_seg_x[*pit]);
@@ -389,17 +381,7 @@ class LanenetCluster{
             }
             
             std::cout << "Goal point " << goal << std::endl;
-
-            //cv::imshow("fitting_img", fitting_img);
-            //cv::imshow("costMap", costMap);
-
-            std::cout<<"C++ lane_postprocessing time : "<<(double)(clock()-start)/CLOCKS_PER_SEC<<std::endl;
-            std::cout<<std::endl;
             //ShowManyImages("Cluster_image", 2, birdeye_img, costMap);
-
-            cv::imshow("birdeye_img", birdeye_img);
-            cv::imshow("costMap", costMap);
-            cv::waitKey(1);
 
             cv_bridge::CvImage img_bridge;
             sensor_msgs::Image img_msg;
@@ -407,6 +389,13 @@ class LanenetCluster{
             img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costMap);
             img_bridge.toImageMsg(img_msg);
             costMap_pub.publish(img_msg);
+
+            std::cout<<"C++ lane_postprocessing time : "<<(double)(clock()-start)/CLOCKS_PER_SEC<<std::endl;
+            std::cout<<std::endl;
+
+            cv::imshow("birdeye_img", birdeye_img);
+            cv::imshow("costMap", costMap);
+            cv::waitKey(1);
         }
 };
 
