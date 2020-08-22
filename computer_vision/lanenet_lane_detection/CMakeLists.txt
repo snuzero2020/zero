@@ -51,9 +51,9 @@ set (HEADERS
 add_executable(lanenet_seg_subscriber src/LaneNet_seg_subscriber.cpp ${HEADERS} ${SOURCES})
 add_dependencies(lanenet_seg_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(lanenet_seg_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES})
-set_target_properties(lanenet_seg_subscriber PROPERTIES COMPILE_FLAGS "-O3")
+#set_target_properties(lanenet_seg_subscriber PROPERTIES COMPILE_FLAGS "-O2")
 
 add_executable(lanenet_cluster_subscriber src/Lanenet_cluster_sub.cpp ${HEADERS} ${SOURCES})
 add_dependencies(lanenet_cluster_subscriber ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(lanenet_cluster_subscriber ${catkin_LIBRARIES} ${OpenCV_LIBS} ${PCL_LIBRARIES})
-set_target_properties(lanenet_cluster_subscriber PROPERTIES COMPILE_FLAGS "-O3")
+#set_target_properties(lanenet_cluster_subscriber PROPERTIES COMPILE_FLAGS "-O2")

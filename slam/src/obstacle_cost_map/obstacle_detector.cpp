@@ -66,7 +66,7 @@ class ObstacleDetector{
         plane_tolerance_ = 0.12;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
-        path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area.png";
+        path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
         road_map_ = cv::imread(path_stream_.str());
     }
 

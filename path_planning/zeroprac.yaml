@@ -9,8 +9,10 @@ car_length: 105.0
 iternum: 1000
 threshold: 100.0
 threshold2: 98.0
+threshold2_obsatcle_static: 98.0
 radius: 30.0
 cost_scale: 10
+cost_scale_obstacle_static: 10
 stepsize_rrt: 1.0
 # path_planner_node
 stepsize_pp: 5.0
@@ -21,3 +23,5 @@ vel2: 2.0
 # mission recognizer
 mission_start : 0
 isKcity : false
+# goal decition
+lidar_detect_dist : 3
