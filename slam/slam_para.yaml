@@ -38,7 +38,7 @@ time_noise_var : 0.002
 
 #map layer
 #color_velocity.cpp, sector_publisher.cpp, velocity publiser.cpp
-is_kcity : false
-max_velocity : 2
-sigma : 60
-kernelSize : 99
+is_kcity : true
+max_velocity : 3
+sigma : 500
+kernelSize : 167
