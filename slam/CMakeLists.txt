@@ -116,6 +116,11 @@ target_link_libraries(gps_decoder ${catkin_LIBRARIES})
 set_target_properties(gps_decoder PROPERTIES COMPILE_FLAGS "-O3")
 add_dependencies(gps_decoder slam_generate_messages_cpp)
 
+add_executable(gps_serial_decoder src/sensing/gps_serial_decoder.cpp lib/UTM.cpp)
+target_link_libraries(gps_serial_decoder ${catkin_LIBRARIES})
+set_target_properties(gps_serial_decoder PROPERTIES COMPILE_FLAGS "-O3")
+add_dependencies(gps_serial_decoder slam_generate_messages_cpp)
+
 add_executable(imu_decoder src/sensing/imu_decoder.cpp lib/UnixtimeToSec.cpp)
 target_link_libraries(imu_decoder ${catkin_LIBRARIES})
 set_target_properties(imu_decoder PROPERTIES COMPILE_FLAGS "-O3")
