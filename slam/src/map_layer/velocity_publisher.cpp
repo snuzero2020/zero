@@ -35,10 +35,12 @@ class velocity_publisher{
             ros::param::get("/is_kcity", is_kcity);
             ros::param::get("/sigma", sigma);
             ros::param::get("/kernelSize", kernelSize);
+            std::cout<<kernelSize<<std::endl;
+            std::cout<<sigma<<std::endl;
 
             if(is_kcity==true){
-            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map.png";
-                velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);
+            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map_"<<kernelSize<<"_"<<sigma<<"_1.png";
+                velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
 
                 if(!velocity_map.empty()){
                     ROS_INFO("KCity loaded");
@@ -80,7 +82,7 @@ class velocity_publisher{
                 recommended_velocity = velocity_map.at<cv::Vec3b>(pixel_x, pixel_y)[0];
                 //std_msgs::Float64 rt;
                 std_msgs::Float32 rt;
-                rt.data = recommended_velocity/255*max_velocity;
+                rt.data = (85/recommended_velocity)*max_velocity;
                 pub.publish(rt);
             }
         }

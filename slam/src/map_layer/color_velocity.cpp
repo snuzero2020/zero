@@ -26,7 +26,7 @@ int main(int argc, char**argv){
     if(is_kcity==true){
        path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_167_500.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_167_900_1.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("kcity color map loaded");
@@ -36,7 +36,7 @@ int main(int argc, char**argv){
     else if(is_kcity==false){
        path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_velocity_map_33_200.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_velocity_map_99_200_5.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("FMTC color map loaded");
@@ -56,11 +56,11 @@ int main(int argc, char**argv){
 
 
             if(nBlue==0&&nGreen==0&&nRed==0){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
                 //Sector A
             }
             if(nBlue==255&&nGreen==255&&nRed==255){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                 //Sector A, with curve
                 }
 
@@ -70,7 +70,7 @@ int main(int argc, char**argv){
                   //Sector C
                 }
                 if(nRed == 0 && nBlue == 140){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                   //Sector F
                 }
                 if(nRed == 100 && nBlue == 140){
@@ -78,7 +78,7 @@ int main(int argc, char**argv){
                  //Sector F'
                 }
                 if(nRed == 140 && nBlue ==0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector H
                 }
                 if(nRed == 140 && nBlue == 100){
@@ -86,7 +86,7 @@ int main(int argc, char**argv){
                  //Sector H';
                 }
                 if(nRed == 0 && nBlue == 255){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector L;
                 }
                 if(nRed == 100 && nBlue == 255){
@@ -97,7 +97,7 @@ int main(int argc, char**argv){
                 
             else if(nBlue==255){
                 if(nRed==0 && nGreen==0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector D
                 }
                 if(nGreen==100 && nRed==100){
@@ -105,7 +105,7 @@ int main(int argc, char**argv){
                  //Sector D'
                 }
                 if(nGreen == 140 && nRed == 0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector I
                 }
                 if(nGreen == 140 && nRed == 100){
@@ -113,7 +113,7 @@ int main(int argc, char**argv){
                  //Sector I'
                 }
                 if(nRed == 140 && nGreen == 0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector J
                 }
                 if(nRed == 140 && nGreen == 100){
@@ -129,7 +129,7 @@ int main(int argc, char**argv){
                  //Sector B
                 }
                 if(nBlue==0 && nGreen==140){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector E
                 }
                 if(nBlue==100 && nGreen==140){
@@ -138,7 +138,7 @@ int main(int argc, char**argv){
                 }
 
                 if(nBlue==140 && nGreen==0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector G
                 }
                 if(nBlue==140 && nGreen == 100){
@@ -146,7 +146,7 @@ int main(int argc, char**argv){
                  //Sector G'
                 }
                 if(nGreen==100 && nBlue == 100){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector K
                 }
                 if(nGreen==100 && nBlue == 0){
@@ -157,9 +157,11 @@ int main(int argc, char**argv){
         }
     }
 
+    cv::Mat kernel=cv::getStructuringElement(cv::MORPH_RECT, cv::Size(99,99));
+    cv::dilate(discrete_velocity_map, discrete_velocity_map, kernel, cv::Point(-1,-1), 1);
     cv::imwrite(path_stream2.str(), discrete_velocity_map);
     ROS_INFO("discrete velocity map is saved");
-    GaussianBlur(discrete_velocity_map, velocity_map, Size(167,167), 500, 0);
+    GaussianBlur(discrete_velocity_map, velocity_map, Size(167, 167), 900, 0);
     cv::imwrite(path_stream3.str(), velocity_map);
     ROS_INFO("velocity map is saved");
 
