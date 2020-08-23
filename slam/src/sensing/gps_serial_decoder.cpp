@@ -30,20 +30,20 @@ class GPS_Decoder{
 
         if(msg->status.status<0){ROS_ERROR("gps fix failed"); return;}        
         vector<double> xy(2);
-        LatLonToUTMXY(msg->latitude, msg->longtitude, 52, xy.at(0), xy.at(1));
-        float position_covariance[9] = msg->position_covariance
+        LatLonToUTMXY(msg->latitude, msg->longitude, 52, xy.at(0), xy.at(1));
+        //float position_covariance[9] = msg->position_covariance;
 
         rt.header = msg->header;
         rt.x = xy.at(0);
         rt.y = xy.at(1);
-        rt.pos_err = (position_covariance[0]+position_covariance[4])/2;
+        rt.pos_err = (msg->position_covariance[0]+msg->position_covariance[4])/2;
         pub_.publish(rt);
     }
 };
 
 
 int main(int argc, char** argv) {
-    ros::init(argc, argv, "gps_decoder");
+    ros::init(argc, argv, "gps_serial_decoder");
 	GPS_Decoder GPSObject;
     ros::spin();
 }
