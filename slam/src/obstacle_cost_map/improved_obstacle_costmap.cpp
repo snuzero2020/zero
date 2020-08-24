@@ -35,7 +35,9 @@ class DecayingCostmap{
         pub_occupancy_ = nh_.advertise<nav_msgs::OccupancyGrid>("/obstacle_occupancy/decaying_costmap",10);
         sub_img_ = nh_.subscribe("/obstacle_map/costmap", 1, &DecayingCostmap::img_callback, this);
         sub_pose_ = nh_.subscribe("/filtered_data", 1, &DecayingCostmap::pose_callback, this);
-        rt_costmap = Mat::zeros(300, 300, CV_8U);
+        rt_costmap = Mat::zeros(432, 432, CV_8U);
+        warp_costmap = Mat::zeros(432, 432, CV_8U);
+        pad_size = 66;
         namedWindow("decaying_costmap");
     }
 
@@ -62,19 +64,20 @@ class DecayingCostmap{
         make_poses_list(pose);
         if (poses_list.size() == 2)
         {
+            //warpAffine(rt_costmap, warp_costmap, calibrate_map(poses_list[1], poses_list[0]), costmap.size());
             warpAffine(rt_costmap, rt_costmap, calibrate_map(poses_list[1], poses_list[0]), costmap.size());
             // Interpolate the influence of the consequential costmaps
             for(int i = 0 ; i < costmap.rows ; i++){
                 alpha = 1;
                 beta = 0.8;
                 for(int j = 0; j < costmap.cols; j++){
-                    if(j > 280) {
-                        alpha = 0;
+                    if(j > costmap.cols - 100) {
+                        alpha = 0.65;
                         beta = 0.97;
                     }
                     int final_cost = alpha * costmap.at<uchar>(j,i) + beta * rt_costmap.at<uchar>(j,i);
 
-                    if(final_cost < 100){
+                    if(final_cost <= 100){
                         rt_costmap.at<uchar>(j,i) = final_cost;
                     }
                     else rt_costmap.at<uchar>(j,i) = 100;
@@ -83,8 +86,9 @@ class DecayingCostmap{
             }
         }
 
-        //imshow("original_costmap", costmap);
-        imshow("decaying_costmap", rt_costmap);
+        costmap_sliced = rt_costmap(Range(pad_size, rt_costmap.rows - pad_size), Range(pad_size, rt_costmap.rows - pad_size));
+        imshow("sliced_costmap", costmap_sliced);
+        // imshow("decaying_costmap", rt_costmap);
         int key = waitKey(30);
 
         //IMAGE_PUBLISHING
@@ -92,7 +96,7 @@ class DecayingCostmap{
         std_msgs::Header header;
         header.seq = msg->header.seq;
         header.stamp = ros::Time::now();
-        pub_img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, rt_costmap);
+        pub_img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costmap_sliced);
         pub_img_bridge.toImageMsg(rt);
         pub_.publish(rt);
         
@@ -148,21 +152,19 @@ class DecayingCostmap{
                     sin(past_theta), cos(past_theta), past_pixel_y,
                     0, 0, 1; 
         
-        calibrationMatrix = T_current.inverse() * T_past;
+        calibrationMatrix = T_past.inverse() * T_current;
 
         //2. Reference frame change between car's point and zero point in the image pixel world
         MatrixXd moveZeropoint(3,3);
-        moveZeropoint << 0, 1, -150,
-                        -1, 0, 300,
-                        0, 0, 1;
-        
+        moveZeropoint << 1, 0, -216,
+                         0, 1, -366,
+                         0, 0, 1;
         //3. Make Jordan Similar Matrix P-1AP
         finalMatrix_Eigen = moveZeropoint.inverse() * calibrationMatrix * moveZeropoint;
         //4. Put Eigen to CV Function
         eigen2cv(finalMatrix_Eigen, finalMatrix_CV);
         //5. Pop up last row
         finalMatrix_CV_test = finalMatrix_CV(Range(0,2),Range(0,3));
-
         return finalMatrix_CV_test;
     }
 
@@ -181,7 +183,7 @@ class DecayingCostmap{
     // If no topics are subscribed for 2 seconds, then quit!
     void quit_if_end(){
         if((ros::Time::now() - mainclock).sec > 2){
-            destroyWindow("original_costmap");
+            destroyWindow("sliced_costmap");
             destroyWindow("decaying_costmap");
         }
     }
@@ -193,11 +195,14 @@ class DecayingCostmap{
     ros::Subscriber sub_img_;
     ros::Subscriber sub_pose_;
     ros::Time mainclock;
-
     double alpha, beta;
+
+    int pad_size;
     slam::Data pose;
     Mat rt_costmap;
     Mat costmap;
+    Mat warp_costmap;
+    Mat costmap_sliced;
     // vector<Mat> costmaps_list;
     vector<slam::Data> poses_list;
 
