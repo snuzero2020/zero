@@ -331,7 +331,7 @@ class RosNode{
 							else go_sign = false;
 							break;
 						case INTERSECTION_RIGHT:
-							if(isSign(light_state_buff[i],GREEN_LIGHT)) go_sign = true;
+							if(isSign(light_state_buff[i],GREEN_LIGHT) || isSign(light_state_buff[i],RED_LIGHT)) go_sign = true;
 							else go_sign = false;
 							break;
 					}
