@@ -33,13 +33,13 @@ class velocity_publisher{
 
         velocity_publisher(){
             ros::param::get("/is_kcity", is_kcity);
-            ros::param::get("/sigma", sigma);
+            //ros::param::get("/sigma", sigma);
             ros::param::get("/kernelSize", kernelSize);
             std::cout<<kernelSize<<std::endl;
-            std::cout<<sigma<<std::endl;
+            //std::cout<<sigma<<std::endl;
 
             if(is_kcity==true){
-            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map_"<<kernelSize<<"_"<<sigma<<"_1.png";
+            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map_"<<kernelSize<<"_"<<sigma<<".png";
                 velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
 
                 if(!velocity_map.empty()){
@@ -47,7 +47,7 @@ class velocity_publisher{
                 }   
             }
             else if(is_kcity==false){
-            	path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_velocity_map_"<<kernelSize<<"_"<<sigma<<".png";
+            	path_stream << ros::package::getPath("slam") << "/config/FMTC/linear/FMTC_velocity_map_"<<kernelSize<<".png";
                 velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
                    if(!velocity_map.empty()){
                         ROS_INFO("FMTC loaded");

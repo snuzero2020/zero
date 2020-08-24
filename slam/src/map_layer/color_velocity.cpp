@@ -22,11 +22,11 @@ int main(int argc, char**argv){
     bool is_kcity;
 
     ros::param::get("/is_kcity", is_kcity);
-    is_kcity = true;
+    is_kcity = false;
     if(is_kcity==true){
        path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_167_900_1.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/linear/KCity_velocity_map_167.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("kcity color map loaded");
@@ -36,7 +36,7 @@ int main(int argc, char**argv){
     else if(is_kcity==false){
        path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_velocity_map_99_200_5.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/linear/FMTC_velocity_map_267.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("FMTC color map loaded");
@@ -59,10 +59,11 @@ int main(int argc, char**argv){
                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
                 //Sector A
             }
+            ////////
             if(nBlue==255&&nGreen==255&&nRed==255){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
                 //Sector A, with curve
-                }
+            }
 
             else if(nGreen==255){
                 if(nBlue == 0 && nRed ==0){
@@ -124,10 +125,12 @@ int main(int argc, char**argv){
 
             else if(nRed==255)
             {
+                ////////////
                 if(nBlue==0 && nGreen==0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 170;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
                  //Sector B
                 }
+                
                 if(nBlue==0 && nGreen==140){
                  discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 255;
                  //Sector E
@@ -157,12 +160,14 @@ int main(int argc, char**argv){
         }
     }
 
-    cv::Mat kernel=cv::getStructuringElement(cv::MORPH_RECT, cv::Size(99,99));
-    cv::dilate(discrete_velocity_map, discrete_velocity_map, kernel, cv::Point(-1,-1), 1);
-    cv::imwrite(path_stream2.str(), discrete_velocity_map);
+    //cv::Mat kernel=cv::getStructuringElement(cv::MORPH_RECT, cv::Size(99,99));
+    //cv::dilate(discrete_velocity_map, discrete_velocity_map, kernel, cv::Point(-1,-1), 1);
+    imwrite(path_stream2.str(), discrete_velocity_map);
     ROS_INFO("discrete velocity map is saved");
-    GaussianBlur(discrete_velocity_map, velocity_map, Size(167, 167), 900, 0);
-    cv::imwrite(path_stream3.str(), velocity_map);
+    //GaussianBlur(discrete_velocity_map, velocity_map, Size(267, 267), 2000, 0);
+    Mat linearKernel= Mat::ones(267,267,CV_32F)/(float)(267*267);
+    filter2D(discrete_velocity_map, velocity_map, -1, linearKernel, Point(-1,-1));
+    imwrite(path_stream3.str(), velocity_map);
     ROS_INFO("velocity map is saved");
 
 }
