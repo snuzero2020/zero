@@ -36,7 +36,7 @@ int main(int argc, char**argv){
     else if(is_kcity==false){
        path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map_v.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/new/FMTC_velocity_map_267.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/new/FMTC_velocity_map_555.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("FMTC color map loaded");
@@ -170,7 +170,7 @@ int main(int argc, char**argv){
     imwrite(path_stream2.str(), discrete_velocity_map);
     ROS_INFO("discrete velocity map is saved");
     //GaussianBlur(discrete_velocity_map, velocity_map, Size(267, 267), 2000, 0);
-    Mat linearKernel= Mat::ones(267,267,CV_32F)/(float)(267*267);
+    Mat linearKernel= Mat::ones(555,555,CV_32F)/(float)(555*555);
     filter2D(discrete_velocity_map, velocity_map, -1, linearKernel, Point(-1,-1));
     imwrite(path_stream3.str(), velocity_map);
     ROS_INFO("velocity map is saved");
