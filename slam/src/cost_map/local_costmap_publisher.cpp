@@ -13,6 +13,7 @@
 #include "slam/Data.h"
 
 #include "ros/package.h"
+#include "ros/time.h"
 #include "ros/ros.h"
 #include "cv_bridge/cv_bridge.h"
 #include "opencv2/opencv.hpp"
@@ -95,6 +96,7 @@ class Local_costmap_publisher{
 		}
 
 		void callback(const slam::Data data){
+			clock_t begin = clock();
 			cv::Mat local_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
 			geometry_msgs::PoseStamped loc_pose;
 			int curr_pixel_x{}, curr_pixel_y{};
@@ -187,7 +189,9 @@ class Local_costmap_publisher{
 			std_msgs::Header header;
 			img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, local_costmap);
 			img_bridge.toImageMsg(img_msg);
+			clock_t end = clock();
 			pub.publish(img_msg);
+			ROS_INFO("elaspsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
 		}
 };
 

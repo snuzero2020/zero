@@ -65,10 +65,13 @@ class LocalPathPublisher{
 	}
 
     void filter_data_callback(const slam::Data::ConstPtr& msg){
-        current_pose.x = msg->x;
+        clock_t begin = clock();
+		current_pose.x = msg->x;
         current_pose.y = msg->y;
         current_pose.theta = msg->theta;
         global_to_local();
+		clock_t end = clock();
+		ROS_INFO("elaspsed time : %lf", double(end-begin)/CLOCKS_PER_SEC);
     } 
 
     void load_global_path(){
