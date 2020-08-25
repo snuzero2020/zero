@@ -125,6 +125,7 @@ class Tracker
 		int light{-1};
 		int task{-1};
 		int parking_space{-1};
+		double max_vel_increase;
 		
 		// initializer
 		Tracker() 
@@ -143,6 +144,7 @@ class Tracker
 			nh.getParam("/D_gain", D_gain);
 			nh.getParam("/upper_radius", upper_radius);
 			nh.getParam("/lower_radius", lower_radius);
+			nh.getParam("/max_vel_increase", max_vel_increase);
 		}
 
 		// setter function
@@ -212,7 +214,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		msg.is_auto = 1;
 		msg.estop = 0;
 		msg.gear = 0;
-		msg.brake = 50;
+		msg.brake = 100;
 		msg.speed = 0;
 		msg.steer = 0;
 
@@ -408,6 +410,13 @@ double Tracker::determind_major_axis_radius()
 double Tracker::calculate_desired_vel(){
 	double look_ahead_multiplier{1};
 	double curvature_multiplier{1};
+	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
+	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
+	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
+	curvature_multiplier = 1 - 1.0/pow((1.0/curvature-1.5),1);
+	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
+
+	/*	
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
 	curvature_multiplier = 1 - 1.0/pow((1.0/curvature-1.5),1);
@@ -418,6 +427,7 @@ double Tracker::calculate_desired_vel(){
 		desired_vel_before = desired_vel_buff;
 		desired_vel_buff = desired_vel_after;
 	}
+	*/
 
 	if (task == OBSTACLE_STATIC || task == OBSTACLE_SUDDEN)
 		desired_vel_after /= 2;
@@ -425,6 +435,13 @@ double Tracker::calculate_desired_vel(){
 	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
 	cout << "desired_vel_before : " << desired_vel_before << endl;
 	cout << "desired_vel_after : " << desired_vel_after << endl;
+
+	if (desired_vel_after > desired_vel_before + max_vel_increase)
+		desired_vel_after = desired_vel_before + max_vel_increase;
+
+	cout << "adjusted_desired_vel_after : " << desired_vel_after << endl;
+
+	desired_vel_before = desired_vel_after;
 	return desired_vel_after;
 }
 
@@ -511,7 +528,7 @@ void Tracker::vehicle_output_signal(){
 	look_ahead_dist = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y);
 	if (task != PARKING){
 		if (look_ahead_dist<17)
-			msg.steer = get_steering_angle().data/3.0;
+			msg.steer = get_steering_angle().data/5.0;
 		else
 			msg.steer = get_steering_angle().data;
 		car_signal_pub.publish(msg);

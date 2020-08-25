@@ -54,9 +54,13 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
 
+	int cost_scale;
 	int lidar_detect_dist;
+	double almost_obstacle_ratio;
 	
 	ros::param::get("/lidar_detect_dist",lidar_detect_dist);
+	ros::param::get("/cost_scale",cost_scale);
+	ros::param::get("/almost_obstacle_ratio",almost_obstacle_ratio);
 
 	bool go_sub_path = false;
 	const double angle{0.0};
@@ -171,7 +175,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double dx = poseStamped.pose.position.x;
 		double dy = poseStamped.pose.position.y;
 	
-		//if(dx < 20) continue;
+		// if goal point is too near, than ignore the point.
+		if(dx < 10) continue;
 
 		// check obstacle
 		
@@ -181,7 +186,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			if(task == OBSTACLE_SUDDEN && pose_seq < nearest_obs_seq) nearest_obs_seq = pose_seq;
 	
 ///////////////////////////////////////
-			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0){
+			int almost_obstacle{OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)};
+			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
 			       	cout << "(" << dx << ',' << dy << ") cost : " << costmap[(int)dx][(int)dy+costmap.size()/2] << "\n";
 				go_sub_path = true;
 			}
