@@ -44,7 +44,7 @@ class GlobalVisual{
 			}
 			else{
 				in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
-                in_map_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
+                in_map_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_map.png";
                 out_visual_stream << ros::package::getPath("slam")<< "/config/FMTC/FMTC_global_path_visual.png";
 			}
             global_path_visual();
