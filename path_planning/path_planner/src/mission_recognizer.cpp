@@ -191,7 +191,15 @@ class RosNode{
 		void lightstateCallback(const std_msgs::Int32 & msg){
 			for(int i{0}; i<light_state_buff.size()-1; i++) light_state_buff[i]=light_state_buff[i+1];
 			light_state_buff[light_state_buff.size()-1] = (int)msg.data;
-			int light = msg.data;
+		}
+
+		void parkingcomplishedCallback(const std_msgs::UInt32 & msg){
+			checker_container[sector_pass_checker.get_present_task()].check_prior_task();
+			sector_pass_checker.check_prior_task();
+		
+		}
+		void sectorInfoCallback(const std_msgs::Int32 & msg){
+			int light = light_state_buff[light_state_buff.size()-1];
 			printf("light : %s%s%s%s", 
 					isSign(light, 3)?"\x1b[41m      \x1b[0m":"      ",
 					isSign(light, 2)?"\x1b[43m      \x1b[0m":"      ",
@@ -204,14 +212,6 @@ class RosNode{
 					isSign(light, 1)?"\x1b[32m \\    \x1b[0m":"      ",
 					isSign(light, 0)?"\x1b[42m      \x1b[0m":"      "
 				);
-		}
-
-		void parkingcomplishedCallback(const std_msgs::UInt32 & msg){
-			checker_container[sector_pass_checker.get_present_task()].check_prior_task();
-			sector_pass_checker.check_prior_task();
-		
-		}
-		void sectorInfoCallback(const std_msgs::Int32 & msg){
 			cout<<"\nsectorInfocallback\n";
 
 			int first_unchecked_sector = sector_pass_checker.get_present_task();

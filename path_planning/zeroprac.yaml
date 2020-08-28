@@ -22,7 +22,7 @@ isTrackDriving: 0
 vel1: 3.0
 vel2: 2.0
 # mission recognizer
-mission_start : 7
+mission_start : 0
 isKcity : false
 # goal decition
 lidar_detect_dist : 7

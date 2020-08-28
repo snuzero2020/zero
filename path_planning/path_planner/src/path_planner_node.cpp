@@ -35,6 +35,7 @@ private:
 public:
 	double stepsize_pp_value;
 	int duration_parking{0};
+	int duration_unparking{0};
 	bool isTrackDriving;
 	RosNode(){
 		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 5, &RosNode::costmapCallback, this);
@@ -72,6 +73,7 @@ public:
 
 	void costmapCallback(const nav_msgs::OccupancyGrid & map){
 		static int time_parking_complished{0};
+		static int time_unparking_complished{0};
 		static int gear_state{0};
 
 /*
@@ -235,6 +237,20 @@ public:
 				gear_state = 0;
 				std_msgs::UInt32 msg;
 				parking_complished_pub.publish(msg);
+				
+				//time_unparking_complished = (int)clock();
+				time_unparking_complished = (int)ros::Time::now().sec;
+				// if  accidently clock() == 0
+				if(time_unparking_complished == 0) ++time_unparking_complished;
+			}
+			else if(time_unparking_complished != 0){
+				y.x = 0; y.y = 0;
+				duration_unparking = ((int)ros::Time::now().sec - time_unparking_complished);
+				cout << "time : " << duration_unparking << endl;
+				if(duration_unparking > 1){
+					gear_state = 0;
+					time_unparking_complished = 0;
+				}
 			}
 			cout << "parking_complished_changed : " << parking_complished_changed << endl;
 			cout << "unparking_complished_changed : " << unparking_complished_changed << endl;
