@@ -54,7 +54,7 @@ class LocalPathPublisher{
         local_path_pub = nh.advertise<nav_msgs::Path>("/goals", 2);
         ros::param::get("/is_kcity", is_kcity);
 		gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
-	filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
+	    filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
         if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
         else path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
 		load_global_path();

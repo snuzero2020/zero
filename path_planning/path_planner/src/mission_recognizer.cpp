@@ -73,8 +73,9 @@ class RosNode{
 		vector<Sector_Task> origin_sector_task_order;
 		vector<Sector_Task> sector_task_order;
 		
-		int mission_start{1};
-		int isKcity{true};
+		int mission_start;
+		int isKcity;
+		
 		float recommend_vel_info[13] = {1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5};
 		int buff_length{10};
 		vector<int> light_state_buff;
@@ -89,24 +90,27 @@ class RosNode{
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
 
-			n.getParam("/mission_start", mission_start);
-			n.getParam("/isKcity", isKcity);
-			isKcity = false;
+			ros::param::get("/mission_start", mission_start);
+			ros::param::get("/isKcity", isKcity);
+
 			
+			/////////////////////////////////////////check!
+			isKcity = false;	
+
 			if (isKcity){
 				origin_sector_task_order={
 					Sector_Task(X,0),
-                                        Sector_Task(A,PARKING),
+                                        //Sector_Task(A,PARKING),
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(B,INTERSECTION_LEFT_UNSIGNED),
-                                        Sector_Task(A,INTERSECTION_RIGHT_UNSIGNED),
+                                        Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(D,INTERSECTION_RIGHT_UNSIGNED),
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(E,INTERSECTION_LEFT),
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(G,INTERSECTION_STRAIGHT),
-                                        Sector_Task(A,DRIVING_SECTION),
-					//Sector_Task(A,OBSTACLE_STATIC),
+                                        //Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(A,OBSTACLE_STATIC),
                                         Sector_Task(H,INTERSECTION_STRAIGHT),
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(J,INTERSECTION_LEFT),
@@ -128,18 +132,21 @@ class RosNode{
 					Sector_Task(X,0),
 					//Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(A,OBSTACLE_STATIC),
+					//Sector_Task(A,OBSTACLE_SUDDEN),
 					Sector_Task(D,INTERSECTION_RIGHT),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(B,INTERSECTION_RIGHT_UNSIGNED),
+					//Sector_Task(A,OBSTACLE_STATIC),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(D,INTERSECTION_STRAIGHT),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(D,INTERSECTION_LEFT),
-					Sector_Task(A,DRIVING_SECTION),
+					//Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(A,OBSTACLE_SUDDEN),
 					Sector_Task(B,DRIVING_SECTION),
 					Sector_Task(A,PARKING),
 					Sector_Task(A,DRIVING_SECTION)
@@ -297,6 +304,7 @@ class RosNode{
 			// sector, task, light, motion (each 4 bits)
 			std_msgs::UInt32 mission_state;
 			mission_state.data =(((int)msg.data)<<12) | (task_state<<8) | (light_state<<4) | motion_state;
+			cout << "motion : " << motion_state << " light : " << light_state << " task : " << msg.data << endl;
 			mission_state_pub.publish(mission_state);		
 		}
 
@@ -340,6 +348,9 @@ class RosNode{
 					else	
 						determinant -= min_weight + (max_weight-min_weight)*i/(double)(light_state_buff.size());
 				}
+
+				cout << "determinant vs go_sign_threshold " << determinant << " vs " << go_sign_threshold << endl;
+				
 				if (determinant > go_sign_threshold){
 					switch (task_state){
 						case INTERSECTION_STRAIGHT:
@@ -353,8 +364,10 @@ class RosNode{
 							break;
 					}
 				}
-				else
+				else{
+					cout << "don't go!!!\n";
 					light_state = 0b1100;
+				}
 			}
 			else
 				light_state = 0;

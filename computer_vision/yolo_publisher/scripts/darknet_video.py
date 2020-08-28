@@ -120,7 +120,10 @@ def YOLO():
                                    (darknet.network_width(netMain),
                                     darknet.network_height(netMain)),
                                    interpolation=cv2.INTER_LINEAR)
-
+        
+        height, width, channel = frame_resized.shape
+        matrix = cv2.getRotationMatrix2D((darknet.network_width(netMain)/2, darknet.network_height(netMain)/2), 90, 1)
+        frame_resized = cv2.warpAffine(frame_resized, matrix, (darknet.network_height(netMain),darknet.network_width(netMain)))
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
         detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.25)
@@ -128,8 +131,10 @@ def YOLO():
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(1/(time.time()-prev_time))
         cv2.imshow('Demo', image)
-        int key = cv2.waitKey(1)
-        if(key == 'q') break
+        key = cv2.waitKey(2)
+        if key == 27:
+            print("quit")
+            break
     cap.release()
     #out.release()
 

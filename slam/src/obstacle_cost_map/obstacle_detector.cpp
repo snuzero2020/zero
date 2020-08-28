@@ -50,7 +50,9 @@ class ObstacleDetector{
     
 
     public:
+    bool is_kcity;
     ObstacleDetector(){
+	    ros::param::get("/is_kcity",is_kcity);
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
         sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
         sub_position_ = nh_.subscribe("/filtered_data", 1, &ObstacleDetector::callback_position, this);
@@ -66,8 +68,13 @@ class ObstacleDetector{
         plane_tolerance_ = 0.12;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
-        path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
+        if (is_kcity)
+                path_stream_ << ros::package::getPath("slam")<<"/config/KCity/KCity_road_area.png";
+        else{
+            path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
+        }
         road_map_ = cv::imread(path_stream_.str());
+        cout << road_map_.size() << endl;
     }
 
     double get_distance(slam::LidarPoint p1, slam::LidarPoint p2){
@@ -113,7 +120,7 @@ class ObstacleDetector{
         for(slam::LidarPoint point : filtered_points_){
             double x = current_position_.first + point.point_2d.x*cos(current_heading_) - point.point_2d.y*sin(current_heading_);
             double y = current_position_.second + point.point_2d.x*sin(current_heading_) + point.point_2d.y*cos(current_heading_);
-            XYToPixel(pixel_x, pixel_y, x, y, false);
+            XYToPixel(pixel_x, pixel_y, x, y, is_kcity);
             cv::Vec3b color = road_map_.at<cv::Vec3b>(pixel_y, pixel_x);
             if(color[0]==0 && color[1] == 0 && color[2]==0) continue; // (x,y) is off-road point
             in_road.push_back(point);
