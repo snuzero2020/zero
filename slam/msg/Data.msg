@@ -8,6 +8,6 @@ float64 local_ay
 float64 v
 float64 vx
 float64 vy
-float64 pos_err
-float64 v_err
-float64 theta_err
+float64 pos_err_std
+float64 v_err_std
+float64 theta_err_std
