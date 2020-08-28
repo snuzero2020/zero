@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 #include <ctime>
 #include <std_msgs/String.h>
 #include <std_msgs/Float32.h>
@@ -318,6 +319,8 @@ void Tracker::solve_pure_pursuit()
 	cout << "is_front_gear : " << is_front_gear << endl;
 	// curr_local_path.header.stamp.sec & 0b10 != 0b10 : front gear
 	// curr_local_path.header.stamp.sec & 0b10 == 0b10 : reverse gear (only for parking motion with backward motion
+	
+/*	
 	if (is_front_gear){
 		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
 		rotational_center.y = -1.05*100/3.0;
@@ -332,8 +335,25 @@ void Tracker::solve_pure_pursuit()
 		rotational_radius = 1/curvature;
 		temp_angle =  atan2(-rotational_center.y,rotational_center.x);
 	}
+*/
+
+
+	if (!is_front_gear){
+		look_ahead_point.x *= -1.0;
+		look_ahead_point.y *= -1.0;
+	}
+
+
+	rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
+	rotational_center.y = -1.05*100/3.0;
+	curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
+	rotational_radius = 1/curvature;
+	temp_angle =  atan2(-rotational_center.y,rotational_center.x);
+
 	// temp_angle < 3.141592/2.0 : right turn
 	// temp_angle > 3.141592/2.0 : left turn
+
+
 	if (temp_angle < 3.141592/2.0){
 		if (is_front_gear){
 			nonslip_steering_angle = temp_angle*180/3.141592;
@@ -348,6 +368,16 @@ void Tracker::solve_pure_pursuit()
 		else
 			nonslip_steering_angle = temp_angle*180/3.141592;
 	}
+
+	/*
+	if (temp_angle < 3.141592/2.0){
+		nonslip_steering_angle = temp_angle*180/3.141592;
+	}
+	else{
+		nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
+	}
+	*/
+
 }
 
 // input : curvature, current_vel (!!!!!!!!!! discussion is required. choose between current_vel vs goal_vel)
@@ -413,7 +443,7 @@ double Tracker::calculate_desired_vel(){
 	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	curvature_multiplier = 1 - 1.0/pow((1.0/curvature-1.5),1);
+	curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature,2.0)-1.5),1);
 	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 
 	/*	
@@ -430,7 +460,9 @@ double Tracker::calculate_desired_vel(){
 	*/
 
 	if (task == OBSTACLE_STATIC || task == OBSTACLE_SUDDEN)
-		desired_vel_after /= 2;
+		desired_vel_after /= 2.0;
+	if (task == PARKING)
+		desired_vel_after /= 3.0;
 
 	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
 	cout << "desired_vel_before : " << desired_vel_before << endl;
@@ -522,12 +554,16 @@ void Tracker::vehicle_output_signal(){
 	else{
 		msg.gear = 2;
 	}
+
+	/////////////////////////////////////////////check//////////
+	//msg.speed = 0;
+	////////////////////////////////////////////////////////////
 	
 	// if look_ahead_dist is less than 50cm, set steer to 0 to prevent sudden tilting of the vehicle
 	double look_ahead_dist;
 	look_ahead_dist = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y);
 	if (task != PARKING){
-		if (look_ahead_dist<17)
+		if (look_ahead_dist<30 && (motion==HALT_MOTION || task==OBSTACLE_SUDDEN))
 			msg.steer = get_steering_angle().data/5.0;
 		else
 			msg.steer = get_steering_angle().data;

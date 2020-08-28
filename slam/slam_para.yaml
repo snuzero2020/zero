@@ -41,5 +41,5 @@ time_noise_var : 0.002
 is_kcity : false
 max_velocity : 4
 sigma : 800
-kernelSize : 267
+kernelSize : 555
 

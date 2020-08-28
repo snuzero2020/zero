@@ -5,7 +5,7 @@ D_gain: 1.0
 upper_radius: 160.0
 lower_radius: 50.0
 car_length: 105.0
-max_vel_increase: 0.1
+max_vel_increase: 0.02
 # rrt_star.h
 iternum: 1000
 threshold: 100.0
@@ -13,7 +13,7 @@ threshold2: 98.0
 threshold2_obsatcle_static: 98.0
 radius: 30.0
 cost_scale: 10
-cost_scale_obstacle_static: 10
+cost_scale_obstacle_static: 15
 stepsize_rrt: 1.0
 # path_planner_node
 stepsize_pp: 5.0
@@ -22,7 +22,7 @@ isTrackDriving: 0
 vel1: 3.0
 vel2: 2.0
 # mission recognizer
-mission_start : 7
+mission_start : 15
 isKcity : false
 # goal decition
 lidar_detect_dist : 3

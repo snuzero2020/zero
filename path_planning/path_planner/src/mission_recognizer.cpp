@@ -130,8 +130,8 @@ class RosNode{
 			else{
 				origin_sector_task_order={
 					Sector_Task(X,0),
-					Sector_Task(A,DRIVING_SECTION),
-					//Sector_Task(A,OBSTACLE_STATIC),
+					//Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(A,OBSTACLE_STATIC),
 					//Sector_Task(A,OBSTACLE_SUDDEN),
 					Sector_Task(D,INTERSECTION_RIGHT),
 					Sector_Task(A,DRIVING_SECTION),
@@ -145,7 +145,8 @@ class RosNode{
 					Sector_Task(C,INTERSECTION_RIGHT_UNSIGNED),
 					Sector_Task(A,DRIVING_SECTION),
 					Sector_Task(D,INTERSECTION_LEFT),
-					Sector_Task(A,DRIVING_SECTION),
+					//Sector_Task(A,DRIVING_SECTION),
+					Sector_Task(A,OBSTACLE_SUDDEN),
 					Sector_Task(B,DRIVING_SECTION),
 					Sector_Task(A,PARKING),
 					Sector_Task(A,DRIVING_SECTION)

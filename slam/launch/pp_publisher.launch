@@ -3,6 +3,6 @@
   <node name="local_path_publisher" pkg="slam" type="local_path_publisher"/>
   <node name="sector_publisher" pkg="slam" type="sector_publisher"/>
   <node name="velocity_publisher" pkg="slam" type="velocity_publisher"/>
-  <node name="darknet_video.py" pkg="yolo_publisher" type="darknet_video.py"/>  
+  <node name="darknet_video" pkg="yolo_publisher" type="darknet_video.py"/>  
   <rosparam file="$(find slam)/slam_para.yaml" />  
 </launch>
