@@ -26,7 +26,7 @@ add_message_files(
   DIRECTORY msg
   FILES 
   Data.msg Gps.msg Imu.msg Lidar.msg LidarPoint.msg Cluster.msg Pixel.msg GlobalPathPoint.msg 
-  Yolomaster.msg Yoloinfo.msg Clustermaster.msg imgCluster.msg Clusters.msg
+  Yolomaster.msg Yoloinfo.msg Clustermaster.msg imgCluster.msg Clusters.msg ParkingSpot.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs nav_msgs sensor_msgs)
 
@@ -175,6 +175,10 @@ add_dependencies(obstacle_cost_map_publisher slam_generate_messages_cpp)
 add_executable(obstacle_marker src/obstacle_cost_map/obstacle_marker.cpp lib/XYToPixel.cpp)
 target_link_libraries(obstacle_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(obstacle_marker slam_generate_messages_cpp)
+
+add_executable(parking_spot_detector src/obstacle_cost_map/parking_spot_detector.cpp)
+target_link_libraries(parking_spot_detector ${catkin_LIBRARIES})
+add_dependencies(parking_spot_detector slam_generate_messages_cpp)
 
 
 catkin_install_python(PROGRAMS 
