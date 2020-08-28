@@ -36,7 +36,7 @@ int main(int argc, char**argv){
     else if(is_kcity==false){
        path_stream1 << ros::package::getPath("slam") << "/config/FMTC/FMTC_color_map_v.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/FMTC/FMTC_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/new/FMTC_velocity_map_555_1.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/FMTC/new/FMTC_velocity_map_555_2.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("FMTC color map loaded");
