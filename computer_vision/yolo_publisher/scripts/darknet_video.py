@@ -59,7 +59,6 @@ netMain = None
 metaMain = None
 altNames = None
 
-
 def YOLO():
 
     global metaMain, netMain, altNames
@@ -104,6 +103,14 @@ def YOLO():
     #cap = cv2.VideoCapture("/home/snuzero/darknet/tl10_test.avi")
     cap.set(3, 1280)
     cap.set(4, 720)
+    cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.4706)
+    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
+    brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
+    print("Current Exposure:%0.4f, Current Brightness:%0.4f" % (exposure, brightness))
+    
     #out = cv2.VideoWriter(
     #    "out.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
     #    (darknet.network_width(netMain), darknet.network_height(netMain)))
@@ -120,16 +127,21 @@ def YOLO():
                                    (darknet.network_width(netMain),
                                     darknet.network_height(netMain)),
                                    interpolation=cv2.INTER_LINEAR)
-
+        
+        height, width, channel = frame_resized.shape
+        matrix = cv2.getRotationMatrix2D((darknet.network_width(netMain)/2, darknet.network_height(netMain)/2), 90, 1)
+        frame_resized = cv2.warpAffine(frame_resized, matrix, (darknet.network_height(netMain),darknet.network_width(netMain)))
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.25)
+        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.75)
         image = cvDrawBoxes(detections, frame_resized)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(1/(time.time()-prev_time))
         cv2.imshow('Demo', image)
-        int key = cv2.waitKey(1)
-        if(key == 'q') break
+        key = cv2.waitKey(2)
+        if key == 27:
+            print("quit")
+            break
     cap.release()
     #out.release()
 

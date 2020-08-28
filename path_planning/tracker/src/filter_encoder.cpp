@@ -18,6 +18,7 @@ class Filter{
         //int check = 0;
         double threshold = 0.1;
 	bool first_callback{false};
+	bool is_peak{false};
 
 	int gear_state{0};
 
@@ -63,15 +64,17 @@ void Filter::encoder_sub_callback(const core_msgs::VehicleState::ConstPtr msg){
 		}
 		if(gear_state==0 && (encoder_data[data_num-1] - msg->speed > threshold))
 		{
+			is_peak = true;
 			std::cout << "peak!\n";
 		}
 		else if(gear_state==1 && (encoder_data[data_num-1] - msg->speed < -threshold))
 		{
+			is_peak = true;
 			std::cout << "peak!\n";
 		}
+		else is_peak = false;
 
-		else
-			encoder_data[data_num-1] = msg->speed;
+		encoder_data[data_num-1] = msg->speed;
 		time_sec[data_num-1] = msg->header.stamp.sec;
 	        time_nsec[data_num-1] = msg->header.stamp.nsec;
 	}
@@ -98,7 +101,7 @@ void Filter::determind_filter_encoder(){
 	    msg.slope = (encoder_data[data_num-1] - encoder_data[0]) / (double)time_diff;
     msg.time =(double)( (long double)((long long)time_sec[data_num-1]*1000000000 + time_nsec[data_num-1]) / 1000000000.0);
 
-    filter_encoder_pub.publish(msg);
+    if(!is_peak)filter_encoder_pub.publish(msg);
     std::cout << "filtered_encoder : " << msg.filtered_encoder << "\t";
     std::cout << "slop : " << msg.slope << std::endl;
 }

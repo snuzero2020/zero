@@ -1,9 +1,6 @@
 <launch>
-  <include file="$(find xsens_mti_driver)/launch/xsens_mti_node.launch" />
-  <node name="nmea_topic_serial_reader" pkg="nmea_navsat_driver" type="nmea_topic_serial_reader" output="screen">
-    <param name="port" value="/dev/ttyUSB1"/>
-    <param name="baud" value="115200"/>
-  </node>
+  <include file="$(find slam)/launch/imu_driver.launch"/>  
+  <include file="$(find slam)/launch/gps_driver.launch"/>  
   <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch"/>
 </launch>
 

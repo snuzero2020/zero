@@ -1,10 +1,6 @@
 <launch>
-	<include file="/home/snuzero/catkin_ws/src/zero/slam/launch/decoder.launch" />
+	<include file="$(find slam)/launch/slam_online.launch" output="screen" launch-prefix="gnome-terminal --command" />
 
-	<include file="/home/snuzero/catkin_ws/src/zero/path_planning/global.launch" />
-
-	<node pkg="slam" type="local_path_publisher_node" name="local_path_publisher" output="screen" launch-prefix="gnome-terminal --command" />
-
-	<node pkg="slam" type="local_costmap_publisher_node" name="local_costmap_publisher" output="screen" launch-prefix="gnome-terminal --command" />
+	<include file="$(find path_planning)/global.launch"/>
 
 </launch>

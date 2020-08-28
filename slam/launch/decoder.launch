@@ -1,5 +1,8 @@
 <launch>
-  <node name="gps_decoder" pkg="slam" type="gps_decoder" output="screen"/>
+  <node name="gps_serial_decoder" pkg="slam" type="gps_serial_decoder" output="screen"/>
+  <!--node name="gps_decoder" pkg="slam" type="gps_decoder" output="screen"/-->
+
+
   <node name="imu_decoder" pkg="slam" type="imu_decoder"/>
   <node name="lidar_decoder" pkg="slam" type="lidar_decoder.py"/>
   <node name="kalman_fusion" pkg="slam" type="kalman_fusion"/>
