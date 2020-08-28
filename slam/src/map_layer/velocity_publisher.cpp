@@ -24,7 +24,6 @@ class velocity_publisher{
         double recommended_velocity;
         double max_velocity;
         bool is_kcity;
-        int sigma;
         int kernelSize;
 
     public:
@@ -33,10 +32,8 @@ class velocity_publisher{
 
         velocity_publisher(){
             ros::param::get("/is_kcity", is_kcity);
-            //ros::param::get("/sigma", sigma);
+            ros::param::get("/max_velocity", max_velocity);
             ros::param::get("/kernelSize", kernelSize);
-            std::cout<<kernelSize<<std::endl;
-            //std::cout<<sigma<<std::endl;
 
             if(is_kcity==true){
             	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map_"<<kernelSize<<".png";
@@ -47,7 +44,7 @@ class velocity_publisher{
                 }   
             }
             else if(is_kcity==false){
-            	path_stream << ros::package::getPath("slam") << "/config/FMTC/new/FMTC_velocity_map_"<<kernelSize<<"_1.png";
+            	path_stream << ros::package::getPath("slam") << "/config/FMTC/new/FMTC_velocity_map_"<<kernelSize<<"_"<<(int)max_velocity<<".png";
                 velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
                    if(!velocity_map.empty()){
                         ROS_INFO("FMTC loaded");
