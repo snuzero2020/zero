@@ -68,6 +68,9 @@ class ObstacleDetector{
         plane_tolerance_ = 0.12;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
+	//////////////////////////////
+	is_kcity = false;
+	//////////////////////////////
         if (is_kcity)
                 path_stream_ << ros::package::getPath("slam")<<"/config/KCity/KCity_road_area.png";
         else{

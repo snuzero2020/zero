@@ -104,6 +104,14 @@ def YOLO():
     #cap = cv2.VideoCapture("/home/snuzero/darknet/tl10_test.avi")
     cap.set(3, 1280)
     cap.set(4, 720)
+    #cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 3)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 120)
+    #cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    #exposure = cap.get(cv2.CAP_PROP_EXPOSURE)
+    #brightness = cap.get(cv2.CAP_PROP_BRIGHTNESS)
+    #print("Current Exposure:%d, Current Brightness:%d" % (exposure, brightness))
+    #cap.set(cv2.CAP_PROP_SETTINGS, 1)
     #out = cv2.VideoWriter(
     #    "out.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
     #    (darknet.network_width(netMain), darknet.network_height(netMain)))
