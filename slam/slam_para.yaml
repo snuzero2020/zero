@@ -29,12 +29,12 @@ HDOP_warn: 3.5
 
 #kalman_fusion.cpp
 #type = double
-initial_state_error_var : 10.0
-initial_a_process_noise_var : 1.0
-initial_omega_process_noise_var : 0.01
-initial_imu_observation_noise_var : 1.0
-initial_gps_observation_noise_var : 0.2
-time_noise_var : 0.002
+initial_state_error_std : 10.0
+initial_a_process_noise_std : 1.0
+initial_omega_process_noise_std : 0.05
+initial_imu_observation_noise_std : 1.0
+initial_gps_observation_noise_std : 0.2
+time_noise_std : 0.002
 
 #map layer
 #color_velocity.cpp, sector_publisher.cpp, velocity publiser.cpp obstacle_detector.cpp

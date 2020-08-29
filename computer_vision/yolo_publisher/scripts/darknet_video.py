@@ -104,8 +104,12 @@ def YOLO():
     cap.set(3, 1280)
     cap.set(4, 720)
     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
-    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.4706)
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    #night exposure
+    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.4706)
+    #night brightness
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
     brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
@@ -133,7 +137,7 @@ def YOLO():
         frame_resized = cv2.warpAffine(frame_resized, matrix, (darknet.network_height(netMain),darknet.network_width(netMain)))
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.75)
+        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.80)
         image = cvDrawBoxes(detections, frame_resized)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(1/(time.time()-prev_time))
