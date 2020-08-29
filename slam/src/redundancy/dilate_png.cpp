@@ -17,7 +17,7 @@ using namespace cv;
 class ErodePng{
     public:
     ErodePng(){
-        path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area.png";
+        path_stream_ << ros::package::getPath("slam")<<"/config/KCity/KCity_road_area.png";
         road_map_ = imread(path_stream_.str());
         element = getStructuringElement(MORPH_RECT, Size(3,3),Point(1,1));
         erodeimage();
@@ -26,7 +26,7 @@ class ErodePng{
     void erodeimage(){
         cout << road_map_.size() << endl;
         erode(road_map_, eroded, element, Point(-1,-1),7);
-        eroded_stream << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
+        eroded_stream << ros::package::getPath("slam")<<"/config/KCity/KCity_road_area_eroded.png";
         imwrite(eroded_stream.str(), eroded);
     }
     private:
