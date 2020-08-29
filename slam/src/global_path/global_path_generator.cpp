@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "slam/Data.h"
+#include "slam/Old_Data.h"
 #include "slam/GlobalPathPoint.h"
 
 #include "ros/package.h"
@@ -38,8 +39,9 @@ class GlobalPathGenerator{
         prev_.second = 0.0;
         threshold_distance_ = 0.3;
 		//change the number in save_path_stream into the bag sequence
+		is_kcity = true;
 		if(!is_kcity) save_path_stream << ros::package::getPath("slam") << "/config/FMTC/subpath.txt";
-		else save_path_stream << ros::package::getPath("slam") << "/config/KCity/for_visualize_left.txt";
+		else save_path_stream << ros::package::getPath("slam") << "/config/KCity/path_txt/normal_to_split1_from_I1.txt";
     }
     
 
@@ -50,7 +52,7 @@ class GlobalPathGenerator{
         printf("complete save\n");
     }
 
-    void callback(const slam::Data::ConstPtr& msg){
+    void callback(const slam::Old_Data::ConstPtr& msg){
         cur_.first = msg->x;
         cur_.second = msg->y;
 
@@ -60,7 +62,7 @@ class GlobalPathGenerator{
         point.x = cur_.first;
         point.y = cur_.second;
         point.theta = msg->theta;
-	    point.flag = 2;
+	    point.flag = 0;
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);

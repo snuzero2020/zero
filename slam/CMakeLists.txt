@@ -25,7 +25,7 @@ find_package(OpenCV REQUIRED)
 add_message_files(
   DIRECTORY msg
   FILES 
-  Data.msg Gps.msg Imu.msg Lidar.msg LidarPoint.msg Cluster.msg Pixel.msg GlobalPathPoint.msg 
+  Old_Data.msg Data.msg Gps.msg Imu.msg Lidar.msg LidarPoint.msg Cluster.msg Pixel.msg GlobalPathPoint.msg 
   Yolomaster.msg Yoloinfo.msg Clustermaster.msg imgCluster.msg Clusters.msg ParkingSpot.msg
 )
 generate_messages(DEPENDENCIES std_msgs geometry_msgs nmea_msgs nav_msgs sensor_msgs)
