@@ -26,7 +26,6 @@ using namespace Eigen;
 
 typedef pair<double, double> pdd;
 
-
 class ObstacleDetector{
     private:
     ros::NodeHandle nh_;
@@ -47,13 +46,11 @@ class ObstacleDetector{
     stringstream path_stream_;
     cv::Mat road_map_;
     double max_time = 0.0;
-    bool is_kcity;
-    
 
     public:
     bool is_kcity;
     ObstacleDetector(){
-	    ros::param::get("/is_kcity",is_kcity);
+        ros::param::get("/is_kcity",is_kcity);
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
         sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
         sub_position_ = nh_.subscribe("/filtered_data", 1, &ObstacleDetector::callback_position, this);
@@ -69,16 +66,10 @@ class ObstacleDetector{
         plane_tolerance_ = 0.12;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
-<<<<<<< HEAD
-        if(is_kcity == true) path_stream_ << ros::package::getPath("slam") << "/config/KCity/KCity_road_area_eroded.png";
+
+        if(is_kcity) path_stream_ << ros::package::getPath("slam") << "/config/KCity/KCity_road_area_eroded.png";
         else path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
-=======
-        if (is_kcity)
-                path_stream_ << ros::package::getPath("slam")<<"/config/KCity/KCity_road_area.png";
-        else{
-            path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
-        }
->>>>>>> bc1a5cb87d0f58128c487a332ead0b40d0230d42
+        
         road_map_ = cv::imread(path_stream_.str());
         cout << road_map_.size() << endl;
     }
@@ -212,7 +203,6 @@ class ObstacleDetector{
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "obstacle_detector");
-    ros::param::get("/is_kcity",is_kcity);
     ObstacleDetector obstacle_detector;
     ros::spin();
 }

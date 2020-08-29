@@ -171,6 +171,11 @@ add_executable(obstacle_marker src/obstacle_cost_map/obstacle_marker.cpp lib/XYT
 target_link_libraries(obstacle_marker ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(obstacle_marker slam_generate_messages_cpp)
 
+add_executable(erode_png src/redundancy/dilate_png.cpp)
+target_link_libraries(erode_png ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(erode_png slam_generate_messages_cpp)
+
+
 
 catkin_install_python(PROGRAMS 
   src/map_calibration/transform_finder.py

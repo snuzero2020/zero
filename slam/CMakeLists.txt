@@ -180,6 +180,9 @@ add_executable(parking_spot_detector src/obstacle_cost_map/parking_spot_detector
 target_link_libraries(parking_spot_detector ${catkin_LIBRARIES})
 add_dependencies(parking_spot_detector slam_generate_messages_cpp)
 
+add_executable(erode_png src/redundancy/dilate_png.cpp)
+target_link_libraries(erode_png ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(erode_png slam_generate_messages_cpp)
 
 catkin_install_python(PROGRAMS 
   src/map_calibration/transform_finder.py
