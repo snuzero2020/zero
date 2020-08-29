@@ -29,6 +29,7 @@ class GPS_Decoder{
         slam::Gps rt;
         try{
             if(msg->status.status<0){ROS_ERROR("gps fix failed"); return;}
+            if(msg->status.status<1){ROS_WARN("gps no rtk");} 
             if( isnan(msg->latitude)!=0 || isnan(msg->longitude)!=0 ){ROS_ERROR("gps nan"); return;}    
             vector<double> xy(2);
             LatLonToUTMXY(msg->latitude, msg->longitude, 52, xy.at(0), xy.at(1));
