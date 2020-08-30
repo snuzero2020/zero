@@ -224,6 +224,8 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 
 		car_signal_pub.publish(msg);
 
+		desired_vel_after = 0;
+
 		return;
 	}
 
@@ -468,7 +470,9 @@ double Tracker::calculate_desired_vel(){
 	cout << "desired_vel_before : " << desired_vel_before << endl;
 	cout << "desired_vel_after : " << desired_vel_after << endl;
 
-	if (desired_vel_after > desired_vel_before + max_vel_increase)
+	cout << "max_vel_increase : " << max_vel_increase << endl;
+
+	if (desired_vel_after > desired_vel_before + max_vel_increase + 1E-6)
 		desired_vel_after = desired_vel_before + max_vel_increase;
 
 	cout << "adjusted_desired_vel_after : " << desired_vel_after << endl;

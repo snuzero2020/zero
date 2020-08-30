@@ -94,13 +94,10 @@ class RosNode{
 			ros::param::get("/isKcity", isKcity);
 
 			
-			/////////////////////////////////////////check!
-			isKcity = false;	
-
 			if (isKcity){
 				origin_sector_task_order={
 					Sector_Task(X,0),
-                                        //Sector_Task(A,PARKING),
+                                        Sector_Task(A,PARKING),
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(B,INTERSECTION_LEFT_UNSIGNED),
                                         Sector_Task(A,DRIVING_SECTION),
