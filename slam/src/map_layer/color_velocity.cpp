@@ -26,7 +26,7 @@ int main(int argc, char**argv){
     if(is_kcity==true){
        path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map_v.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_555_4.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_555_5.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("kcity color map loaded");
@@ -47,7 +47,6 @@ int main(int argc, char**argv){
     resize(velocity_map, velocity_map, Size(color_map.cols, color_map.rows),0,0,CV_INTER_NN);
 
     //5
-    /*
     for(int j=0; j<color_map.cols; j++){
         for(int i=0; i<color_map.rows; i++){
              int nBlue, nGreen, nRed;
@@ -100,7 +99,8 @@ int main(int argc, char**argv){
              discrete_velocity_map.at<cv::Vec3b>(i,j)[0]= 85;             
         }
     }    
-*/
+
+/*
     //4 at KCity
     for(int j=0; j<color_map.cols; j++){
         for(int i=0; i<color_map.rows; i++){
@@ -127,6 +127,7 @@ int main(int argc, char**argv){
                 if(nRed==0 && nGreen==0){
                  discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 170;
                  //intersection buffer 3
+                 //2
                 }
                 if(nGreen==100 && nRed==100){
                  discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 106;
@@ -137,7 +138,8 @@ int main(int argc, char**argv){
             else
              discrete_velocity_map.at<cv::Vec3b>(i,j)[0]= 85;             
         }
-    }    
+    }   
+    */ 
 
 
 
