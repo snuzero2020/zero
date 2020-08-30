@@ -36,9 +36,10 @@ class GlobalVisual{
 
         GlobalVisual(){
             ros::param::get("/is_kcity", is_kcity);
-
+			
+			is_kcity = true;
 			if(is_kcity){
-				in_path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
+				in_path_stream << ros::package::getPath("slam") << "/config/KCity/re_global_path.txt";
 				in_map_stream << ros::package::getPath("slam") << "/config/KCity/KCity.png";
 				out_visual_stream << ros::package::getPath("slam")<< "/config/KCity/KCity_global_path_visual.png";
 			}
