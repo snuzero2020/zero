@@ -86,6 +86,7 @@ class LocalPathPublisher{
             }
             slam::GlobalPathPoint point;
 	    if (result.size() == 0) break;
+		else if(result.at(0) == "//";
             point.x = stod(result.at(0));
             point.y = stod(result.at(1));
             point.theta = stod(result.at(2));
