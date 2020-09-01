@@ -17,17 +17,33 @@ class GPS_Decoder{
     ros::NodeHandle n_;
     ros::Publisher pub_;
     ros::Subscriber sub_;
-
+    bool is_fail_mode;
+    int fail_count;
+    ros::Time latest_mode_time;
+    
     public:
     GPS_Decoder(){
         pub_ = n_.advertise<slam::Gps>("/gps", 2);
         sub_ = n_.subscribe("/fix", 2, &GPS_Decoder::callback, this);
+        is_fail_mode = false;
+        fail_count = 0;
+        latest_mode_time = ros::Time::now();
     }	
 
     void callback(const sensor_msgs::NavSatFix::ConstPtr& msg){
         ros::Time t0 = ros::Time::now();
         slam::Gps rt;
         try{
+            if( (is_fail_mode)==(msg->status.status<1) ){
+                latest_mode_time = t0;
+            }else if( (t0-latest_mode_time).toSec()>10.0 ){
+                is_fail_mode = !(is_fail_mode);
+                if(is_fail_mode){
+                    fail_count++;
+                    ROS_INFO("gps fail count : %d", fail_count);
+                }
+                latest_mode_time = t0;
+            }
             if(msg->status.status<0){ROS_ERROR("gps fix failed"); return;}
             if(msg->status.status<1){ROS_WARN("gps no rtk");} 
             if( isnan(msg->latitude)!=0 || isnan(msg->longitude)!=0 ){ROS_ERROR("gps nan"); return;}    
@@ -52,4 +68,3 @@ int main(int argc, char** argv) {
 	GPS_Decoder GPSObject;
     ros::spin();
 }
-
