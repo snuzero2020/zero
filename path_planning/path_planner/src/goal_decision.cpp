@@ -150,13 +150,14 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	// assign appropriate index which is closest to look_ahead_radius 
 	int sz = goals.size();
-
+	int main_count = 0;
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 		int pose_flag = poseStamped.header.seq & 0b1111;
 		//cout << "flag is " << pose_flag << endl;
 		//int pose_flag = 0;
 		int pose_seq = poseStamped.header.seq>>4;
+		if(pose_flag == 0) main_count++;
 
 		//cout << "(goal decision) flag check!\n";
 		// check flag
@@ -182,7 +183,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double dy = poseStamped.pose.position.y;
 	
 		// if goal point is too near, than ignore the point.
-		if(dx < 20) continue;
+		if(dx < 20 && (task == OBSTACLE_SUDDEN || motion == HALT_MOTION)) continue;
 
 		// check obstacle
 		
@@ -218,6 +219,32 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		}
 		//cout << "(goal decision) all check pass!\n";
 	}
+	
+	if(task == OBSTACLE_STATIC){
+		if(main_count == 0) go_sub_path = true;
+		else if (value != -1){
+			double gx = goals[value].pose.position.x;
+			double gy = goals[value].pose.position.y;
+			double marcher_x{0.0};
+			double marcher_y{0.0};
+			double step_size{1.0};
+			double goal_dist{sqrt(gx*gx+gy*gy)};
+			double dx = step_size*gx/goal_dist;
+			double dy = step_size*gy/goal_dist;
+			int step_times_static{0};
+			while (goal_dist > step_times_static*step_size)
+			{
+				marcher_x += dx;
+				marcher_y += dy;
+				step_times_static++;
+				if(costmap[(int)marcher_x][(int)marcher_y+costmap.size()/2]>(OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)))
+					go_sub_path = true;
+			}
+		}
+	}
+
+
+
 
 	printf("nearest_obs_seq : %d\n",nearest_obs_seq);
 	// if obstacle sudden, choose goal which is farthest and closer than obstacle

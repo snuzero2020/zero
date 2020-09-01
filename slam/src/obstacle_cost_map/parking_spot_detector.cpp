@@ -20,6 +20,7 @@
 #include "slam/ParkingSpot.h"
 #include "std_msgs/UInt32.h"
 #include "std_msgs/Int32.h"
+#include "std_msgs/Int32MultiArray.h"
 
 #include "ros/ros.h"
 #include "ros/time.h"
@@ -34,6 +35,7 @@ class ParkingSpotDetector{
     private:
     ros::NodeHandle nh;
     ros::Publisher pub;
+    ros::Publisher pub_count;
     ros::Subscriber sub_position;
     ros::Subscriber sub_lidar;
     ros::Subscriber sub_mission;
@@ -53,7 +55,8 @@ class ParkingSpotDetector{
 
     public:
     ParkingSpotDetector(){
-        pub = nh.advertise<std_msgs::Int32>("/parking_spot", 10);
+        pub = nh.advertise<std_msgs::Int32>("/parking_space", 10);
+	pub_count = nh.advertise<std_msgs::Int32MultiArray>("/parking_spot_count",10);
         sub_position = nh.subscribe("/filtered_data", 1, &ParkingSpotDetector::callback_position, this);
         sub_lidar = nh.subscribe("/point_cloud_clusters", 1, &ParkingSpotDetector::callback_lidar, this);
         sub_mission = nh.subscribe("/mission_state", 1, &ParkingSpotDetector::callback_mission, this);
@@ -62,8 +65,8 @@ class ParkingSpotDetector{
         parking_spot.clear();
         count_spot = 0;
         empty_spot = -1;
-        spot_threshold = 50;
-        lidar_threshold = 9.0;
+        spot_threshold = 30;
+        lidar_threshold = 11.0;
         is_parking_mission = false;
         if(is_kcity) path_stream << ros::package::getPath("slam")<<"/config/KCity/KCity_parking_spot.txt";
         else path_stream << ros::package::getPath("slam")<<"/config/FMTC/FMTC_parking_spot.txt";
@@ -135,11 +138,14 @@ class ParkingSpotDetector{
                 }
             }
         }
-	/*
+	vector<int> rt_count;
+	std_msgs::Int32MultiArray rt_parking_count;
 	for(int index = 0; index<count_spot ; index++){
-		ROS_INFO("%d th parking spot includes %d points", index, parking_spot.at(index).count);
+		rt_count.push_back(parking_spot.at(index).count);
+		//ROS_INFO("%d th parking spot includes %d points", index, parking_spot.at(index).count);
 	}
-	*/
+	rt_parking_count.data = rt_count;
+	pub_count.publish(rt_parking_count);
         for(slam::ParkingSpot &spot : parking_spot){
             if(!spot.available) continue;
             if(spot.count > spot_threshold) {
