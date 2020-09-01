@@ -55,8 +55,8 @@ class LocalPathPublisher{
         ros::param::get("/is_kcity", is_kcity);
 		gear_state_sub = nh.subscribe("/gear_state", 2, &LocalPathPublisher::gs_callback, this);
 	    filter_data_sub = nh.subscribe("/filtered_data", 2, &LocalPathPublisher::filter_data_callback, this);
-        if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
-        else path_stream << ros::package::getPath("slam") << "/config/KCity/global_path.txt";
+		if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
+        else path_stream << ros::package::getPath("slam") << "/config/KCity/re_global_path.txt";
 		load_global_path();
     }
     
@@ -86,6 +86,7 @@ class LocalPathPublisher{
             }
             slam::GlobalPathPoint point;
 	    if (result.size() == 0) break;
+		else if(result.at(0) == "//") continue;
             point.x = stod(result.at(0));
             point.y = stod(result.at(1));
             point.theta = stod(result.at(2));

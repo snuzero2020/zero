@@ -20,6 +20,8 @@ class LidarDecoder:
         self._pub = rospy.Publisher("/points", Lidar, queue_size=1)
         self._sub = rospy.Subscriber("/velodyne_points", sensor_msgs.msg.PointCloud2, self.callback_lidar)
         self._distance_tolerance = 10.0
+        # self._lidar_angle = 0
+        # self._lidar_height = 1.334
         self._lidar_angle = 18.48311
         self._lidar_height = 1.23690
 

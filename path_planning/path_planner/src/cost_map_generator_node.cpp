@@ -1,5 +1,8 @@
 #include <vector>
 #include "nav_msgs/Path.h"
+#include "std_msgs/Int32.h"
+#include "std_msgs/UInt32.h"
+
 #include "geometry_msgs/PoseStamped.h"
 #include "ros/ros.h"
 #include "nav_msgs/OccupancyGrid.h"
@@ -11,6 +14,8 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 	ros::Publisher cost_map_pub = n.advertise<nav_msgs::OccupancyGrid>("cost_map_with_goal_vector",10);
 	ros::Publisher goals_pub = n.advertise<nav_msgs::Path>("goals", 10);
+	ros::Publisher gear_pub = n.advertise<std_msgs::UInt32>("gear_state", 10);
+	ros::Publisher mission_state_pub = n.advertise<std_msgs::UInt32>("mission_state", 10);
 	ros::Rate loop_rate(10);
 
 	nav_msgs::OccupancyGrid cost_map;
@@ -66,6 +71,14 @@ int main(int argc, char **argv)
 	
 		ROS_INFO("pub");
 		cost_map_pub.publish(cost_map);
+
+		std_msgs::UInt32 gear_msg;
+		gear_msg.data = 0;
+		gear_pub.publish(gear_msg);
+		std_msgs::UInt32 mission_state_msg;
+		mission_state_msg.data = (10<<8) | 5;
+		mission_state_pub.publish(mission_state_msg);
+
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
