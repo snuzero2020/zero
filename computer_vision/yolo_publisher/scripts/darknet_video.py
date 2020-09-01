@@ -118,8 +118,13 @@ def YOLO():
     #rainy brightness
     cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2549)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    cap.set(cv2.CAP_PROP_BACKLIGHT, 1)
+    cap.set(cv2.CAP_PROP_GAIN, 0.2353)
+
     exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
     brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
+    gain = cap.get(cv2. CAP_PROP_GAIN)
+    print("GAIN:%0.4f" % gain)
     #width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     #height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     print("Current Exposure:%0.4f, Current Brightness:%0.4f" % (exposure, brightness))
@@ -143,7 +148,7 @@ def YOLO():
                                    interpolation=cv2.INTER_LINEAR)
         
         height, width, channel = frame_resized.shape
-        matrix = cv2.getRotationMatrix2D((darknet.network_width(netMain)/2, darknet.network_height(netMain)/2), 0, 1)
+        matrix = cv2.getRotationMatrix2D((darknet.network_width(netMain)/2, darknet.network_height(netMain)/2), 90, 1)
         frame_resized = cv2.warpAffine(frame_resized, matrix, (darknet.network_height(netMain),darknet.network_width(netMain)))
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
