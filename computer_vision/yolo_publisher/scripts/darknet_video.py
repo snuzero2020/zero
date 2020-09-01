@@ -117,13 +117,24 @@ def YOLO():
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
     #rainy brightness
     cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2549)
+
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-    exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
-    brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
+    cap.set(cv2.CAP_PROP_BACKLIGHT, 1)
+    #cap.set(cv2.CAP_PROP_GAIN, 79)
+
+
+    exposure = cap.get(cv2.CAP_PROP_EXPOSURE)
+    brightness = cap.get(cv2.CAP_PROP_BRIGHTNESS)
     #width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     #height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    backlight = cap.get(cv2.CAP_PROP_BACKLIGHT)
+    gain = cap.get(cv2.CAP_PROP_GAIN)
+
     print("Current Exposure:%0.4f, Current Brightness:%0.4f" % (exposure, brightness))
     #print("Width:%d, Height:%d" % (width, height))
+    print("Backlight Compensation:%d" % backlight)
+    print("Gain:%0.4f" % gain)
+
 
     #out = cv2.VideoWriter(
     #    "out.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
