@@ -144,6 +144,9 @@ add_executable(decaying_costmap_publisher src/obstacle_cost_map/improved_obstacl
 target_link_libraries(decaying_costmap_publisher ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(decaying_costmap_publisher slam_generate_messages_cpp)
 
+add_executable(parking_spot_visualizer src/visualizer/parking_spot_visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(parking_spot_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 #add_executable(eigen2cv_tester src/obstacle_cost_map/test_eigen2cv.cpp lib/XYToPixel.cpp)
 #target_link_libraries(eigen2cv_tester ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(eigen2cv_tester slam_generate_messages_cpp)
