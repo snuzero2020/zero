@@ -94,9 +94,9 @@ add_executable(obstacle_detector src/obstacle_cost_map/obstacle_detector.cpp lib
 target_link_libraries(obstacle_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(obstacle_detector slam_generate_messages_cpp)
 
-#add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
-#target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-#add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
+add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
+target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
 
 ##add_executable for sensing
 add_executable(gps_decoder src/sensing/gps_decoder.cpp lib/UTM.cpp)

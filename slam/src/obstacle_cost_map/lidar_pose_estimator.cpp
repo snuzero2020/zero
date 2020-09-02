@@ -9,6 +9,7 @@
 
 #include "slam/Cluster.h"
 #include "slam/Lidar.h"
+#include "slam/LidarPoint.h"
 
 #include "ros/ros.h"
 #include "ros/time.h"
@@ -152,8 +153,12 @@ class LidarPoseEstimator{
     
     void callback(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
-        cloud_points_ = msg->points;
-        cloud_channels_ = msg->channels;
+	for(slam::LidarPoint point : msg->points){
+		cloud_points_.push_back(point.point_3d);
+		cloud_channels_.push_back(point.channel);
+	}
+        //cloud_points_ = msg->points;
+        //cloud_channels_ = msg->channels;
         candidate_points_.clear();
         filtered_points_.clear();
         filtered_channels_.clear();
