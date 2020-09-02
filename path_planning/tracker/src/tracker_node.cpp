@@ -60,6 +60,7 @@ using namespace std;
 using namespace std_msgs;
 using namespace nav_msgs;
 using namespace geometry_msgs;
+using namespace core_msgs;
 
 /*
    struct Point
@@ -127,6 +128,8 @@ class Tracker
 		int task{-1};
 		int parking_space{-1};
 		double max_vel_increase;
+
+		VehicleState curr_vehicle_state{VehicleState()};
 		
 		// initializer
 		Tracker() 
@@ -160,6 +163,7 @@ class Tracker
 		void recommend_vel_callback(const Float32::ConstPtr msg);
 		void missionstateCallback(const std_msgs::UInt32 & msg);
 		void gear_state_callback(const std_msgs::UInt32 & msg);
+		void vehicle_state_callback(const core_msgs::VehicleState & msg);
 
 
 		// Fuctions for determind steering angle
@@ -209,9 +213,9 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	}
 	
 	if (curr_local_path.poses.size()==0){
-		core_msgs::Control msg;
-
 		cout << "no path!!!!\n";
+		
+		core_msgs::Control msg;
 		msg.is_auto = 1;
 		msg.estop = 0;
 		msg.gear = 0;
@@ -221,13 +225,42 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 
 		// while bracking, pid should be reset
 		integral_error = 0;
-
-		car_signal_pub.publish(msg);
-
 		desired_vel_before = 0;
 
+		car_signal_pub.publish(msg);
 		return;
 	}
+
+	// when vehivle state is estop or manual_control mode reset integral error and desired_vel_before
+	if (curr_vehicle_state.estop==1 || curr_vehicle_state.is_auto != 1)
+	{
+		core_msgs::Control msg;
+		
+		if (curr_vehicle_state.estop==0){
+			cout << "estop!!!!\n";
+			msg.is_auto = 1;
+			msg.estop = 1;
+		}
+
+		if (curr_vehicle_state.is_auto != 1){
+			cout << "manual_control mode!!!!\n";
+			msg.is_auto = 0;
+			msg.estop = 0;
+		}
+
+		msg.gear = 0;
+		msg.brake = 100;
+		msg.speed = 0;
+		msg.steer = 0;
+
+		// while bracking, pid should be reset
+		integral_error = 0;
+		desired_vel_before = 0;
+
+		car_signal_pub.publish(msg);
+		return;
+	}
+
 
 	if (recommend_vel<-0.2)
 		return;	
@@ -270,6 +303,19 @@ void Tracker::gear_state_callback(const std_msgs::UInt32 & msg){
 	if(prev_gear_state != msg.data)
 		integral_error = 0;
 	prev_gear_state = msg.data;
+}
+		
+
+void Tracker::vehicle_state_callback(const core_msgs::VehicleState & msg){
+	curr_vehicle_state.is_auto = msg.is_auto;
+	curr_vehicle_state.estop = msg.estop;
+	curr_vehicle_state.gear = msg.gear;
+	curr_vehicle_state.brake = msg.brake;
+	curr_vehicle_state.speed = msg.speed;
+	curr_vehicle_state.steer = msg.steer;
+	curr_vehicle_state.encoder = msg.encoder;
+	curr_vehicle_state.alive = msg.alive;
+	curr_vehicle_state.header.stamp = msg.header.stamp;
 }
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
