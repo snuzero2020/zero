@@ -23,7 +23,7 @@ vel1: 3.0
 vel2: 2.0
 # mission recognizer
 mission_start : 0
-isKcity : true
+isKcity : 0
 # goal decition
 lidar_detect_dist : 7
 almost_obstacle_ratio : 0.2

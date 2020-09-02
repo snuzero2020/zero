@@ -101,20 +101,42 @@ def YOLO():
             pass
     cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture("/home/snuzero/darknet/tl10_test.avi")
-    cap.set(3, 1280)
-    cap.set(4, 720)
+    cap.set(3, 1920)
+    cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
-    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    #day exposure
+    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
     #night exposure
-    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
+    #rainy exposure
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0020)
+
+    #day brightness
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.4706)
     #night brightness
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
+    #rainy brightness
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2549)
+
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    cap.set(cv2.CAP_PROP_BACKLIGHT, 1)
+    cap.set(cv2.CAP_PROP_GAIN, 0.2353)
+
     exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
     brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
+    gain = cap.get(cv2. CAP_PROP_GAIN)
+    print("GAIN:%0.4f" % gain)
+    #width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    #height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    #backlight = cap.get(cv2.CAP_PROP_BACKLIGHT)
+    gain = cap.get(cv2.CAP_PROP_GAIN)
+
     print("Current Exposure:%0.4f, Current Brightness:%0.4f" % (exposure, brightness))
-    
+    #print("Width:%d, Height:%d" % (width, height))
+    #print("Backlight Compensation:%d" % backlight)
+    print("Gain:%0.4f" % gain)
+
+
     #out = cv2.VideoWriter(
     #    "out.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
     #    (darknet.network_width(netMain), darknet.network_height(netMain)))
@@ -137,11 +159,11 @@ def YOLO():
         frame_resized = cv2.warpAffine(frame_resized, matrix, (darknet.network_height(netMain),darknet.network_width(netMain)))
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.80)
+        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.85)
         image = cvDrawBoxes(detections, frame_resized)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(1/(time.time()-prev_time))
-        cv2.imshow('Demo', image)
+        cv2.imshow('Love_ZERO', image)
         key = cv2.waitKey(2)
         if key == 27:
             print("quit")
