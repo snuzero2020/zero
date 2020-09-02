@@ -116,11 +116,11 @@ class ObstacleDetector{
         vector<slam::LidarPoint> in_road;
         int pixel_x, pixel_y;
         for(slam::LidarPoint point : filtered_points_){
-            double x = current_position_.first + point.point_2d.x*cos(current_heading_) - point.point_2d.y*sin(current_heading_);
-            double y = current_position_.second + point.point_2d.x*sin(current_heading_) + point.point_2d.y*cos(current_heading_);
-            XYToPixel(pixel_x, pixel_y, x, y, is_kcity);
-            cv::Vec3b color = road_map_.at<cv::Vec3b>(pixel_y, pixel_x);
-            if(color[0]==0 && color[1] == 0 && color[2]==0) continue; // (x,y) is off-road point
+            //double x = current_position_.first + point.point_2d.x*cos(current_heading_) - point.point_2d.y*sin(current_heading_);
+            //double y = current_position_.second + point.point_2d.x*sin(current_heading_) + point.point_2d.y*cos(current_heading_);
+            //XYToPixel(pixel_x, pixel_y, x, y, is_kcity);
+            //cv::Vec3b color = road_map_.at<cv::Vec3b>(pixel_y, pixel_x);
+            //if(color[0]==0 && color[1] == 0 && color[2]==0) continue; // (x,y) is off-road point
             in_road.push_back(point);
             clustering_helper_.push_back(-1);
         }

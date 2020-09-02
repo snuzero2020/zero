@@ -39,7 +39,6 @@ class ParkingSpotDetector{
     ros::Subscriber sub_position;
     ros::Subscriber sub_lidar;
     ros::Subscriber sub_mission;
-    bool find_parking_spot;
     int count_spot;
     vector<slam::ParkingSpot> parking_spot;
     stringstream path_stream;
@@ -60,7 +59,6 @@ class ParkingSpotDetector{
         sub_position = nh.subscribe("/filtered_data", 1, &ParkingSpotDetector::callback_position, this);
         sub_lidar = nh.subscribe("/point_cloud_clusters", 1, &ParkingSpotDetector::callback_lidar, this);
         sub_mission = nh.subscribe("/mission_state", 1, &ParkingSpotDetector::callback_mission, this);
-        find_parking_spot = false;
         is_kcity = false;
         parking_spot.clear();
         count_spot = 0;
@@ -103,7 +101,6 @@ class ParkingSpotDetector{
 	}
         else {
             is_parking_mission = false;
-            find_parking_spot = false;
             empty_spot = -1;
             for(slam::ParkingSpot &spot : parking_spot) spot.available = true;
         }
@@ -117,11 +114,6 @@ class ParkingSpotDetector{
     void callback_lidar(const slam::Clusters::ConstPtr& msg){
         std_msgs::Int32 rt;
         if(!is_parking_mission){
-            rt.data = empty_spot;
-            pub.publish(rt);
-            return;
-        }
-        if(find_parking_spot) {
             rt.data = empty_spot;
             pub.publish(rt);
             return;
@@ -161,7 +153,6 @@ class ParkingSpotDetector{
             if((spot.x-position.first)*cos(heading)+(spot.y-position.second)*sin(heading)<0) continue;
             empty_spot = index;
             rt.data = empty_spot;
-            find_parking_spot = true;
             pub.publish(rt);
             return;
         }
