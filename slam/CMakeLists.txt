@@ -194,5 +194,6 @@ catkin_install_python(PROGRAMS
   src/visualizer/kalman_fusion_visualizer.py
   src/visualizer/map_layer_visualizer.py
   src/obstacle_cost_map/object_visualizer.py
+  src/obstacle_cost_map/cluster_to_pointcloud.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
