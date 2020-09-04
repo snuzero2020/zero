@@ -106,18 +106,18 @@ def YOLO():
     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
     os.system('v4l2-ctl -d 0 -c backlight_compensation=1')
     #day exposure
-    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
     #night exposure
     # cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
     #rainy exposure
-    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0020)
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0020)
 
     #day brightness
-    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.3961)
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0588)
     #night brightness
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
     #rainy brightness
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2510)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2510)
 
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     #cap.set(32, 1)
@@ -172,6 +172,6 @@ def YOLO():
     #out.release()
 
 if __name__ == "__main__":
-    traffic_pub = rospy.Publisher('/light_state', Int32, queue_size= 10)
+    traffic_pub = rospy.Publisher('/light_state', Int32, queue_size= 1)
     rospy.init_node("traffic_light_publisher_video", anonymous= True)
     YOLO()

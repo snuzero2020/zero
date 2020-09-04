@@ -63,8 +63,8 @@ class ParkingSpotDetector{
         parking_spot.clear();
         count_spot = 0;
         empty_spot = -1;
-        spot_threshold = 30;
-        lidar_threshold = 11.0;
+        spot_threshold = 100;
+        lidar_threshold = 15.0;
         is_parking_mission = false;
         if(is_kcity) path_stream << ros::package::getPath("slam")<<"/config/KCity/KCity_parking_spot.txt";
         else path_stream << ros::package::getPath("slam")<<"/config/FMTC/FMTC_parking_spot.txt";
@@ -150,7 +150,7 @@ class ParkingSpotDetector{
             if(!spot.available) continue;
             if(sqrt(pow(position.first-spot.x,2)+pow(position.second-spot.y,2))>lidar_threshold - sqrt(pow(spot.width/2,2)+pow(spot.height/2,2))) continue;
 	    ROS_INFO("%d th spot is in the lidar zone",index);
-            if((spot.x-position.first)*cos(heading)+(spot.y-position.second)*sin(heading)<0) continue;
+            //if((spot.x-position.first)*cos(heading)+(spot.y-position.second)*sin(heading)<0) continue;
             empty_spot = index;
             rt.data = empty_spot;
             pub.publish(rt);

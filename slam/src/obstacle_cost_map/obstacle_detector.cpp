@@ -7,6 +7,8 @@
 #include <vector>
 #include "opencv2/opencv.hpp"
 
+#include "std_msgs/Int32.h"
+#include "std_msgs/Int32MultiArray.h"
 #include "geometry_msgs/Point.h"
 
 #include "slam/Cluster.h"
@@ -31,6 +33,7 @@ class ObstacleDetector{
     private:
     ros::NodeHandle nh_;
     ros::Publisher pub_;
+    ros::Publisher pub_count_;
     ros::Subscriber sub_lidar_;
     ros::Subscriber sub_position_;
     vector<slam::LidarPoint> cloud_points_;
@@ -54,6 +57,7 @@ class ObstacleDetector{
         is_kcity=false;
 	    //ros::param::get("/is_kcity",is_kcity);
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
+	pub_count_ = nh_.advertise<std_msgs::Int32MultiArray>("cluster_count",10);
         sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
         sub_position_ = nh_.subscribe("/filtered_data", 1, &ObstacleDetector::callback_position, this);
         current_position_.first = 0.0;
@@ -65,7 +69,7 @@ class ObstacleDetector{
         plane_config_[1]=0.0;
         plane_config_[2]=cos(lidar_angle_*M_PI/180);
         plane_config_[3]=lidar_height_;
-        plane_tolerance_ = 0.12;
+        plane_tolerance_ = 0.15;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
         if(is_kcity) path_stream_ << ros::package::getPath("slam") << "/config/KCity/KCity_road_area_eroded.png";
@@ -116,11 +120,11 @@ class ObstacleDetector{
         vector<slam::LidarPoint> in_road;
         int pixel_x, pixel_y;
         for(slam::LidarPoint point : filtered_points_){
-            //double x = current_position_.first + point.point_2d.x*cos(current_heading_) - point.point_2d.y*sin(current_heading_);
-            //double y = current_position_.second + point.point_2d.x*sin(current_heading_) + point.point_2d.y*cos(current_heading_);
-            //XYToPixel(pixel_x, pixel_y, x, y, is_kcity);
-            //cv::Vec3b color = road_map_.at<cv::Vec3b>(pixel_y, pixel_x);
-            //if(color[0]==0 && color[1] == 0 && color[2]==0) continue; // (x,y) is off-road point
+            double x = current_position_.first + point.point_2d.x*cos(current_heading_) - point.point_2d.y*sin(current_heading_);
+            double y = current_position_.second + point.point_2d.x*sin(current_heading_) + point.point_2d.y*cos(current_heading_);
+            XYToPixel(pixel_x, pixel_y, x, y, is_kcity);
+            cv::Vec3b color = road_map_.at<cv::Vec3b>(pixel_y, pixel_x);
+            if(color[0]==0 && color[1] == 0 && color[2]==0) continue; // (x,y) is off-road point
             in_road.push_back(point);
             clustering_helper_.push_back(-1);
         }
@@ -162,7 +166,7 @@ class ObstacleDetector{
 
     void callback_lidar(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
-	    cloud_points_ = msg->points;
+	cloud_points_ = msg->points;
         filtered_points_.clear();
         clustering_helper_.clear();
 
@@ -172,6 +176,8 @@ class ObstacleDetector{
 
         //Publish Data
         slam::Clusters rt;
+	std_msgs::Int32MultiArray rt_count;
+	vector<int> cluster_counts;
         vector<slam::Cluster> rt_clusters;
         vector<geometry_msgs::Point> rt_points;
         rt.header.stamp = ros::Time::now();
@@ -185,17 +191,20 @@ class ObstacleDetector{
                 rt_cluster.count ++;
             }
             rt_clusters.push_back(rt_cluster);
+	    cluster_counts.push_back(rt_cluster.count);
         }
         rt.clusters = rt_clusters;
+	rt_count.data = cluster_counts;
         pub_.publish(rt);
+	pub_count_.publish(rt_count);
         clock_t end = clock();
         if(double(end-begin)/CLOCKS_PER_SEC > max_time) max_time = double(end-begin)/CLOCKS_PER_SEC;
 
         ROS_INFO_STREAM("# of filtered points : " << filtered_points_.size());
         ROS_INFO_STREAM("elapsed time : " << double(end-begin)/CLOCKS_PER_SEC);
-        ROS_INFO_STREAM("cosine value between z and normal : " << acos(plane_config_[2]
-        /sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
-        ROS_INFO_STREAM("max time : " << max_time);
+        //ROS_INFO_STREAM("cosine value between z and normal : " << acos(plane_config_[2]
+        ///sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
+        //ROS_INFO_STREAM("max time : " << max_time);
 	    //ROS_INFO("plane coefficient : %lf", plane_coefficient_);
     }
 

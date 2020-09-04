@@ -136,13 +136,13 @@ class Tracker
 			:steering_angle(Float32()), curr_local_path(Path()), look_ahead_oval_ratio(2)
 		{
 			steering_angle_pub = nh.advertise<Float32>("configuration",1000);
-			car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 1000);
-			local_path_sub = nh.subscribe("local_path",100,&Tracker::local_path_callback,this);
-			//current_vel_sub = nh.subscribe("/vehicle_state",100, &Tracker::current_vel_callback, this);
-			current_vel_sub = nh.subscribe("filter_encoder_data",100, &Tracker::current_vel_callback, this);
-			recommend_vel_sub = nh.subscribe("recommend_vel",100, &Tracker::recommend_vel_callback, this);
-			mission_state_sub = nh.subscribe("mission_state", 50, &Tracker::missionstateCallback, this);
-			gear_state_sub = nh.subscribe("gear_state", 10, &Tracker::gear_state_callback, this);
+			car_signal_pub = nh.advertise<core_msgs::Control>("/car_signal", 2);
+			local_path_sub = nh.subscribe("local_path",2,&Tracker::local_path_callback,this);
+			//current_vel_sub = nh.subscribe("/vehicle_state",2, &Tracker::current_vel_callback, this);
+			current_vel_sub = nh.subscribe("filter_encoder_data",2, &Tracker::current_vel_callback, this);
+			recommend_vel_sub = nh.subscribe("recommend_vel",2, &Tracker::recommend_vel_callback, this);
+			mission_state_sub = nh.subscribe("mission_state", 2, &Tracker::missionstateCallback, this);
+			gear_state_sub = nh.subscribe("gear_state", 2, &Tracker::gear_state_callback, this);
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
 			nh.getParam("/D_gain", D_gain);
@@ -232,11 +232,13 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	}
 
 	// when vehivle state is estop or manual_control mode reset integral error and desired_vel_before
+	
+	/*
 	if (curr_vehicle_state.estop==1 || curr_vehicle_state.is_auto != 1)
 	{
 		core_msgs::Control msg;
 		
-		if (curr_vehicle_state.estop==0){
+		if (curr_vehicle_state.estop==1){
 			cout << "estop!!!!\n";
 			msg.is_auto = 1;
 			msg.estop = 1;
@@ -260,10 +262,16 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		car_signal_pub.publish(msg);
 		return;
 	}
-
-
-	if (recommend_vel<-0.2)
-		return;	
+	*/
+	/*
+	if (curr_vehicle_state.estop==true || curr_vehicle_state.is_auto != true)
+	{
+		// while bracking, pid should be reset
+		integral_error = 0;
+		desired_vel_before = 0;
+		return;
+	}
+	*/
 
 	determind_steering_angle();
 	calculate_input_signal();

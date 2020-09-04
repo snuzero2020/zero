@@ -9,8 +9,8 @@ max_vel_increase: 0.02
 # rrt_star.h
 iternum: 1000
 threshold: 100.0
-threshold2: 98.0
-threshold2_obsatcle_static: 98.0
+threshold2: 95.0
+threshold2_obsatcle_static: 95.0
 radius: 30.0
 cost_scale: 10
 cost_scale_obstacle_static: 15

@@ -30,9 +30,9 @@ class Filter{
 		encoder_data = new double[data_num];	
 		time_sec = new int[data_num];
 		time_nsec = new int[data_num];
-            filter_encoder_pub = nh.advertise<core_msgs::Encoderfilter>("filter_encoder_data", 1000);
-            encoder_sub = nh.subscribe("/vehicle_state",100, &Filter::encoder_sub_callback, this);
-	    gear_state_sub = nh.subscribe("gear_state", 10, &Filter::gear_state_callback, this);
+            filter_encoder_pub = nh.advertise<core_msgs::Encoderfilter>("filter_encoder_data", 2);
+            encoder_sub = nh.subscribe("/vehicle_state",2, &Filter::encoder_sub_callback, this);
+	    gear_state_sub = nh.subscribe("gear_state", 2, &Filter::gear_state_callback, this);
         }
 
         void encoder_sub_callback(const core_msgs::VehicleState::ConstPtr);
