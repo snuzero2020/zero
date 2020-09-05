@@ -59,7 +59,7 @@ class ParkingSpotDetector{
         sub_position = nh.subscribe("/filtered_data", 1, &ParkingSpotDetector::callback_position, this);
         sub_lidar = nh.subscribe("/point_cloud_clusters", 1, &ParkingSpotDetector::callback_lidar, this);
         sub_mission = nh.subscribe("/mission_state", 1, &ParkingSpotDetector::callback_mission, this);
-        is_kcity = false;
+	ros::param::get("/is_kcity",is_kcity);
         parking_spot.clear();
         count_spot = 0;
         empty_spot = -1;

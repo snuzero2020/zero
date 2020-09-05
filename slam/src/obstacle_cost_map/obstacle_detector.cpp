@@ -57,8 +57,7 @@ class ObstacleDetector{
     public:
     bool is_kcity;
     ObstacleDetector(){
-        is_kcity=false;
-	    //ros::param::get("/is_kcity",is_kcity);
+	ros::param::get("/is_kcity",is_kcity);
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
 	    pub_count_ = nh_.advertise<std_msgs::Int32MultiArray>("cluster_count",10);
         sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
@@ -107,6 +106,7 @@ class ObstacleDetector{
         int n = cloud_points_.size();
         for(int i = 0; i<n;i++){
             geometry_msgs::Point p = cloud_points_.at(i).point_3d;
+
             if (p.x*plane_config_[0]+p.y*plane_config_[1]+p.z*plane_config_[2] + plane_config_[3] < plane_tolerance_){
                 inliers_result.insert(i);
             }

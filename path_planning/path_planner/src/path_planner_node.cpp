@@ -225,10 +225,10 @@ public:
 				y.x = 0; y.y = 0;
 				duration_parking = ((int)ros::Time::now().sec - time_parking_complished);
 				cout << "time : " << duration_parking << endl;
-				if( duration_parking > 20 && duration_parking <=21){
+				if( duration_parking > 4 && duration_parking <=5){
 					gear_state = 1;
 				}
-				else if (duration_parking > 21){
+				else if (duration_parking > 5){
 					gear_state = 1;
 					time_parking_complished = 0;
 				}

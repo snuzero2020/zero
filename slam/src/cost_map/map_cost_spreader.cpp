@@ -137,7 +137,8 @@ int main(int argc, char** argv) {
     img_spreaded.convertTo(img_output, CV_8UC1, 1.0/USHORT_FACTOR);
 
     path_stream.str(std::string());
-    path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
+    if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
+    else path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
     cv::imwrite(path_stream.str(),img_output);
     ROS_INFO("Image saved");
 }
