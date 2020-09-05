@@ -39,7 +39,4 @@ time_noise_std : 0.002
 #map layer
 #color_velocity.cpp, sector_publisher.cpp, velocity publiser.cpp obstacle_detector.cpp
 is_kcity : true
-max_velocity : 4
-sigma : 800
-kernelSize : 555
 
