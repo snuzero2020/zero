@@ -56,7 +56,7 @@ class Local_costmap_publisher{
 			ros::param::get("/is_kcity", is_kcity);
 
 			if(!is_kcity) path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_costmap.png";
-			else path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap.png";
+			else path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_costmap_backup.png";
 			glob_costmap = cv::imread(path_stream.str(), cv::IMREAD_GRAYSCALE);
 			obstacle_costmap = cv::Mat(map_size,map_size, CV_8UC1, cv::Scalar(0));
 			

@@ -27,7 +27,7 @@ class Signal {
             brake = msg.brake;
             gear = msg.gear;
             speed = msg.speed;
-            call_steer = msg.steer - 2.5; //3.1 is offset angle of steering.
+            call_steer = msg.steer;// - 2.5; //3.1 is offset angle of steering.
 	    if (call_steer < -27)
 		    steer = -27;
 	    else if (call_steer > 27)

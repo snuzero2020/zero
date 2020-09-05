@@ -499,7 +499,7 @@ double Tracker::calculate_desired_vel(){
 	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature,2.0)-1.5),1);
+	curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature,2.0)-1.5),0.75);
 	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 
 	/*	
@@ -623,8 +623,10 @@ void Tracker::vehicle_output_signal(){
 	if (task != PARKING){
 	/*	if (look_ahead_dist<100 && (motion==HALT_MOTION || task==OBSTACLE_SUDDEN))
 			msg.steer = get_steering_angle().data/5.0;*/
-		if (motion==HALT_MOTION || task==OBSTACLE_SUDDEN)
+		if (motion==HALT_MOTION)// || task==OBSTACLE_SUDDEN)
 			msg.steer = get_steering_angle().data/(look_ahead_dist>200?1:(-(look_ahead_dist-20)*4.0/180.0 + 5));
+		else if (task==OBSTACLE_SUDDEN)
+			msg.steer = get_steering_angle().data/(look_ahead_dist>200?1:(-(look_ahead_dist-20)*2.0/80.0 + 3));
 		else
 			msg.steer = get_steering_angle().data;
 		car_signal_pub.publish(msg);
