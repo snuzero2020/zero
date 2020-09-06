@@ -58,11 +58,12 @@ class ObstacleDetector{
     bool is_kcity;
     ObstacleDetector(){
 	ros::param::get("/is_kcity",is_kcity);
-        pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
-	    pub_count_ = nh_.advertise<std_msgs::Int32MultiArray>("cluster_count",10);
+        pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 2);
+	    pub_count_ = nh_.advertise<std_msgs::Int32MultiArray>("cluster_count",2);
         sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
         sub_imu = nh_.subscribe("/imu_raw", 1, &ObstacleDetector::callback_imu, this);
         sub_position_ = nh_.subscribe("/filtered_data", 1, &ObstacleDetector::callback_position, this);
+        sub_mission_ = nh_.subscribe("/mission_state", 1, &ObstacleDetector::callback_mission, this);
         current_position_.first = 0.0;
         current_position_.second = 0.0;
         current_heading_ = 0.0;
@@ -71,6 +72,7 @@ class ObstacleDetector{
         plane_tolerance_ = 0.15;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
+        mission_state_ = -1;
         if(is_kcity) path_stream_ << ros::package::getPath("slam") << "/config/KCity/KCity_road_area_eroded.png";
         else path_stream_ << ros::package::getPath("slam")<<"/config/FMTC/FMTC_road_area_eroded.png";
         
@@ -97,6 +99,7 @@ class ObstacleDetector{
     
     void removing_plane(){
         set<int> inliers_result;
+        pitch_offset = 0.0;
         plane_config_[0]=-sin(lidar_angle_*M_PI/180 - pitch_offset);
         plane_config_[1]=0.0;
         plane_config_[2]=cos(lidar_angle_*M_PI/180 - pitch_offset);
@@ -128,6 +131,10 @@ class ObstacleDetector{
             double x = current_position_.first + point.point_2d.x*cos(current_heading_) - point.point_2d.y*sin(current_heading_);
             double y = current_position_.second + point.point_2d.x*sin(current_heading_) + point.point_2d.y*cos(current_heading_);
             XYToPixel(pixel_x, pixel_y, x, y, is_kcity);
+            if(pixel_x > road_map_.cols || pixel_x < 0 || pixel_y > road_map_.rows || pixel_y < 0){
+                ROS_INFO("A point is out of the map : (%5d, %5d)", pixel_x, pixel_y);
+                continue;
+            }
             cv::Vec3b color = road_map_.at<cv::Vec3b>(pixel_y, pixel_x);
             if(color[0]==0 && color[1] == 0 && color[2]==0) continue; // (x,y) is off-road point
             in_road.push_back(point);
@@ -171,6 +178,10 @@ class ObstacleDetector{
         current_position_.first = msg->x;
         current_position_.second = msg->y;
         current_heading_ = msg->theta;
+    }
+
+    void callback_mission(const std_msgs::UInt32::ConstPtr& msg){
+        mission_state_ = msg->data;
     }
 
     void callback_lidar(const slam::Lidar::ConstPtr& msg){
@@ -218,9 +229,8 @@ class ObstacleDetector{
     }
 
 };
-
-int main(int argc, char **argv){
-    ros::init(argc, argv, "obstacle_detector");
+le_ = 18.48311;
+        lidar_height_ = 1.164920;ctor");
     ObstacleDetector obstacle_detector;
     ros::spin();
 }
