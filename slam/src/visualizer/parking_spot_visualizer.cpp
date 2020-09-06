@@ -15,15 +15,23 @@
 int main() {
     bool is_kcity;
     ros::param::get("/is_kcity", is_kcity);
-    is_kcity = false;
 
     std::vector<std::vector<double>> coords;
 
     std::stringstream coord_path;
-    coord_path << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_spot.txt";
-
     std::stringstream map_path;
-    map_path << ros::package::getPath("slam") << "/config/FMTC/FMTC_map.png";
+
+    if (!is_kcity) {
+        coord_path << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_spot.txt";
+        map_path << ros::package::getPath("slam") << "/config/FMTC/FMTC_map.png";
+
+        ROS_INFO("The FMTC map path and coordinate paths loaded");
+    } else {
+        coord_path << ros::package::getPath("slam") << "/config/KCity/KCity_parking_spot.txt";
+        map_path << ros::package::getPath("slam") << "/config/KCity/KCity.png";
+
+        ROS_INFO("The KCIty map path and coordinate paths loaded");
+    }
 
     std::ifstream coord_file(coord_path.str());
 
@@ -106,9 +114,8 @@ int main() {
     }
 
     std::stringstream map_output_path;
-    map_output_path << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_spot_visualized_map.png";
+    if (!is_kcity) map_output_path << ros::package::getPath("slam") << "/config/FMTC/FMTC_parking_spot_visualized_map.png";
+    else map_output_path << ros::package::getPath("slam") << "/config/KCity/KCity_parking_spot_visualized_map.png";
 
     cv::imwrite(map_output_path.str(), map);
 }
-    
-    
