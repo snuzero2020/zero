@@ -55,6 +55,7 @@ class LidarDecoder:
         h.stamp = rospy.Time.now()
         rt.header = h
         rt.count = len(cloud_points)
+        print(rt.count)
         rt.points = cloud_points
         self._pub.publish(rt)
 
