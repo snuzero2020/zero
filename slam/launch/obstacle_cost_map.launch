@@ -1,5 +1,5 @@
 <launch>
   <include file="$(find slam)/launch/decoder.launch"/>
   <node name="obstacle_detector" pkg="slam" type="obstacle_detector" output="screen"/>
-  <node name="pointcloud_data_generator" pkg="slam" type="cluster_to_pointcloud" output="screen"/>
+  <node name="pointcloud_data_generator" pkg="slam" type="cluster_to_pointcloud.py" output="screen"/>
 </launch>
