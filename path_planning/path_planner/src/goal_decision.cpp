@@ -170,7 +170,12 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		//cout << "(goal decision) heading check!\n";
 		// check if same dir
 		if(motion != PARKING_MOTION){
-			if(ang_diff > M_PI/2) continue;
+			if(task != INTERSECTION_STRAIGHT){
+				if(ang_diff > M_PI/2) continue;
+			}
+			else{
+				if(ang_diff > M_PI/3) continue;
+			}
 		}
 		else if(!parking_complished){
 			if(ang_diff > M_PI/2) continue;
