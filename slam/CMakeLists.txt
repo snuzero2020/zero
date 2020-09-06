@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   message_filters
   cmake_modules #for eigen used in sensing/kalman_fusion
+  tf
+  tf2
 )
 #for eigen used in sensing/kalman_fusion
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -186,6 +188,11 @@ add_dependencies(parking_spot_detector slam_generate_messages_cpp)
 add_executable(erode_png src/redundancy/dilate_png.cpp)
 target_link_libraries(erode_png ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(erode_png slam_generate_messages_cpp)
+
+# imu getter for bollock calibration
+add_executable(imu_getter src/obstacle_cost_map/imu_getter.cpp)
+target_link_libraries(imu_getter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(imu_getter slam_generate_messages_cpp)
 
 catkin_install_python(PROGRAMS 
   src/map_calibration/transform_finder.py

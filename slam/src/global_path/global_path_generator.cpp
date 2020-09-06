@@ -41,7 +41,7 @@ class GlobalPathGenerator{
 		//change the number in save_path_stream into the bag sequence
 		is_kcity = true;
 		if(!is_kcity) save_path_stream << ros::package::getPath("slam") << "/config/FMTC/subpath.txt";
-		else save_path_stream << ros::package::getPath("slam") << "/config/KCity/path_txt/normal_to_split1_from_I1.txt";
+		else save_path_stream << ros::package::getPath("slam") << "/config/KCity/path_txt/inter_B_1_left_fixed.txt";
     }
     
 
@@ -52,7 +52,7 @@ class GlobalPathGenerator{
         printf("complete save\n");
     }
 
-    void callback(const slam::Old_Data::ConstPtr& msg){
+    void callback(const slam::Data::ConstPtr& msg){
         cur_.first = msg->x;
         cur_.second = msg->y;
 
@@ -62,7 +62,7 @@ class GlobalPathGenerator{
         point.x = cur_.first;
         point.y = cur_.second;
         point.theta = msg->theta;
-	    point.flag = 0;
+	    point.flag = 2;
         prev_.first = cur_.first;
         prev_.second = cur_.second;
         points_.push_back(point);

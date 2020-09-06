@@ -38,13 +38,13 @@ public:
 	int duration_unparking{0};
 	bool isTrackDriving;
 	RosNode(){
-		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 5, &RosNode::costmapCallback, this);
-		parking_space_sub = n.subscribe("parking_space", 5, &RosNode::parkingspaceCallback, this);
-		mission_state_sub = n.subscribe("mission_state", 50, &RosNode::missionstateCallback, this);
-		goals_sub = n.subscribe("goals", 50000, &RosNode::goalsCallback, this);
-		path_pub = n.advertise<nav_msgs::Path>("local_path", 1000);
-		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",10);
-		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished",10);
+		cost_map_sub = n.subscribe("cost_map_with_goal_vector", 2, &RosNode::costmapCallback, this);
+		parking_space_sub = n.subscribe("parking_space", 2, &RosNode::parkingspaceCallback, this);
+		mission_state_sub = n.subscribe("mission_state", 2, &RosNode::missionstateCallback, this);
+		goals_sub = n.subscribe("goals", 2, &RosNode::goalsCallback, this);
+		path_pub = n.advertise<nav_msgs::Path>("local_path", 2);
+		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",2);
+		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished",2);
 
 		task = light = motion = parking_space = -1;
 //////////////////////////		
@@ -225,10 +225,10 @@ public:
 				y.x = 0; y.y = 0;
 				duration_parking = ((int)ros::Time::now().sec - time_parking_complished);
 				cout << "time : " << duration_parking << endl;
-				if( duration_parking > 20 && duration_parking <=21){
+				if( duration_parking > 4 && duration_parking <=5){
 					gear_state = 1;
 				}
-				else if (duration_parking > 21){
+				else if (duration_parking > 5){
 					gear_state = 1;
 					time_parking_complished = 0;
 				}

@@ -60,7 +60,7 @@ class ObstacleImage{
         if(max_time < double(end-begin)/CLOCKS_PER_SEC){
             max_time = double(end-begin)/CLOCKS_PER_SEC;
         }
-        ROS_INFO("max elapsed time(3) : %lf", max_time);
+        //ROS_INFO("max elapsed time(3) : %lf", max_time);
         //ROS_INFO("elapsed time(3): %lf", double(end-begin)/CLOCKS_PER_SEC);
     }
 

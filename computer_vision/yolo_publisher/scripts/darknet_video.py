@@ -104,31 +104,31 @@ def YOLO():
     cap.set(3, 1920)
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+    os.system('v4l2-ctl -d 0 -c backlight_compensation=1')
     #day exposure
     cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
     #night exposure
-    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
+    # cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
     #rainy exposure
     #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0020)
 
     #day brightness
-    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.4706)
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0588)
     #night brightness
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
     #rainy brightness
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2549)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2510)
 
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-    cap.set(cv2.CAP_PROP_BACKLIGHT, 1)
+    #cap.set(32, 1)
     cap.set(cv2.CAP_PROP_GAIN, 0.2353)
 
     exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
     brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
-    gain = cap.get(cv2. CAP_PROP_GAIN)
-    print("GAIN:%0.4f" % gain)
+    
     #width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     #height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    #backlight = cap.get(cv2.CAP_PROP_BACKLIGHT)
+    #backlight = cap.get(32)
     gain = cap.get(cv2.CAP_PROP_GAIN)
 
     print("Current Exposure:%0.4f, Current Brightness:%0.4f" % (exposure, brightness))
@@ -155,11 +155,11 @@ def YOLO():
                                    interpolation=cv2.INTER_LINEAR)
         
         height, width, channel = frame_resized.shape
-        matrix = cv2.getRotationMatrix2D((darknet.network_width(netMain)/2, darknet.network_height(netMain)/2), 90, 1)
+        matrix = cv2.getRotationMatrix2D((darknet.network_width(netMain)/2, darknet.network_height(netMain)/2), 0, 1)
         frame_resized = cv2.warpAffine(frame_resized, matrix, (darknet.network_height(netMain),darknet.network_width(netMain)))
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
 
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.85)
+        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.50)
         image = cvDrawBoxes(detections, frame_resized)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(1/(time.time()-prev_time))
@@ -172,6 +172,6 @@ def YOLO():
     #out.release()
 
 if __name__ == "__main__":
-    traffic_pub = rospy.Publisher('/light_state', Int32, queue_size= 10)
+    traffic_pub = rospy.Publisher('/light_state', Int32, queue_size= 1)
     rospy.init_node("traffic_light_publisher_video", anonymous= True)
     YOLO()

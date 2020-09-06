@@ -22,15 +22,18 @@ class LidarDecoder:
         self._distance_tolerance = 12.0
         # self._lidar_angle = 0
         # self._lidar_height = 1.334
-        self._lidar_angle = 18.48311
-        self._lidar_height = 1.23690
+        #self._lidar_angle = 18.48311
+        #self._lidar_height = 1.23690 - 0.09
+        self._lidar_angle = 18.22438
+        self._lidar_height = 1.16492
+        self._gps_pose = 0.38
 
     def callback_lidar(self, msg):
         rt = Lidar()
         cloud_points = []
         for point in pc2.read_points(msg, field_names={"x","y","z","intensity","ring"}, skip_nans=True):
             p = LidarPoint()
-            p.point_2d.x = point[0]*math.cos(self._lidar_angle*math.pi/180) + point[2]*math.sin(self._lidar_angle*math.pi/180)
+            p.point_2d.x = point[0]*math.cos(self._lidar_angle*math.pi/180) + point[2]*math.sin(self._lidar_angle*math.pi/180)+ self._gps_pose
             p.point_2d.y = point[1]
             p.point_2d.z = 0
             p.point_3d.x = point[0]
