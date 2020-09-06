@@ -9,6 +9,7 @@
 
 #include "std_msgs/Int32.h"
 #include "std_msgs/Int32MultiArray.h"
+#include "std_msgs/Float32.h"
 #include "geometry_msgs/Point.h"
 
 #include "slam/Cluster.h"
@@ -36,6 +37,7 @@ class ObstacleDetector{
     ros::Publisher pub_count_;
     ros::Subscriber sub_lidar_;
     ros::Subscriber sub_position_;
+    ros::Subscriber sub_imu;
     vector<slam::LidarPoint> cloud_points_;
     vector<slam::LidarPoint> filtered_points_;
     vector<int> clustering_helper_;
@@ -50,24 +52,22 @@ class ObstacleDetector{
     stringstream path_stream_;
     cv::Mat road_map_;
     double max_time = 0.0;
+    double pitch_offset;
 
     public:
     bool is_kcity;
     ObstacleDetector(){
 	ros::param::get("/is_kcity",is_kcity);
         pub_ = nh_.advertise<slam::Clusters>("/point_cloud_clusters", 10);
-	pub_count_ = nh_.advertise<std_msgs::Int32MultiArray>("cluster_count",10);
+	    pub_count_ = nh_.advertise<std_msgs::Int32MultiArray>("cluster_count",10);
         sub_lidar_ = nh_.subscribe("/points", 1, &ObstacleDetector::callback_lidar, this);
+        sub_imu = nh_.subscribe("/imu_raw", 1, &ObstacleDetector::callback_imu, this);
         sub_position_ = nh_.subscribe("/filtered_data", 1, &ObstacleDetector::callback_position, this);
         current_position_.first = 0.0;
         current_position_.second = 0.0;
         current_heading_ = 0.0;
         lidar_angle_ = 18.48311;
-        lidar_height_ = 1.16940;
-        plane_config_[0]=-sin(lidar_angle_*M_PI/180);
-        plane_config_[1]=0.0;
-        plane_config_[2]=cos(lidar_angle_*M_PI/180);
-        plane_config_[3]=lidar_height_;
+        lidar_height_ = 1.164920;
         plane_tolerance_ = 0.15;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
@@ -97,13 +97,16 @@ class ObstacleDetector{
     
     void removing_plane(){
         set<int> inliers_result;
+        plane_config_[0]=-sin(lidar_angle_*M_PI/180 - pitch_offset);
+        plane_config_[1]=0.0;
+        plane_config_[2]=cos(lidar_angle_*M_PI/180 - pitch_offset);
+        plane_config_[3]=lidar_height_;
 
+        cout << "normal vector: " << plane_config_[0] << endl;
         int n = cloud_points_.size();
         for(int i = 0; i<n;i++){
             geometry_msgs::Point p = cloud_points_.at(i).point_3d;
-            // if (abs(p.x*plane_config_[0]+p.y*plane_config_[1]+p.z*plane_config_[2] + plane_config_[3]) < plane_tolerance_){
-            //     inliers_result.insert(i);
-            // }
+
             if (p.x*plane_config_[0]+p.y*plane_config_[1]+p.z*plane_config_[2] + plane_config_[3] < plane_tolerance_){
                 inliers_result.insert(i);
             }
@@ -159,6 +162,10 @@ class ObstacleDetector{
         return clusters;
     }
 
+    void callback_imu(const std_msgs::Float32::ConstPtr& msg){
+        pitch_offset = msg->data;
+        cout << pitch_offset << endl;
+    }
 
     void callback_position(const slam::Data::ConstPtr& msg){
         current_position_.first = msg->x;
@@ -168,7 +175,7 @@ class ObstacleDetector{
 
     void callback_lidar(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
-	cloud_points_ = msg->points;
+	    cloud_points_ = msg->points;
         filtered_points_.clear();
         clustering_helper_.clear();
 
@@ -210,7 +217,6 @@ class ObstacleDetector{
 	    //ROS_INFO("plane coefficient : %lf", plane_coefficient_);
     }
 
-    
 };
 
 int main(int argc, char **argv){
