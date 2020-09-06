@@ -503,7 +503,7 @@ double Tracker::calculate_desired_vel(){
 	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	curvature_multiplier = 1 - 1.0/pow((max(33.0/curvature,2.5)-1.5),0.75);
+	curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),0.75);
 	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 
 	/*	
@@ -525,6 +525,7 @@ double Tracker::calculate_desired_vel(){
 		desired_vel_after = min(desired_vel_after,max_parking_vel);
 
 	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
+	cout << "curvature_multiplier : " << curvature_multiplier << endl;
 	cout << "desired_vel_before : " << desired_vel_before << endl;
 	cout << "desired_vel_after : " << desired_vel_after << endl;
 

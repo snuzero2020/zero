@@ -10,6 +10,7 @@
 #include "std_msgs/Int32.h"
 #include "std_msgs/Int32MultiArray.h"
 #include "std_msgs/Float32.h"
+#include "std_msgs/UInt32.h"
 #include "geometry_msgs/Point.h"
 
 #include "slam/Cluster.h"
@@ -38,6 +39,7 @@ class ObstacleDetector{
     ros::Subscriber sub_lidar_;
     ros::Subscriber sub_position_;
     ros::Subscriber sub_imu;
+    ros::Subscriber sub_mission_;
     vector<slam::LidarPoint> cloud_points_;
     vector<slam::LidarPoint> filtered_points_;
     vector<int> clustering_helper_;
@@ -53,6 +55,7 @@ class ObstacleDetector{
     cv::Mat road_map_;
     double max_time = 0.0;
     double pitch_offset;
+    int mission_state_;
 
     public:
     bool is_kcity;
@@ -99,12 +102,13 @@ class ObstacleDetector{
     
     void removing_plane(){
         set<int> inliers_result;
-        pitch_offset = 0.0;
-        plane_config_[0]=-sin(lidar_angle_*M_PI/180 - pitch_offset);
+        //pitch_offset = 0.0;
+        plane_config_[0]=-sin(lidar_angle_*M_PI/180 + pitch_offset - 0.02);
         plane_config_[1]=0.0;
-        plane_config_[2]=cos(lidar_angle_*M_PI/180 - pitch_offset);
+        plane_config_[2]=cos(lidar_angle_*M_PI/180 + pitch_offset - 0.02 );
         plane_config_[3]=lidar_height_;
-
+        
+	ROS_INFO("lidar angle :  %.5lf",lidar_angle_*M_PI/180 - pitch_offset);	
         cout << "normal vector: " << plane_config_[0] << endl;
         int n = cloud_points_.size();
         for(int i = 0; i<n;i++){
@@ -229,8 +233,9 @@ class ObstacleDetector{
     }
 
 };
-le_ = 18.48311;
-        lidar_height_ = 1.164920;ctor");
+
+int main(int argc, char **argv){
+    ros::init(argc, argv, "obstacle_detector");
     ObstacleDetector obstacle_detector;
     ros::spin();
 }

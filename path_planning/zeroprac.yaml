@@ -7,7 +7,7 @@ lower_radius: 50.0
 car_length: 105.0
 max_vel_increase: 0.02
 max_obstacle_vel: 3.0
-max_parking_vel: 1.5
+max_parking_vel: 1.0
 # rrt_star.h
 iternum: 1000
 threshold: 100.0
@@ -24,7 +24,7 @@ isTrackDriving: 0
 vel1: 3.0
 vel2: 2.0
 # mission recognizer
-mission_start : 0
+mission_start : 2 
 isKcity : 1
 # goal decition
 lidar_detect_dist : 14

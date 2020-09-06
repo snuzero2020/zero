@@ -127,7 +127,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	double look_ahead_radius;
 	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
-	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 130;
+	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 150;
 	else if(motion == PARKING_MOTION){
 	       if(parking_space == SEARCHING_PARKING_SPOT)
 	       	       look_ahead_radius = 100;
@@ -135,7 +135,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		       look_ahead_radius = 40;
 	}
 	else if(motion == HALT_MOTION) look_ahead_radius = 80;
-	else look_ahead_radius = 200;
+	else look_ahead_radius = 250;
 
 
 	// get value index which is closest to look_ahead_radius (except sub path), get value_sub for sub path
