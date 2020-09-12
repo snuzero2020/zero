@@ -72,9 +72,9 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	const int x{0};
 	const int y{0};
 
-	printf("parking space : %d\n",parking_space);
-
 	if(predicted_parking) parking_space = predicted_parking_spot;
+
+	if(task == PARKING) printf("parking space : %d\n",parking_space);
 
 	// flag info : main(0), sub (1, = other lane), left(2), right(3), straight(4), parking(5~10)
 	bool flag[12];
@@ -204,12 +204,9 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 		int pose_flag = poseStamped.header.seq & 0b1111;
-		//cout << "flag is " << pose_flag << endl;
-		//int pose_flag = 0;
 		int pose_seq = poseStamped.header.seq>>4;
 		if(pose_flag == 0) main_count++;
 
-		//cout << "(goal decision) flag check!\n";
 		// check flag
 		if(!flag[pose_flag]) continue;
 
@@ -221,7 +218,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		double ang_diff = angle - goal_angle;
 		ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
 		
-		//cout << "(goal decision) heading check!\n";
 		// check if same dir
 		if(motion != PARKING_MOTION){
 			if(task != INTERSECTION_STRAIGHT){
@@ -255,8 +251,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 ///////////////////////////////////////
 			int almost_obstacle{OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)};
 			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
-			       	cout << "obstacle check!!!!!!!!!!\n";
-				cout << "(" << dx << ',' << dy << ") cost : " << costmap[(int)dx][(int)dy+costmap.size()/2] << "\n";
 				go_sub_path = true;
 			}
 ///////////////////////////////////////
@@ -278,12 +272,11 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			key_sub = abs(dist - look_ahead_radius);
 			value_sub = i;
 		}
-		//cout << "(goal decision) all check pass!\n";
 	}
 	
 	if(task == OBSTACLE_STATIC){
 		if(main_count == 0) {
-			cout << "no main\n";
+			cout << "no main (goal decision)\n";
 			go_sub_path = true;
 		}
 		else if (value != -1){
@@ -303,7 +296,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 				step_times_static++;
 				if(costmap[(int)marcher_x][(int)marcher_y+costmap.size()/2]>(OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)))
 				{
-			 	      	cout << "Obstacle check!!!!!!!!!!\n";
 					go_sub_path = true;
 				}
 			}
@@ -313,7 +305,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 
 
-	printf("nearest_obs_seq : %d\n",nearest_obs_seq);
+	//printf("nearest_obs_seq : %d\n",nearest_obs_seq);
 	// if obstacle sudden, choose goal which is farthest and closer than obstacle
 	if(task == OBSTACLE_SUDDEN){
 		value = -1;
@@ -367,7 +359,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	// if OBSTACLE_STATIC and find obstacle in look_ahead_radius, then go sub path
 	if(task == OBSTACLE_STATIC && go_sub_path){
 
-		cout << "looking sub path!\n";
+		cout << "looking sub path! (goal decision)\n";
 
 		// can't find goal, just go straight
 		if(value_sub == -1) return Cor(0,1);
@@ -416,8 +408,6 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 				unparking_complished = true;
 			if (gear_state == 1)
 				unparking_complished_changed = true;
-			cout << "parking!!!!!!!!!!! no path!!!!!!!!!!!!!!!!!\n";
-			cout << "///////////////////////////////////////////\n";
 			return Cor(0,0);
 		}
 	}

@@ -210,7 +210,6 @@ class RosNode{
 					isSign(light, 1)?"\x1b[32m \\    \x1b[0m":"      ",
 					isSign(light, 0)?"\x1b[42m      \x1b[0m":"      "
 				);
-			cout<<"\nsectorInfocallback\n";
 
 			int first_unchecked_sector = sector_pass_checker.get_present_task();
 			int second_unchecked_sector = sector_pass_checker.get_next_task();
@@ -302,7 +301,7 @@ class RosNode{
 			// sector, task, light, motion (each 4 bits)
 			std_msgs::UInt32 mission_state;
 			mission_state.data =(((int)msg.data)<<12) | (task_state<<8) | (light_state<<4) | motion_state;
-			cout << "motion : " << motion_state << " light : " << light_state << " task : " << msg.data << endl;
+			cout << " light : " << light_state << " (mission_recognizer)\n";
 			mission_state_pub.publish(mission_state);		
 		}
 
@@ -363,7 +362,6 @@ class RosNode{
 					}
 				}
 				else{
-					cout << "don't go!!!\n";
 					light_state = 0b1100;
 				}
 			}

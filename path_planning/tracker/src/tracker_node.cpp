@@ -219,7 +219,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	}
 	
 	if (curr_local_path.poses.size()==0){
-		cout << "no path!!!!\n";
+		cout << "no path!!!! \t(tracker)\n";
 		
 		core_msgs::Control msg;
 		msg.is_auto = 1;
@@ -238,46 +238,14 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	}
 
 	// when vehivle state is estop or manual_control mode reset integral error and desired_vel_before
-	
-	/*
-	if (curr_vehicle_state.estop==1 || curr_vehicle_state.is_auto != 1)
-	{
-		core_msgs::Control msg;
-		
-		if (curr_vehicle_state.estop==1){
-			cout << "estop!!!!\n";
-			msg.is_auto = 1;
-			msg.estop = 1;
-		}
-
-		if (curr_vehicle_state.is_auto != 1){
-			cout << "manual_control mode!!!!\n";
-			msg.is_auto = 0;
-			msg.estop = 0;
-		}
-
-		msg.gear = 0;
-		msg.brake = 100;
-		msg.speed = 0;
-		msg.steer = 0;
-
-		// while bracking, pid should be reset
-		integral_error = 0;
-		desired_vel_before = 0;
-
-		car_signal_pub.publish(msg);
-		return;
-	}
-	*/
-	
 	if (curr_vehicle_state.estop==true || curr_vehicle_state.is_auto == false)
 	{
 		if (curr_vehicle_state.estop==true){
-			cout << "estop!!!!\n";
+			cout << "estop!!!! \t(tracker)\n";
 		}
 
 		if (curr_vehicle_state.is_auto == false){
-			cout << "manual_control mode!!!!\n";
+			cout << "manual_control mode!!!! \t(tracker)\n";
 		}
 		// while bracking, pid should be reset
 		integral_error = 0;
@@ -290,9 +258,9 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	calculate_input_signal();
 	vehicle_output_signal();
 
-	cout << "current_vel : " << current_vel << endl;
-	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
-	cout << "steering_angle : " << steering_angle << endl;
+	cout << "current_vel : " << current_vel << "\t(tracker)" << endl;
+	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\t(tracker)\n";
+	cout << "steering_angle : " << steering_angle << "\t(tracker)" << endl;
 	//cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
 }
 
@@ -305,7 +273,6 @@ void Tracker::missionstateCallback(const std_msgs::UInt32 & msg){
         task = (data>>8) & mask;
         //parking_space = (data>>12) & mask;
         parking_space = 1;
-	cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 }
 
 
@@ -383,40 +350,25 @@ void Tracker::solve_pure_pursuit()
 {
 	Point rotational_center{Point()};
 	double temp_angle; 
-	cout << "curr_local_path.header.stamp.sec = " << curr_local_path.header.stamp.sec << endl;
 	bool is_front_gear = (curr_local_path.header.stamp.sec < 2);
-	cout << "is_front_gear : " << is_front_gear << endl;
+	//cout << "is_front_gear : " << is_front_gear << endl;
 	// curr_local_path.header.stamp.sec & 0b10 != 0b10 : front gear
 	// curr_local_path.header.stamp.sec & 0b10 == 0b10 : reverse gear (only for parking motion with backward motion
 	
 
 	if (is_front_gear){
 		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
-		//rotational_center.y = look_ahead_point.y/2.0 + look_ahead_point.x*(1.05*100/3.0+look_ahead_point.x/2.0)/double(look_ahead_point.y);
 		rotational_center.y = -1.05*100/3.0;
-		//rotational_center.x = -1.05*100/3.0;
 		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
-		//curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
 		rotational_radius = 1/curvature;
-		//rotational_radius = 1/curvature;
 		temp_angle =  atan2(-rotational_center.y,-rotational_center.x);
-		//temp_angle =  atan2(-rotational_center.x,rotational_center.y);
-		cout << "temp_angle : " << temp_angle*180.0/M_PI << endl;
-		cout << "rotational_centor : " << rotational_center.x << "," << rotational_center.y << endl;
 	}
 	else{
 		rotational_center.x = look_ahead_point.x/2.0 + look_ahead_point.y*look_ahead_point.y/double(look_ahead_point.x*2.0);
-		//rotational_center.y = look_ahead_point.y/2.0 + look_ahead_point.x*look_ahead_point.x/double(look_ahead_point.y*2.0);
 		rotational_center.y = 0;
-		//rotational_center.x = 0;
 		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
-		//curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
 		rotational_radius = 1/curvature;
-		//rotational_radius = 1/curvature;
 		temp_angle =  atan2(1.05*100/3.0,rotational_center.x);
-		//temp_angle =  atan2(1.05*100/3.0,-rotational_center.y);
-		cout << "temp_angle : " << temp_angle*180.0/M_PI << endl;
-		cout << "rotational_centor : " << rotational_center.x << "," << rotational_center.y << endl;
 	}
 
 	/////////////////////// old version
@@ -485,16 +437,14 @@ void Tracker::adjust_steering_angle()
 	if(nonslip_steering_angle<1e-6)
 	{
 		steering_angle.data = -84.359 * pow(rotational_radius*0.03, -1.029);
-		cout<<"rotational_radius: "<<rotational_radius<<endl;
-		cout<<"---"<<endl;
+		cout<<"rotational_radius: "<<rotational_radius<< "\t(tracker)" <<endl;
 	}
 	//right
 	else
 	{
 		steering_angle.data = 83.556 * pow(rotational_radius*0.03, -0.99);
-		cout<<"rotational_radius: "<<rotational_radius<<endl;
+		cout<<"rotational_radius: "<<rotational_radius<< "\t(tracker)" <<endl;
 		
-		cout<<"---"<<endl;
 	}
 	// total
 	//float sign = (nonslip_steering_angle>0)?1.0:-1.0;
@@ -564,17 +514,13 @@ double Tracker::calculate_desired_vel(){
 	if (task == PARKING)
 		desired_vel_after = min(desired_vel_after,max_parking_vel);
 
-	cout << "look_ahead_multiplier : " << look_ahead_multiplier << endl;
-	cout << "curvature_multiplier : " << curvature_multiplier << endl;
-	cout << "desired_vel_before : " << desired_vel_before << endl;
-	cout << "desired_vel_after : " << desired_vel_after << endl;
-
-	cout << "max_vel_increase : " << max_vel_increase << endl;
+	cout << "look_ahead_multiplier : " << look_ahead_multiplier << "\tcurvature_multiplier : " << curvature_multiplier << endl;
 
 	if (desired_vel_after > desired_vel_before + max_vel_increase + 1E-6)
 		desired_vel_after = desired_vel_before + max_vel_increase;
 
-	cout << "adjusted_desired_vel_after : " << desired_vel_after << endl;
+	cout << "desired_vel_before : " << desired_vel_before << "\tdesired_vel_after : " << desired_vel_after 
+		<< "\tadjusted_desired_vel_after : " << desired_vel_after << endl;
 
 	desired_vel_before = desired_vel_after;
 	return desired_vel_after;
@@ -605,11 +551,9 @@ void Tracker::calculate_input_signal(){
 		pid_input = 6;
 	}
 	Prev_error = error;
-	cout << "dt : " << (clock()-time)/(double)CLOCKS_PER_SEC << endl;
+	//cout << "dt : " << (clock()-time)/(double)CLOCKS_PER_SEC << endl;
 	time = clock();
-	cout << "error : " << error << endl;
-	cout << "integral_error : " << integral_error << endl;
-	cout << "differential_error : " << differential_error << endl;
+	cout << "Error(P,I,D) = [" << error << "," <<  integral_error << "," <<  differential_error << "]" <<endl;
 	cout << "pid_input : " << pid_input << endl; 
 }
 
@@ -621,25 +565,8 @@ void Tracker::vehicle_output_signal(){
 		decel_check = 1;
 	}
 	
-	cout << "current_vel : " << current_vel << endl;
-//	cout << "decel_level : " << decel_level << endl;
-	cout << "decel_check : " << decel_check << endl;
-
 	if(decel_check == 1){
 		cout << "decceleration\n";
-		/*
-		if (desired_vel_after < 0.2){
-			msg.brake = 50;
-			integral_error = 0;
-			msg.speed = 0;
-			decel_check = 0;
-		}
-		else{
-			msg.brake = 0;
-			msg.speed = (pid_input>0)?pid_input:0;
-			decel_check = 0;
-		}
-		*/
 		msg.brake = 0;
 		msg.speed = (pid_input>0)?pid_input:0;
 		decel_check = 0;
@@ -654,7 +581,6 @@ void Tracker::vehicle_output_signal(){
 	msg.is_auto = 1;
 	msg.estop = 0;
 
-	cout<<"curr seq : "<<curr_local_path.header.stamp.sec<<"\n\n"; 
 	// forward motion
 	if ((curr_local_path.header.stamp.sec & 0b10) != 0b10){
 		msg.gear = 0;
@@ -664,9 +590,6 @@ void Tracker::vehicle_output_signal(){
 		msg.gear = 2;
 	}
 
-	/////////////////////////////////////////////check//////////
-	//msg.speed = 0;
-	////////////////////////////////////////////////////////////
 	
 	// if look_ahead_dist is less than 50cm, set steer to 0 to prevent sudden tilting of the vehicle
 	double look_ahead_dist;

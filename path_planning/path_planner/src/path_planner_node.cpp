@@ -60,7 +60,6 @@ public:
 		motion = data & mask;
 		light = (data>>4) & mask;
 		task = (data>>8) & mask;
-		cout << "motion : " << motion << " light : " << light << " task : " << task << endl;
 	}
 
 	void parkingspaceCallback(const std_msgs::Int32 & msg){
@@ -83,7 +82,6 @@ public:
 		motion = FORWARD_MOTION;
 */
 
-		cout<<"cost_map callback\n";
 		if(isTrackDriving){
 			
 			int iternum;
@@ -100,7 +98,6 @@ public:
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			//rrt.print_RRT();
 			int t = clock();
-			cout << "map time stamp : " << map.header.stamp.sec << endl;
 			// get costmap  
 			vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
 			int h = map.info.height;
@@ -110,7 +107,6 @@ public:
 					cost_map[199-i][199-j] = ((double)map.data[j*w+i] * 4 * 100 / 255.0 ) + 1;// yellow line is 255 & white is 128
 				}
 			}
-			cout << "90,198 cost ; " << cost_map[90][198] << endl;
 
 			// rrt star algorithm
 			vector<Cor> path;
@@ -226,7 +222,7 @@ public:
 			else if(time_parking_complished != 0){
 				y.x = 0; y.y = 0;
 				duration_parking = ((int)ros::Time::now().sec - time_parking_complished);
-				cout << "time : " << duration_parking << endl;
+				cout << "time : " << duration_parking << "\t(path_planner)" << endl;
 				if( duration_parking > 4 && duration_parking <=5){
 					gear_state = 1;
 				}
@@ -248,15 +244,18 @@ public:
 			else if(time_unparking_complished != 0){
 				y.x = 0; y.y = 0;
 				duration_unparking = ((int)ros::Time::now().sec - time_unparking_complished);
-				cout << "time : " << duration_unparking << endl;
+				cout << "time : " << duration_unparking << "\t(path_planner)" << endl;
 				if(duration_unparking > 1){
 					gear_state = 0;
 					time_unparking_complished = 0;
 				}
 			}
-			cout << "parking_complished_changed : " << parking_complished_changed << endl;
-			cout << "unparking_complished_changed : " << unparking_complished_changed << endl;
-			cout << "gear_state : " << gear_state << endl;
+			
+			if(task == PARKING){
+				cout << "parking_complished_changed : " << parking_complished_changed << "\t(path_planner)" << endl;
+				cout << "unparking_complished_changed : " << unparking_complished_changed << "\t(path_planner)" << endl;
+				cout << "gear_state : " << gear_state << "\t(path_planner)" << endl;
+			}
 
 			// parking...  pub to slam team
 			std_msgs::UInt32 msg;
@@ -275,21 +274,24 @@ public:
 			if(y.x == 0 && y.y == 0){
 				nav_msgs::Path local_path;	
 				path_pub.publish(local_path);
-				cout << "stop at present location!\n";
+				cout << "stop at present location! \t(path_planner)" ;
 				return;
 			}
 
 			y.y+=w/2;
 			
 			rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
-
+			
+			/*
 			for(Cor point :  path)
 				cout << point.x << "," << point.y << endl;
+			 */
+
 			if(path.empty()){
 				nav_msgs::Path local_path;	
 				path_pub.publish(local_path);
-				cout << "empty path is generated!\n";
-				cout << "(obstacle located between goal and start point)\n";
+				cout << "empty path is generated! \t(path_planner)\n";
+				cout << "(obstacle located between goal and start point) \t(path_planner)\n";
 				return;
 			}
 

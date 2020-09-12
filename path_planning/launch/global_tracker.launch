@@ -1,5 +1,5 @@
 <launch>
-	<node pkg="tracker" type="tracker_node"  name="tracker_node" output="screen" launch-prefix="gnome-terminal --command" />
+	<node pkg="tracker" type="tracker_node"  name="tracker_node" output="screen" />
 
 	<node pkg="tracker" type="filter_encoder" name="filter_encoder"/>
 
