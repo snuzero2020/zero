@@ -56,6 +56,8 @@ class ObstacleDetector{
     double max_time = 0.0;
     double pitch_offset;
     int mission_state_;
+    int lidar_height_shift;
+    int lightd_angle_shift;
 
     public:
     bool is_kcity;
@@ -71,7 +73,9 @@ class ObstacleDetector{
         current_position_.second = 0.0;
         current_heading_ = 0.0;
         lidar_angle_ = 18.48311;
-        lidar_height_ = 1.164920;
+        lidar_angle_shift =  0.016;
+        lidar_height_shift = 0.1;
+        lidar_height_ = 1.164920 - lidar_height_shift;
         plane_tolerance_ = 0.15;
         cluster_tolerance_ = 0.10;
         cluster_threshold_ = 5;
@@ -102,10 +106,10 @@ class ObstacleDetector{
     
     void removing_plane(){
         set<int> inliers_result;
-        //pitch_offset = 0.0;
-        plane_config_[0]=-sin(lidar_angle_*M_PI/180 + pitch_offset - 0.02);
+        //pitch_offset = 0.02;
+        plane_config_[0]=-sin(lidar_angle_*M_PI/180 + pitch_offset + lidar_angle_shift);
         plane_config_[1]=0.0;
-        plane_config_[2]=cos(lidar_angle_*M_PI/180 + pitch_offset - 0.02 );
+        plane_config_[2]=cos(lidar_angle_*M_PI/180 + pitch_offset + lidar_angle_shift);
         plane_config_[3]=lidar_height_;
         
 	ROS_INFO("lidar angle :  %.5lf",lidar_angle_*M_PI/180 - pitch_offset);	
