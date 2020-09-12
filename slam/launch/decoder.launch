@@ -7,7 +7,7 @@
   <node name="lidar_decoder" pkg="slam" type="lidar_decoder.py"/>
   <node name="kalman_fusion" pkg="slam" type="kalman_fusion" output="screen"/>
 
-  <node name="pitch_calculator" pkg="slam" type="imu_getter" output="screen"/>
+  <node name="get_pitch" pkg="slam" type="imu_getter" output="screen"/>
 
   <rosparam file="$(find slam)/slam_para.yaml"/>
 </launch>
