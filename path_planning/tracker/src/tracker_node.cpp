@@ -122,6 +122,7 @@ class Tracker
 		ros::Subscriber recommend_vel_sub;
 		ros::Subscriber mission_state_sub;
 		ros::Subscriber gear_state_sub;
+		ros::Subscriber vehicle_state_sub;
 
 		int motion{-1};
 		int light{-1};
@@ -145,6 +146,8 @@ class Tracker
 			recommend_vel_sub = nh.subscribe("recommend_vel",2, &Tracker::recommend_vel_callback, this);
 			mission_state_sub = nh.subscribe("mission_state", 2, &Tracker::missionstateCallback, this);
 			gear_state_sub = nh.subscribe("gear_state", 2, &Tracker::gear_state_callback, this);
+			vehicle_state_sub = nh.subscribe("/vehicle_state", 2, &Tracker::vehicle_state_callback, this);
+			
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
 			nh.getParam("/D_gain", D_gain);
@@ -168,7 +171,6 @@ class Tracker
 		void missionstateCallback(const std_msgs::UInt32 & msg);
 		void gear_state_callback(const std_msgs::UInt32 & msg);
 		void vehicle_state_callback(const core_msgs::VehicleState & msg);
-
 
 		// Fuctions for determind steering angle
 		// 1. set look ahead point under considering velocity
