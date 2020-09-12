@@ -154,6 +154,7 @@ public:
 
 			//if(goals.poses.empty()) return;
 			//if(task == -1) return;
+
 			
 			int iternum;
 			double radius;
@@ -171,7 +172,6 @@ public:
 			n.getParam("/threshold2_obstacle_static", threshold2_obstacle_static);
 			n.getParam("/cost_scale", cost_scale); // 66-> 100 to 66
 			n.getParam("/cost_scale_obstacle_static", cost_scale_obstacle_static); // 66-> 100 to 66
-
 
 			if (task == OBSTACLE_STATIC){
 				threshold2 = threshold2_obstacle_static;
@@ -322,6 +322,11 @@ public:
 */
 			for(int i = 0;i<path.size()-1;i++)
 				line(image, cv::Point(w-1-path[i].y,h-1-path[i].x), cv::Point(w-1-path[i+1].y,h-1- path[i+1].x), cv::Scalar(100,200,50),1,0);
+
+
+////////////////////////////goal point visualize
+			cv::circle(image, cv::Point(w-1-y.y, h-1-y.x), 5, cv::Scalar(0, 100, 250), -1);
+///////////////////////////////////
 
 			cv::imshow("costmap_path",image);
 			cv::waitKey(1);

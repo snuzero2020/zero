@@ -57,13 +57,13 @@ int main(int argc, char **argv)
 		nav_msgs::Path goals;
 		geometry_msgs::PoseStamped pose;
 		for(int i = 5; i<25;i++){
-			pose.pose.position.x = i*10;
+			/*pose.pose.position.x = i*10;
 			pose.pose.position.y = 0;
 			pose.header.seq = (i<<4);
-			goals.poses.push_back(pose);
+			goals.poses.push_back(pose);*/
 			pose.pose.position.x = i*10;
 			pose.pose.position.y = -100;
-			pose.header.seq = ((i+30)<<4)+1;
+			//pose.header.seq = ((i+30)<<4)+1;
 			goals.poses.push_back(pose);
 		}
 
@@ -72,12 +72,12 @@ int main(int argc, char **argv)
 		ROS_INFO("pub");
 		cost_map_pub.publish(cost_map);
 
-		std_msgs::UInt32 gear_msg;
-		gear_msg.data = 0;
-		gear_pub.publish(gear_msg);
-		std_msgs::UInt32 mission_state_msg;
-		mission_state_msg.data = (10<<8) | 5;
-		mission_state_pub.publish(mission_state_msg);
+		//std_msgs::UInt32 gear_msg;
+		//gear_msg.data = 0;
+		//gear_pub.publish(gear_msg);
+		//std_msgs::UInt32 mission_state_msg;
+		//mission_state_msg.data = (10<<8) | 5;
+		//mission_state_pub.publish(mission_state_msg);
 
 		ros::spinOnce();
 		loop_rate.sleep();
