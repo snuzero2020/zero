@@ -380,40 +380,68 @@ void Tracker::solve_pure_pursuit()
 	// curr_local_path.header.stamp.sec & 0b10 != 0b10 : front gear
 	// curr_local_path.header.stamp.sec & 0b10 == 0b10 : reverse gear (only for parking motion with backward motion
 	
-/*	
+	Point temp{Point()};
+	temp.x = -look_ahead_point.y;
+	temp.y = look_ahead_point.x;
+
+
 	if (is_front_gear){
-		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
-		rotational_center.y = -1.05*100/3.0;
+		//rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
+		rotational_center.y = look_ahead_point.y/2.0 + look_ahead_point.x*(1.05*100/3.0+look_ahead_point.x/2.0)/double(look_ahead_point.y);
+		//rotational_center.y = -1.05*100/3.0;
+		rotational_center.x = -1.05*100/3.0;
+		//curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
 		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
+		//rotational_radius = 1/curvature;
 		rotational_radius = 1/curvature;
-		temp_angle =  atan2(-rotational_center.y,rotational_center.x);
+		//temp_angle =  atan2(-rotational_center.y,-rotational_center.x);
+		temp_angle =  atan2(-rotational_center.x,rotational_center.y);
+		cout << "temp_angle : " << temp_angle*180.0/M_PI << endl;
 	}
 	else{
-		rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*look_ahead_point.y/double(look_ahead_point.x*2.0);
-		rotational_center.y = 0;
+		//rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*look_ahead_point.y/double(look_ahead_point.x*2.0);
+		rotational_center.y = look_ahead_point.y/2.0 + look_ahead_point.x*look_ahead_point.x/double(look_ahead_point.y*2.0);
+		//rotational_center.y = 0;
+		rotational_center.x = 0;
+		//curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
 		curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
+		//rotational_radius = 1/curvature;
 		rotational_radius = 1/curvature;
-		temp_angle =  atan2(-rotational_center.y,rotational_center.x);
+		//temp_angle =  atan2(1.05*100/3.0,rotational_center.x);
+		temp_angle =  atan2(1.05*100/3.0,-rotational_center.y);
+		cout << "temp_angle : " << temp_angle*180.0/M_PI << endl;
 	}
-*/
 
-
+	/////////////////////// old version
+	/*
 	if (!is_front_gear){
 		look_ahead_point.x *= -1.0;
 		look_ahead_point.y *= -1.0;
 	}
+	*/
 
-
+	///////////////////// old version
+	/*
 	rotational_center.x = look_ahead_point.x/2.0 - look_ahead_point.y*(-1.05*100/3.0-look_ahead_point.y/2.0)/double(look_ahead_point.x);
 	rotational_center.y = -1.05*100/3.0;
 	curvature = 1/(sqrt(rotational_center.x*rotational_center.x+rotational_center.y*rotational_center.y));
 	rotational_radius = 1/curvature;
 	temp_angle =  atan2(-rotational_center.y,rotational_center.x);
+	*/
 
 	// temp_angle < 3.141592/2.0 : right turn
 	// temp_angle > 3.141592/2.0 : left turn
 
+	if (temp_angle < 3.141592/2.0){
+		nonslip_steering_angle = temp_angle*180/3.141592;
+	}
+	else{
+		nonslip_steering_angle = (temp_angle-3.141592)*180/3.141592;
+	}
 
+
+	//////////////////// old version
+	/*
 	if (temp_angle < 3.141592/2.0){
 		if (is_front_gear){
 			nonslip_steering_angle = temp_angle*180/3.141592;
@@ -428,6 +456,7 @@ void Tracker::solve_pure_pursuit()
 		else
 			nonslip_steering_angle = temp_angle*180/3.141592;
 	}
+	*/
 
 	/*
 	if (temp_angle < 3.141592/2.0){
