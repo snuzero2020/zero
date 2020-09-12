@@ -258,10 +258,11 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 	calculate_input_signal();
 	vehicle_output_signal();
 
-	cout << "current_vel : " << current_vel << "\t(tracker)" << endl;
-	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\t(tracker)\n";
-	cout << "steering_angle : " << steering_angle << "\t(tracker)" << endl;
+	cout << "current_vel : " << current_vel << endl;
+	cout << "look_ahead_point : (" << look_ahead_point.x << "," << look_ahead_point.y << ")\n";
+	cout << "steering_angle : " << steering_angle.data << endl;
 	//cout << "duration time : " << (time-clock())/double(CLOCKS_PER_SEC) << endl << endl;
+	cout << "--------tracker------\n";
 }
 
 
@@ -434,16 +435,17 @@ void Tracker::adjust_steering_angle()
 {
 	// experimental result should be reflected
 	//left 
+	cout << "-------------------------\n";
 	if(nonslip_steering_angle<1e-6)
 	{
 		steering_angle.data = -84.359 * pow(rotational_radius*0.03, -1.029);
-		cout<<"rotational_radius: "<<rotational_radius<< "\t(tracker)" <<endl;
+		cout<<"rotational_radius: "<<rotational_radius<<endl;
 	}
 	//right
 	else
 	{
 		steering_angle.data = 83.556 * pow(rotational_radius*0.03, -0.99);
-		cout<<"rotational_radius: "<<rotational_radius<< "\t(tracker)" <<endl;
+		cout<<"rotational_radius: "<<rotational_radius<<endl;
 		
 	}
 	// total
@@ -514,13 +516,13 @@ double Tracker::calculate_desired_vel(){
 	if (task == PARKING)
 		desired_vel_after = min(desired_vel_after,max_parking_vel);
 
-	cout << "look_ahead_multiplier : " << look_ahead_multiplier << "\tcurvature_multiplier : " << curvature_multiplier << endl;
+	cout << "look_ahead_multiplier : " << look_ahead_multiplier << "\ncurvature_multiplier : " << curvature_multiplier << endl;
 
 	if (desired_vel_after > desired_vel_before + max_vel_increase + 1E-6)
 		desired_vel_after = desired_vel_before + max_vel_increase;
 
-	cout << "desired_vel_before : " << desired_vel_before << "\tdesired_vel_after : " << desired_vel_after 
-		<< "\tadjusted_desired_vel_after : " << desired_vel_after << endl;
+	cout << "desired_vel_before : " << desired_vel_before << "\ndesired_vel_after : " << desired_vel_after 
+		<< "\nadjusted_desired_vel_after : " << desired_vel_after << endl;
 
 	desired_vel_before = desired_vel_after;
 	return desired_vel_after;
@@ -553,7 +555,7 @@ void Tracker::calculate_input_signal(){
 	Prev_error = error;
 	//cout << "dt : " << (clock()-time)/(double)CLOCKS_PER_SEC << endl;
 	time = clock();
-	cout << "Error(P,I,D) = [" << error << "," <<  integral_error << "," <<  differential_error << "]" <<endl;
+	cout << "Error(P,I,D) = [" << error << "," <<  integral_error << "," <<  differential_error << "]" << endl;
 	cout << "pid_input : " << pid_input << endl; 
 }
 
@@ -566,14 +568,14 @@ void Tracker::vehicle_output_signal(){
 	}
 	
 	if(decel_check == 1){
-		cout << "decceleration\n";
+		cout << "decceleration \n";
 		msg.brake = 0;
 		msg.speed = (pid_input>0)?pid_input:0;
 		decel_check = 0;
 
 	}
 	else {
-		cout << "acceleration\n";
+		cout << "acceleration \n";
 		msg.brake = 0;
 		msg.speed = (pid_input>0)?pid_input:0;
 	}
