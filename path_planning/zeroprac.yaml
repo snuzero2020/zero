@@ -8,6 +8,8 @@ car_length: 105.0
 max_vel_increase: 0.02
 max_obstacle_vel: 3.0
 max_parking_vel: 1.0
+predicted_parking: true
+predicted_parking_spot: 3
 # rrt_star.h
 iternum: 1000
 threshold: 100.0
