@@ -14,10 +14,10 @@ predicted_parking_spot: 3
 iternum: 1000
 threshold: 100.0
 threshold2: 95.0
-threshold2_obsatcle_static: 95.0
+threshold2_obsatcle_static: 90.0
 radius: 30.0
 cost_scale: 10
-cost_scale_obstacle_static: 15
+cost_scale_obstacle_static: 20
 stepsize_rrt: 1.0
 # path_planner_node
 stepsize_pp: 5.0
@@ -26,8 +26,8 @@ isTrackDriving: 0
 vel1: 3.0
 vel2: 2.0
 # mission recognizer
-mission_start : 15 
+mission_start : 0 
 isKcity : 0
 # goal decition
 lidar_detect_dist : 14
-almost_obstacle_ratio : 0.2
+almost_obstacle_ratio : 0.1

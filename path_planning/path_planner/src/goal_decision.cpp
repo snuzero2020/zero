@@ -176,6 +176,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 
 	double look_ahead_radius;
 	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
+	else if(task==OBSTACLE_STATIC) look_ahead_radius = 180;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 150;
 	else if(motion == PARKING_MOTION){
 	       if(parking_space == SEARCHING_PARKING_SPOT)
@@ -254,7 +255,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 ///////////////////////////////////////
 			int almost_obstacle{OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)};
 			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
-			       	cout << "(" << dx << ',' << dy << ") cost : " << costmap[(int)dx][(int)dy+costmap.size()/2] << "\n";
+			       	cout << "obstacle check!!!!!!!!!!\n";
+				cout << "(" << dx << ',' << dy << ") cost : " << costmap[(int)dx][(int)dy+costmap.size()/2] << "\n";
 				go_sub_path = true;
 			}
 ///////////////////////////////////////
@@ -280,7 +282,10 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	}
 	
 	if(task == OBSTACLE_STATIC){
-		if(main_count == 0) go_sub_path = true;
+		if(main_count == 0) {
+			cout << "no main\n";
+			go_sub_path = true;
+		}
 		else if (value != -1){
 			double gx = goals[value].pose.position.x;
 			double gy = goals[value].pose.position.y;
@@ -297,7 +302,10 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 				marcher_y += dy;
 				step_times_static++;
 				if(costmap[(int)marcher_x][(int)marcher_y+costmap.size()/2]>(OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)))
+				{
+			 	      	cout << "Obstacle check!!!!!!!!!!\n";
 					go_sub_path = true;
+				}
 			}
 		}
 	}
@@ -408,6 +416,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 				unparking_complished = true;
 			if (gear_state == 1)
 				unparking_complished_changed = true;
+			cout << "parking!!!!!!!!!!! no path!!!!!!!!!!!!!!!!!\n";
+			cout << "///////////////////////////////////////////\n";
 			return Cor(0,0);
 		}
 	}

@@ -269,15 +269,22 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		return;
 	}
 	*/
-	/*
-	if (curr_vehicle_state.estop==true || curr_vehicle_state.is_auto != true)
+	
+	if (curr_vehicle_state.estop==true || curr_vehicle_state.is_auto == false)
 	{
+		if (curr_vehicle_state.estop==true){
+			cout << "estop!!!!\n";
+		}
+
+		if (curr_vehicle_state.is_auto == false){
+			cout << "manual_control mode!!!!\n";
+		}
 		// while bracking, pid should be reset
 		integral_error = 0;
 		desired_vel_before = 0;
 		return;
 	}
-	*/
+	
 
 	determind_steering_angle();
 	calculate_input_signal();
@@ -532,7 +539,11 @@ double Tracker::calculate_desired_vel(){
 	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),0.75);
+	if(task!=PARKING)
+		curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),0.75);
+	else
+		curvature_multiplier = max(1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),1.5),0.5);
+
 	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 
 	/*	
