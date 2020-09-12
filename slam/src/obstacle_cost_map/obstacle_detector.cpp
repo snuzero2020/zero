@@ -57,7 +57,7 @@ class ObstacleDetector{
     double pitch_offset;
     int mission_state_;
     int lidar_height_shift;
-    int lightd_angle_shift;
+    int lidar_angle_shift;
 
     public:
     bool is_kcity;
