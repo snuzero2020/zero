@@ -27,7 +27,7 @@ class Signal {
             brake = msg.brake;
             gear = msg.gear;
             speed = msg.speed;
-            call_steer = msg.steer - 2.5; //3.1 is offset angle of steering.
+            call_steer = msg.steer;// - 2.5; //3.1 is offset angle of steering.
 	    if (call_steer < -27)
 		    steer = -27;
 	    else if (call_steer > 27)
@@ -42,9 +42,9 @@ int main(int argc, char **argv){
     
     ros::init(argc, argv, "input_signal");
     ros::NodeHandle nh;
-    ros::Publisher pub = nh.advertise<core_msgs::Control>("/calibrated_control", 1000);
+    ros::Publisher pub = nh.advertise<core_msgs::Control>("/calibrated_control", 2);
     Signal(signal);
-    ros::Subscriber sub = nh.subscribe("/car_signal", 1000, &Signal::callback, &signal);
+    ros::Subscriber sub = nh.subscribe("/car_signal", 2, &Signal::callback, &signal);
     ros::Rate loop_rate(10);
 
     //std::cout << "1" << std::endl;

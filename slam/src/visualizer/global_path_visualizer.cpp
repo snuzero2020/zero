@@ -72,6 +72,7 @@ class GlobalVisual{
 				while(getline(ss, token, delimiter_)){
                     result.push_back(token);
                 }
+				if(result.at(0) == "//") continue;
 				printf("loading start ");
                 slam::GlobalPathPoint point;
                 point.x = stod(result.at(0));

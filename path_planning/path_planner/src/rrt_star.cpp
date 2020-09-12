@@ -297,8 +297,12 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 		return;
 	}
 
-	if(isObstacleSudden)
+	/*
+	if(isObstacleSudden){
+		cout << "shit\n";
 		return;
+	}
+	*/
 
 	Tree start_tree = Tree(size); 
 	start_tree.insert(Node(start));
@@ -373,6 +377,7 @@ debug();	//21
 				middle_goal = q_newnode_ptr_goal;
 			}
 		}
+		
 	}
 
 /*

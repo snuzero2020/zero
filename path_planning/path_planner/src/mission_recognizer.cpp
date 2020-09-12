@@ -80,12 +80,12 @@ class RosNode{
 		int buff_length{10};
 		vector<int> light_state_buff;
 		RosNode(){
-			light_state_sub = n.subscribe("light_state", 50, &RosNode::lightstateCallback, this);
+			light_state_sub = n.subscribe("light_state", 2, &RosNode::lightstateCallback, this);
 			//task_state_sub = n.subscribe("task_state_with_std_vel", 50, &RosNode::taskstateCallback, this);
-			sector_info_sub = n.subscribe("/sector_info", 50, &RosNode::sectorInfoCallback, this);
-			parking_complished_sub = n.subscribe("parking_complished", 50, &RosNode::parkingcomplishedCallback, this);
-			mission_state_pub = n.advertise<std_msgs::UInt32>("mission_state", 50);
-			//recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 50);
+			sector_info_sub = n.subscribe("/sector_info", 2, &RosNode::sectorInfoCallback, this);
+			parking_complished_sub = n.subscribe("parking_complished", 2, &RosNode::parkingcomplishedCallback, this);
+			mission_state_pub = n.advertise<std_msgs::UInt32>("mission_state", 2);
+			//recommend_vel_pub = n.advertise<std_msgs::Float32>("recommend_vel", 2);
 
 			for(int i = 0 ; i<buff_length; i++) light_state_buff.push_back(0);
 			light_state = 0;
@@ -100,13 +100,14 @@ class RosNode{
                                         Sector_Task(A,PARKING),
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(B,INTERSECTION_LEFT_UNSIGNED),
-                                        Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(A,OBSTACLE_STATIC),
                                         Sector_Task(D,INTERSECTION_RIGHT_UNSIGNED),
                                         Sector_Task(A,DRIVING_SECTION),
-                                        Sector_Task(E,INTERSECTION_LEFT),
+                                        Sector_Task(E,INTERSECTION_STRAIGHT),
                                         Sector_Task(A,DRIVING_SECTION),
-                                        Sector_Task(G,INTERSECTION_STRAIGHT),
-                                        //Sector_Task(A,DRIVING_SECTION),
+                                        Sector_Task(F,INTERSECTION_LEFT),
+                                      	Sector_Task(A,OBSTACLE_SUDDEN),
+                                      	Sector_Task(G,INTERSECTION_RIGHT),
 					Sector_Task(A,OBSTACLE_STATIC),
                                         Sector_Task(H,INTERSECTION_STRAIGHT),
                                         Sector_Task(A,DRIVING_SECTION),

@@ -53,14 +53,19 @@ const static int OBSTACLE = 100;
 Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state){
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
+	static bool path_detected{false};
 
 	int cost_scale;
 	int lidar_detect_dist;
 	double almost_obstacle_ratio;
+	bool predicted_parking;
+	int predicted_parking_spot;
 	
 	ros::param::get("/lidar_detect_dist",lidar_detect_dist);
 	ros::param::get("/cost_scale",cost_scale);
 	ros::param::get("/almost_obstacle_ratio",almost_obstacle_ratio);
+	ros::param::get("/predicted_parking",predicted_parking);
+	ros::param::get("/predicted_parking_spot",predicted_parking_spot);
 
 	bool go_sub_path = false;
 	const double angle{0.0};
@@ -68,6 +73,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	const int y{0};
 
 	printf("parking space : %d\n",parking_space);
+
+	if(predicted_parking) parking_space = predicted_parking_spot;
 
 	// flag info : main(0), sub (1, = other lane), left(2), right(3), straight(4), parking(5~10)
 	bool flag[12];
@@ -100,22 +107,64 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 					flag[1] = true;
 					break;
 				case PARKING_SPOT_0 :
-					flag[5] = true;
+					{
+						if(predicted_parking&&(!path_detected)){
+							flag[0] = true;
+							flag[5] = true;
+						}
+						else
+							flag[5] = true;
+					}
 					break;
 				case PARKING_SPOT_1 :
-					flag[6] = true;
+					{
+						if(predicted_parking&&(!path_detected)){
+							flag[0] = true;
+							flag[6] = true;
+						}
+						else
+							flag[6] = true;
+					}
 					break;
 				case PARKING_SPOT_2 :
-					flag[7] = true;
+					{
+						if(predicted_parking&&(!path_detected)){
+							flag[0] = true;
+							flag[7] = true;
+						}
+						else
+							flag[7] = true;
+					}
 					break;
 				case PARKING_SPOT_3 :
-					flag[8] = true;
+					{
+						if(predicted_parking&&(!path_detected)){
+							flag[0] = true;
+							flag[8] = true;
+						}
+						else
+							flag[8] = true;
+					}
 					break;
 				case PARKING_SPOT_4 :
-					flag[9] = true;
+					{
+						if(predicted_parking&&(!path_detected)){
+							flag[0] = true;
+							flag[9] = true;
+						}
+						else
+							flag[9] = true;
+					}
 					break;
 				case PARKING_SPOT_5 :
-					flag[10] = true;
+					{
+						if(predicted_parking&&(!path_detected)){
+							flag[0] = true;
+							flag[10] = true;
+						}
+						else
+							flag[10] = true;
+					}
 					break;
 			}
 			break;
@@ -126,16 +175,16 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	cout << endl;
 
 	double look_ahead_radius;
-	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 100;
+	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 150;
 	else if(motion == PARKING_MOTION){
 	       if(parking_space == SEARCHING_PARKING_SPOT)
 	       	       look_ahead_radius = 100;
 	       else
-		       look_ahead_radius = 80;
+		       look_ahead_radius = 40;
 	}
 	else if(motion == HALT_MOTION) look_ahead_radius = 80;
-	else look_ahead_radius = 200;
+	else look_ahead_radius = 250;
 
 
 	// get value index which is closest to look_ahead_radius (except sub path), get value_sub for sub path
@@ -163,6 +212,10 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		// check flag
 		if(!flag[pose_flag]) continue;
 
+		if(predicted_parking){
+			if(pose_flag!=0 && motion == PARKING_MOTION) path_detected = true;
+		}
+
 		double goal_angle = poseStamped.pose.position.z;
 		double ang_diff = angle - goal_angle;
 		ang_diff = min(abs(ang_diff), min(abs(ang_diff + 2 * M_PI), abs(ang_diff - 2 * M_PI)));
@@ -170,7 +223,12 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 		//cout << "(goal decision) heading check!\n";
 		// check if same dir
 		if(motion != PARKING_MOTION){
-			if(ang_diff > M_PI/2) continue;
+			if(task != INTERSECTION_STRAIGHT){
+				if(ang_diff > M_PI/2) continue;
+			}
+			else{
+				if(ang_diff > M_PI/3) continue;
+			}
 		}
 		else if(!parking_complished){
 			if(ang_diff > M_PI/2) continue;
@@ -184,6 +242,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	
 		// if goal point is too near, than ignore the point.
 		if(dx < 20 && (task == OBSTACLE_SUDDEN || motion == HALT_MOTION)) continue;
+		if(dx < 10 && (task == PARKING)) continue;
 
 		// check obstacle
 		

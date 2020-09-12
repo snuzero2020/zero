@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   message_filters
   cmake_modules #for eigen used in sensing/kalman_fusion
+  tf
+  tf2
 )
 #for eigen used in sensing/kalman_fusion
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -94,9 +96,9 @@ add_executable(obstacle_detector src/obstacle_cost_map/obstacle_detector.cpp lib
 target_link_libraries(obstacle_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
 add_dependencies(obstacle_detector slam_generate_messages_cpp)
 
-#add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
-#target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
-#add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
+add_executable(lidar_pose_estimator src/obstacle_cost_map/lidar_pose_estimator.cpp)
+target_link_libraries(lidar_pose_estimator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${Eigen_LIBRARIES})
+add_dependencies(lidar_pose_estimator slam_generate_messages_cpp)
 
 ##add_executable for sensing
 add_executable(gps_decoder src/sensing/gps_decoder.cpp lib/UTM.cpp)
@@ -144,6 +146,9 @@ add_executable(decaying_costmap_publisher src/obstacle_cost_map/improved_obstacl
 target_link_libraries(decaying_costmap_publisher ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(decaying_costmap_publisher slam_generate_messages_cpp)
 
+add_executable(parking_spot_visualizer src/visualizer/parking_spot_visualizer.cpp lib/XYToPixel.cpp)
+target_link_libraries(parking_spot_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 #add_executable(eigen2cv_tester src/obstacle_cost_map/test_eigen2cv.cpp lib/XYToPixel.cpp)
 #target_link_libraries(eigen2cv_tester ${Eigen_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 #add_dependencies(eigen2cv_tester slam_generate_messages_cpp)
@@ -184,6 +189,16 @@ add_executable(erode_png src/redundancy/dilate_png.cpp)
 target_link_libraries(erode_png ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(erode_png slam_generate_messages_cpp)
 
+# imu getter for bollock calibration
+add_executable(imu_getter src/obstacle_cost_map/imu_getter.cpp)
+target_link_libraries(imu_getter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(imu_getter slam_generate_messages_cpp)
+
+add_executable(get_pitch src/obstacle_cost_map/get_pitch.cpp)
+target_link_libraries(get_pitch ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(get_pitch slam_generate_messages_cpp)
+
+
 catkin_install_python(PROGRAMS 
   src/map_calibration/transform_finder.py
   src/sensing/lidar_decoder.py
@@ -191,5 +206,6 @@ catkin_install_python(PROGRAMS
   src/visualizer/kalman_fusion_visualizer.py
   src/visualizer/map_layer_visualizer.py
   src/obstacle_cost_map/object_visualizer.py
+  src/obstacle_cost_map/cluster_to_pointcloud.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

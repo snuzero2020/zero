@@ -116,8 +116,8 @@ class DecayingCostmap{
         if(max_time < double(end-begin)/CLOCKS_PER_SEC){
             max_time = double(end-begin)/CLOCKS_PER_SEC;
         }
-        ROS_INFO("max elapsed time (2): %lf", max_time);
-        ROS_INFO("elapsed time (2): %lf", double(end-begin)/CLOCKS_PER_SEC);
+        //ROS_INFO("max elapsed time (2): %lf", max_time);
+        //ROS_INFO("elapsed time (2): %lf", double(end-begin)/CLOCKS_PER_SEC);
         mainclock = ros::Time::now();
     }
 

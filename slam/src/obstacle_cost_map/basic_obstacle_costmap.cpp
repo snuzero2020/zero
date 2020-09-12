@@ -167,7 +167,7 @@ class DetectCone{
         if(max_time < double(end-begin)/CLOCKS_PER_SEC){
             max_time = double(end-begin)/CLOCKS_PER_SEC;
         }
-        ROS_INFO("max elapsed time (1) : %lf", max_time);
+        //ROS_INFO("max elapsed time (1) : %lf", max_time);
     }
 
     private:

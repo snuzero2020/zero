@@ -9,6 +9,7 @@
 
 #include "slam/Cluster.h"
 #include "slam/Lidar.h"
+#include "slam/LidarPoint.h"
 
 #include "ros/ros.h"
 #include "ros/time.h"
@@ -25,7 +26,7 @@ class LidarPoseEstimator{
         iteration_ = 200;
         plane_tolerance_ = 0.05;
         lidar_angle_ = 18;
-        lidar_height_ = 1.25;
+        lidar_height_ = 1.15;
         count_ = 0;
     }
 
@@ -152,8 +153,15 @@ class LidarPoseEstimator{
     
     void callback(const slam::Lidar::ConstPtr& msg){
         clock_t begin = clock();
-        cloud_points_ = msg->points;
-        cloud_channels_ = msg->channels;
+	cloud_points_.clear();
+	cloud_channels_.clear();
+	for(slam::LidarPoint point : msg->points){
+		cloud_points_.push_back(point.point_3d);
+		cloud_channels_.push_back(point.channel);
+	}
+	printf("done\n");
+        //cloud_points_ = msg->points;
+        //cloud_channels_ = msg->channels;
         candidate_points_.clear();
         filtered_points_.clear();
         filtered_channels_.clear();
@@ -162,14 +170,14 @@ class LidarPoseEstimator{
         ransac_plane();
         
         clock_t end = clock();
-        
+        printf("done\n");
         count_ ++;
         theta_.push_back(acos(plane_config_[2]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
         height_.push_back(plane_config_[3]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]));
         ROS_INFO("cosine value between z and normal : %lf", acos(plane_config_[2]
         /sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]))*180/M_PI);
         ROS_INFO("estimate height of lidar : %lf", plane_config_[3]/sqrt(plane_config_[0]*plane_config_[0]+plane_config_[1]*plane_config_[1]+plane_config_[2]*plane_config_[2]));
-        if(count_ % 100 == 0){
+        if(count_ % 100 == 0 && count_ >0){
             int n = count_ / 100;
             sort(theta_.begin(),theta_.end());
             sort(height_.begin(), height_.end());
