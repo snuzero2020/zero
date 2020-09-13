@@ -49,8 +49,6 @@ class map_tracer{
 
 			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
 			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
-			pub = nh.advertise<sensor_msgs::Image>("/mini_map", 2);
-			sub = nh.subscribe("/filtered_data", 2, &map_tracer::callback, this);
 		}
 
 		int prev_pixel_x{}, prev_pixel_y{};
@@ -101,17 +99,20 @@ class map_tracer{
 				 		switch(flag_map.at<cv::Vec3b>(copy_pixel_y,copy_pixel_x)[2])
 				 		{
 				 			case 0:
-				 				cv::circle(mini_map, cv::Point(j,i), 6, cv::Scalar(250,0,0), -1);
+				 				cv::circle(mini_map, cv::Point(j,i), 4, cv::Scalar(250,0,0), -1);
 				 				break;
 				 			case 1:
-				 				cv::circle(mini_map, cv::Point(j,i), 6, cv::Scalar(0,250,0), -1);
+				 				cv::circle(mini_map, cv::Point(j,i), 4, cv::Scalar(0,250,0), -1);
 				 				break;
 				 			case 2:
-				 				cv::circle(mini_map, cv::Point(j,i), 6, cv::Scalar(0,0,250), -1);
+				 				cv::circle(mini_map, cv::Point(j,i), 4, cv::Scalar(0,0,250), -1);
 				 				break;
 				 			case 3:
-				 				cv::circle(mini_map, cv::Point(j,i), 6, cv::Scalar(125,125,0), -1);
+				 				cv::circle(mini_map, cv::Point(j,i), 4, cv::Scalar(125,125,0), -1);
 				 				break;
+							case 4:
+								cv::circle(mini_map, cv::Point(j,i), 4, cv::Scalar(0,125,125), -1);
+								break;
 
 				 		}
 				  	}
