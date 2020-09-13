@@ -23,12 +23,15 @@ class IMU_Decoder{
         pub_ = data_.advertise<slam::Imu>("imu", 2);
         sub_data_ = data_.subscribe("/imu/data", 2, &IMU_Decoder::callback_data, this);
         //sub_mag_ = mag_.subscribe("/imu/mag", 2, &IMU_Decoder::callback_mag, this);
-        ros::param::get("/angle_offset", angle_offset);
     }
     
     void callback_data(const sensor_msgs::Imu::ConstPtr& msg){
         slam::Imu rt;
-        
+        if (ros::param::has("/angle_offset"))
+        {
+            ros::param::get("/angle_offset", angle_offset);
+        }
+
         rt.header = msg->header;
         //rt.header.stamp.sec = UnixtimeToSec(msg->header.stamp.sec);
 	    //ros::Time tm = ros::Time::now();
