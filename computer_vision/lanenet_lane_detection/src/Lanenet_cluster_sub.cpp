@@ -337,7 +337,7 @@ class LanenetCluster{
 
 
             for(int j = 0; j<all_indices[right_lane].size(); j++){
-                birdeye_img.at<uchar>(all_indices[right_lane][j][0], all_indices[right_lane][j][1]) = 100;
+                birdeye_img.at<uchar>(all_indices[right_lane][j][0], all_indices[right_lane][j][1]) = 255;
             }
 
             double coeff_right[4] = {0, 0, 0, 0};
@@ -348,37 +348,47 @@ class LanenetCluster{
             
             int j_left, j_right, goal;
 
-            for(int i=0; i<267; i++){
+            /*for(int i=0; i<267; i++){
                 j_left = coeff_left[0]+coeff_left[1]*i+coeff_left[2]*i*i+coeff_left[3]*i*i*i;
                 j_right = coeff_right[0]+coeff_right[1]*i+coeff_right[2]*i*i+coeff_right[3]*i*i*i;
+
+                for(int j = j_left-2; j<j_left+3; j++){
+                    if(j<200 && j>=0)
+                        costMap.at<uchar>(i,j) = 200;
+                }
+
+                for(int j = j_right-2; j<j_right+3; j++){
+                    if(j<200 && j>=0)
+                        costMap.at<uchar>(i,j) = 100;
+                }
         
-                int fifth = (j_right-j_left)/5;
+                // int fifth = (j_right-j_left)/5;
 
-                for(int j = j_left; j<j_left+fifth; j++){
-                    if(j<200 && j>=0)
-                        costMap.at<uchar>(i,j) = 200;
-                }
-                for(int j = j_left+fifth; j<j_left+2*fifth; j++){
-                    if(j<200 && j>=0)
-                        costMap.at<uchar>(i,j) = 100;
-                }
-                for(int j = j_left+2*fifth; j<j_right-2*fifth; j++){
-                    if(j<200 && j>=0)
-                        costMap.at<uchar>(i,j) = 0;
-                }
-                for(int j = j_right-2*fifth; j<j_right-fifth; j++){
-                    if(j<200 && j>=0)
-                        costMap.at<uchar>(i,j) = 100;
-                }
-                for(int j = j_right-fifth; j<=j_right; j++){
-                    if(j<200 && j>=0)
-                        costMap.at<uchar>(i,j) = 200;
-                }
+                // for(int j = j_left; j<j_left+fifth; j++){
+                //     if(j<200 && j>=0)
+                //         costMap.at<uchar>(i,j) = 200;
+                // }
+                // for(int j = j_left+fifth; j<j_left+2*fifth; j++){
+                //     if(j<200 && j>=0)
+                //         costMap.at<uchar>(i,j) = 100;
+                // }
+                // for(int j = j_left+2*fifth; j<j_right-2*fifth; j++){
+                //     if(j<200 && j>=0)
+                //         costMap.at<uchar>(i,j) = 0;
+                // }
+                // for(int j = j_right-2*fifth; j<j_right-fifth; j++){
+                //     if(j<200 && j>=0)
+                //         costMap.at<uchar>(i,j) = 100;
+                // }
+                // for(int j = j_right-fifth; j<=j_right; j++){
+                //     if(j<200 && j>=0)
+                //         costMap.at<uchar>(i,j) = 200;
+                // }
 
-                if(i == 67){
-                    goal = (j_left+j_right)/2;
-                }
-            }
+                // if(i == 67){
+                //     goal = (j_left+j_right)/2;
+                // }
+            }*/
             
             std::cout << "Goal point " << goal << std::endl;
             //ShowManyImages("Cluster_image", 2, birdeye_img, costMap);
@@ -386,7 +396,7 @@ class LanenetCluster{
             cv_bridge::CvImage img_bridge;
             sensor_msgs::Image img_msg;
             std_msgs::Header header;
-            img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, costMap);
+            img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, birdeye_img);
             img_bridge.toImageMsg(img_msg);
             costMap_pub.publish(img_msg);
 
@@ -394,7 +404,7 @@ class LanenetCluster{
             std::cout<<std::endl;
 
             cv::imshow("birdeye_img", birdeye_img);
-            cv::imshow("costMap", costMap);
+            //cv::imshow("costMap", costMap);
             cv::waitKey(1);
         }
 };
