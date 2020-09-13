@@ -53,7 +53,14 @@ class GPS_Decoder{
             rt.header = msg->header;
             rt.x = xy.at(0);
             rt.y = xy.at(1);
-            rt.pos_err = msg->position_covariance[0] + msg->position_covariance[4];
+            if( isnan(msg->position_covariance[0])!=0 || isnan(msg->position_covariance[4])!=0){
+                rt.pos_err = 5.0;
+            }else{
+                rt.pos_err = msg->position_covariance[0] + msg->position_covariance[4];
+                if(rt.pos_err > 5.0){
+                    rt.pos_err = 5.0;
+                }
+            }
             pub_.publish(rt);
         }catch(...){
             ROS_ERROR("gps error catched");
