@@ -132,7 +132,7 @@ class FinalVisual{
 
 		FinalVisual(){	
 			minimap_sub = nh.subscribe("/minimap", 2, &FinalVisual::minimap_callback, this);
-			vision_sub = nh.subscribe("/vision_image", 2, &FinalVisual::vision_callback, this);
+			//vision_sub = nh.subscribe("/vision_image", 2, &FinalVisual::vision_callback, this);
 			obstacle_costmap_sub = nh.subscribe("/obstaclemap/decaying_costmap", 2, &FinalVisual::obstacle_costmap_callback, this);
 			local_costmap_sub = nh.subscribe("/local_costmap", 2, &FinalVisual::local_costmap_callback, this);
 		}
@@ -144,13 +144,14 @@ class FinalVisual{
 			ShowManyImages("visualizers", 4, minimap, vision, obstacle_costmap, local_costmap);
 		}
 		
+		/*
 		void vision_callback(const sensor_msgs::Image::ConstPtr& msg){
 			cv_bridge::CvImagePtr vision_ptr;
 			vision_ptr = cv_bridge::toCvCopy(msg, "bgr8");
 			vision = vision_ptr->image;
 			ShowManyImages("visualizers", 4, minimap, vision, obstacle_costmap, local_costmap);
 		}
-		
+		*/	
 		void obstacle_costmap_callback(const sensor_msgs::Image::ConstPtr& msg){
 			cv_bridge::CvImagePtr obstacle_costmap_ptr;
 			obstacle_costmap_ptr = cv_bridge::toCvCopy(msg, "bgr8");
