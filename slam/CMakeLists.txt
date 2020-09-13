@@ -198,6 +198,10 @@ add_executable(get_pitch src/obstacle_cost_map/get_pitch.cpp)
 target_link_libraries(get_pitch ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(get_pitch slam_generate_messages_cpp)
 
+# add executable for visualizer
+add_executable(final_visualizer src/visualizer/visualizer.cpp)
+target_link_libraries(final_visualizer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(final_visualizer slam_generate_messages_cpp)
 
 catkin_install_python(PROGRAMS 
   src/map_calibration/transform_finder.py
