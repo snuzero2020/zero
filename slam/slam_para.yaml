@@ -27,6 +27,10 @@ Satellites_warn: 8
 HDOP_err: 7.5
 HDOP_warn: 3.5
 
+#imu_decoder.cpp
+#type = double
+angle_offset: 0.0
+
 #kalman_fusion.cpp
 #type = double
 initial_state_error_std : 10.0

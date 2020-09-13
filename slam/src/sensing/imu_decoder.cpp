@@ -23,11 +23,12 @@ class IMU_Decoder{
         pub_ = data_.advertise<slam::Imu>("imu", 2);
         sub_data_ = data_.subscribe("/imu/data", 2, &IMU_Decoder::callback_data, this);
         //sub_mag_ = mag_.subscribe("/imu/mag", 2, &IMU_Decoder::callback_mag, this);
+        ros::param::getCached("/angle_offset", angle_offset);
     }
     
     void callback_data(const sensor_msgs::Imu::ConstPtr& msg){
         slam::Imu rt;
-        
+
         rt.header = msg->header;
         //rt.header.stamp.sec = UnixtimeToSec(msg->header.stamp.sec);
 	    //ros::Time tm = ros::Time::now();
@@ -38,7 +39,7 @@ class IMU_Decoder{
         //rt.omega = msg->angular_velocity.z;
         //rt.theta = theta_;
         geometry_msgs::Quaternion q = msg->orientation;
-        rt.theta = std::atan2( 2*(q.x*q.y+q.z*q.w), 1-2*(q.y*q.y+q.z*q.z) ) - theta_diff_;
+        rt.theta = std::atan2( 2*(q.x*q.y+q.z*q.w), 1-2*(q.y*q.y+q.z*q.z) ) - theta_diff_ - angle_offset;
         rt.theta = remainder(rt.theta,2*M_PI);
         double roll = std::atan2( 2*(q.x*q.w+q.y*q.z), 1-2*(q.x*q.x+q.y*q.y) );
         double pitch = asin(2*(q.y*q.w-q.x*q.z));
@@ -65,6 +66,7 @@ class IMU_Decoder{
     ros::Subscriber sub_mag_;
     double theta_;
     double theta_diff_ = -8.60/180*M_PI;  //difference between magnetic north and truth north
+    double angle_offset = 0;
 };
 
 int main(int argc, char **argv){
