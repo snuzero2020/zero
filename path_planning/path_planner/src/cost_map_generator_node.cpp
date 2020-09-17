@@ -56,13 +56,14 @@ int main(int argc, char **argv)
 	while(ros::ok()){
 		nav_msgs::Path goals;
 		geometry_msgs::PoseStamped pose;
-		for(int i = 5; i<25;i++){
+		for(int i = 0; i<7;i++){
 			/*pose.pose.position.x = i*10;
 			pose.pose.position.y = 0;
 			pose.header.seq = (i<<4);
 			goals.poses.push_back(pose);*/
-			pose.pose.position.x = i*10;
-			pose.pose.position.y = -100;
+			pose.header.seq = i;
+			pose.pose.position.x = 290;
+			pose.pose.position.y = i * 20;
 			//pose.header.seq = ((i+30)<<4)+1;
 			goals.poses.push_back(pose);
 		}

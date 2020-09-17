@@ -172,6 +172,17 @@ public:
 			n.getParam("/threshold2_obstacle_static", threshold2_obstacle_static);
 			n.getParam("/cost_scale", cost_scale); // 66-> 100 to 66
 			n.getParam("/cost_scale_obstacle_static", cost_scale_obstacle_static); // 66-> 100 to 66
+/*
+			int iternum = 1000;
+			double radius = 30;
+			double stepsize = 1;
+			double threshold = 100;
+			double threshold2 = 95;
+			double threshold2_obstacle_static = 90;
+			double cost_scale = 10;
+			double cost_scale_obstacle_static = 20;
+*/
+
 
 			if (task == OBSTACLE_STATIC){
 				threshold2 = threshold2_obstacle_static;
@@ -181,6 +192,8 @@ public:
 			RRT rrt = RRT(iternum, radius, stepsize, threshold, threshold2);
 			
 			int t = clock();
+
+			// coordinate system from slam : front is x-axis and left is y-axis
 
 			// get costmap	
 			vector<vector<double>> cost_map(map.info.height,vector<double>(map.info.width));
@@ -320,13 +333,33 @@ public:
 			}
 
 */
+
+
+////////////////////////////goal point visualize///// cv::Point is column major (column, row)
+			auto red = cv::Scalar(0,0,255);
+			auto orange = cv::Scalar(0,127,255);
+			auto yellow = cv::Scalar(0,255,255);
+			auto green = cv::Scalar(0,255,0);
+			auto blue = cv::Scalar(255,0,0);
+			auto purple = cv::Scalar(211,0,148);
+			for(auto & pose : goals.poses){
+				int flag = (pose.header.seq & 0b1111);
+				int x = pose.pose.position.x;
+				int y = pose.pose.position.y+w/2;
+				if(flag == 0)	cv::circle(image, cv::Point(w-1-y, h-1-x), 5, red, -1);
+				else if(flag == 1) cv::circle(image, cv::Point(w-1-y, h-1-x), 5, orange, -1);
+				else if(flag == 2) cv::circle(image, cv::Point(w-1-y, h-1-x), 5, yellow, -1);
+				else if(flag == 3) cv::circle(image, cv::Point(w-1-y, h-1-x), 5, green, -1);
+				else if(flag == 4) cv::circle(image, cv::Point(w-1-y, h-1-x), 5, blue, -1);
+				else cv::circle(image, cv::Point(w-1-y, h-1-x), 5, purple, -1);
+			}
+			
+///////////////////////////////////
+
 			for(int i = 0;i<path.size()-1;i++)
 				line(image, cv::Point(w-1-path[i].y,h-1-path[i].x), cv::Point(w-1-path[i+1].y,h-1- path[i+1].x), cv::Scalar(100,200,50),1,0);
 
 
-////////////////////////////goal point visualize
-			cv::circle(image, cv::Point(w-1-y.y, h-1-y.x), 5, cv::Scalar(0, 100, 250), -1);
-///////////////////////////////////
 
 			cv::imshow("costmap_path",image);
 			cv::waitKey(1);
