@@ -78,6 +78,10 @@ add_executable(gps_collector src/map_calibration/gps_collector.cpp)
 target_link_libraries(gps_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(gps_collector slam_generate_messages_cpp)
 
+add_executable(imu_collector src/map_calibration/imu_collector.cpp)
+target_link_libraries(imu_collector ${catkin_LIBRARIES})
+add_dependencies(imu_collector slam_generate_messages_cpp)
+
 ##add_executable for map_layer
 add_executable(sector_publisher src/map_layer/sector_publisher.cpp lib/XYToPixel.cpp)
 target_link_libraries(sector_publisher ${catkin_LIBRARIES})
