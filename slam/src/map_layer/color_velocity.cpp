@@ -26,7 +26,7 @@ int main(int argc, char**argv){
     if(is_kcity==true){
        path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map_v.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
-       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map.png";
+       path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_2.png";
        color_map = imread(path_stream1.str());
        if(!color_map.empty()){
           ROS_INFO("kcity color map loaded");
@@ -112,28 +112,27 @@ int main(int argc, char**argv){
              nRed = color_map.at<Vec3b>(i, j)[2];
             
             if(nBlue==0&&nGreen==0&&nRed==0){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
                 //Driving section
             }
             else if(nBlue==255&&nGreen==255&&nRed==255){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
             }
 
             else if(nGreen==255){
                 if(nRed == 255 && nBlue == 0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 127;
-                 //intersection buffer 2
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 110;
+                 //intersection buffer 2 //127->2.6 //110->3
                 }
             }
 
             else if(nBlue==255){
                 if(nRed==0 && nGreen==0){
                  discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 170;
-                 //intersection buffer 3
-                 //2
+                 //intersection buffer 1 //170->2 //110->3 //delete
                 }
                 if(nGreen==100 && nRed==100){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 106;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
                  //intersection
                 }
             } 
@@ -141,11 +140,12 @@ int main(int argc, char**argv){
             else if(nRed==255){
                 if(nBlue==0 && nGreen==0){
                  discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 68;
+                 //velocity 5
                 }      
             }
 
             else
-             discrete_velocity_map.at<cv::Vec3b>(i,j)[0]= 85;             
+             discrete_velocity_map.at<cv::Vec3b>(i,j)[0]= 76;             
         }
     }   
      
