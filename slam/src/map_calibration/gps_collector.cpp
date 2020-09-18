@@ -43,7 +43,7 @@ class GPS_Collector{
             sum_t = sum_t /(80*n);
             
             ROS_INFO("[%5d step]", count_);
-            ROS_INFO("current coordinate : (%lf,%lf)", count_, sum_x, sum_y);
+            ROS_INFO("current coordinate : (%lf,%lf)", sum_x, sum_y);
             ROS_INFO("current heading : %lf", sum_t);
         }
     }
