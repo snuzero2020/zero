@@ -2,9 +2,9 @@
 P_gain: 1.0
 I_gain: 10.0
 D_gain: 1.0
-P_gain_regress: 0.01
-I_gain_regress: 1.0
-regress2center: true
+P_gain_regress: 0.3
+I_gain_regress: 0.0
+regress2center: false
 upper_radius: 160.0
 lower_radius: 50.0
 car_length: 105.0

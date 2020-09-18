@@ -46,7 +46,7 @@ public:
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 2);
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",2);
 		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished",2);
-		parking_complished_pub = n.advertise<std_msgs::Int32>("nearest_goal_y",2);
+		nearest_goal_y_pub = n.advertise<std_msgs::Int32>("nearest_goal_y",2);
 
 		task = light = motion = parking_space = -1;
 //////////////////////////		
@@ -227,13 +227,13 @@ public:
 			// 4. finally, when unparking_complished is true, gear_state is changed to front(0).
 			bool parking_complished_changed = false, unparking_complished_changed = false;
 			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed, gear_state, nearest_goal_y);
-			
+				
 			if(task==DRIVING_SECTION){
 				std_msgs::Int32 msg;
 				msg.data = nearest_goal_y;
 				nearest_goal_y_pub.publish(msg);
 			}
-
+			
 
 			printf("goal : %lf %lf\n",y.x,y.y);
 					
