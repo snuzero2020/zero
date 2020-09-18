@@ -12,6 +12,7 @@
 #include "core_msgs/VehicleState.h"
 #include "core_msgs/Encoderfilter.h"
 #include "std_msgs/UInt32.h"
+#include "std_msgs/Int32.h"
 
 
 enum taskState{
@@ -107,11 +108,21 @@ class Tracker
 		double Prev_error{0};
 		double pid_input{0};
 		clock_t time = clock();
+		clock_t time_regress = clock();
 
 		int decel_level = 0;
 		int decel_check = 0;
 
 		int prev_gear_state{0};
+		
+		bool regress2center;
+		double P_gain_regress;
+		double I_gain_regress;
+		double error_regress{0};
+		double integral_error_regress{0};
+		double Prev_error_regress{0};
+		double pid_input_regress{0};
+		int nearest_goal_y{0};
 
 	public:
 
@@ -123,6 +134,7 @@ class Tracker
 		ros::Subscriber mission_state_sub;
 		ros::Subscriber gear_state_sub;
 		ros::Subscriber vehicle_state_sub;
+		ros::Subscriber nearest_goal_y_sub;
 
 		int motion{-1};
 		int light{-1};
@@ -147,10 +159,14 @@ class Tracker
 			mission_state_sub = nh.subscribe("mission_state", 2, &Tracker::missionstateCallback, this);
 			gear_state_sub = nh.subscribe("gear_state", 2, &Tracker::gear_state_callback, this);
 			vehicle_state_sub = nh.subscribe("/vehicle_state", 2, &Tracker::vehicle_state_callback, this);
+			nearest_goal_y_sub = nh.subscribe("/nearest_goal_y", 2, &Tracker::nearest_goal_y_callback, this);
 			
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
 			nh.getParam("/D_gain", D_gain);
+			nh.getParam("/P_gain_regress", P_gain);
+			nh.getParam("/I_gain_regress", I_gain);
+			nh.getParam("/regress2center", P_gain);
 			nh.getParam("/upper_radius", upper_radius);
 			nh.getParam("/lower_radius", lower_radius);
 			nh.getParam("/max_vel_increase", max_vel_increase);
@@ -171,6 +187,7 @@ class Tracker
 		void missionstateCallback(const std_msgs::UInt32 & msg);
 		void gear_state_callback(const std_msgs::UInt32 & msg);
 		void vehicle_state_callback(const core_msgs::VehicleState & msg);
+		void nearest_goal_y_callback(const std_msgs::Int32 & msg);
 
 		// Fuctions for determind steering angle
 		// 1. set look ahead point under considering velocity
@@ -232,6 +249,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		// while bracking, pid should be reset
 		integral_error = 0;
 		desired_vel_before = 0;
+		integral_error_regress = 0;
 
 		car_signal_pub.publish(msg);
 		return;
@@ -250,6 +268,7 @@ void Tracker::local_path_callback(const Path::ConstPtr msg)
 		// while bracking, pid should be reset
 		integral_error = 0;
 		desired_vel_before = 0;
+		integral_error_regress = 0;
 		return;
 	}
 	
@@ -305,6 +324,10 @@ void Tracker::vehicle_state_callback(const core_msgs::VehicleState & msg){
 	curr_vehicle_state.encoder = msg.encoder;
 	curr_vehicle_state.alive = msg.alive;
 	curr_vehicle_state.header.stamp = msg.header.stamp;
+}
+
+void Tracker::nearest_goal_y_callback(const std_msgs::Int32 & msg){
+	nearest_goal_y = msg.data;
 }
 
 // input : curren_vel, variables related to look ahead area, curr_local_path
@@ -450,7 +473,37 @@ void Tracker::adjust_steering_angle()
 	}
 	// total
 	//float sign = (nonslip_steering_angle>0)?1.0:-1.0;
-	//steering_angle.data = sign * 79.12363452 * pow(rotational_radius, -0.98117930922);	
+	//steering_angle.data = sign * 79.12363452 * pow(rotational_radius, -0.98117930922);
+
+	static bool first_regress = true;
+	if (first_regress == true)
+	{
+		time_regress = clock();
+		first_regress = false;
+		return;
+	}
+	if(task==DRIVING_SECTION && regress2center){
+		error_regress = -nearest_goal_y;
+		integral_error_regress = integral_error_regress + error_regress * (double(clock() - time_regress)/(double)CLOCKS_PER_SEC);
+		pid_input_regress = P_gain_regress * error_regress + I_gain_regress * integral_error_regress;
+		// pid_input's limit is 6  
+		if (pid_input_regress > 5){
+			pid_input_regress = 5;
+		}
+		else if (pid_input_regress < -5){
+			pid_input_regress = -5;
+		}
+		steering_angle.data += pid_input_regress;
+		time_regress = clock();
+		cout << "error_regress : " << error_regress << endl;
+		cout << "integral_error_regress : " << integral_error_regress << endl;
+		cout << "Pid_input regress : " << steering_angle.data << endl;
+	}
+	else{
+		pid_input_regress = 0;
+		integral_error_regress = 0;
+		time_regress = clock();
+	}
 
 	if (task != PARKING){	
 		if (steering_angle.data < -28){

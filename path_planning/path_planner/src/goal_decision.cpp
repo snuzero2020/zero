@@ -50,7 +50,7 @@ const static int OBSTACLE = 100;
 //}
 //
 //
-Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state){
+Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state, int &nearest_goal_y){
 	static bool parking_complished = false;
 	static bool unparking_complished = false;
 	static bool path_detected{false};
@@ -201,6 +201,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	// assign appropriate index which is closest to look_ahead_radius 
 	int sz = goals.size();
 	int main_count = 0;
+	// find the nearest goal which will be used for center line regression
+	double min_dist_from_vehicle{1000000};
 	for(int i = 0; i<sz;i++){
 		geometry_msgs::PoseStamped poseStamped = goals[i];		
 		int pose_flag = poseStamped.header.seq & 0b1111;
@@ -257,6 +259,14 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 			continue;
 		}
 
+		// find nearest goal
+		if(task==DRIVING_SECTION){
+			double temp_distance{sqrt(dx*dx+dy*dy)};
+			if(min_dist_from_vehicle>temp_distance){
+				min_dist_from_vehicle = temp_distance;
+				nearest_goal_y = dy;
+			}
+		}
 
 		// not sub path
 		//if(flag[pose_flag]!=1){

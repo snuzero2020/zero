@@ -17,7 +17,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state);
+extern Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vector<double>> & costmap, int task, int light, int motion, int parking_space, bool & parking_complished_changed, bool & unparking_complished_changed, int gear_state, int &nearest_goal_y);
 
 class RosNode{
 private:
@@ -29,6 +29,7 @@ private:
 	ros::Publisher path_pub;
 	ros::Publisher gear_state_pub;
 	ros::Publisher parking_complished_pub;
+	ros::Publisher nearest_goal_y_pub;
 
 	int task, light, motion, parking_space;
 	nav_msgs::Path goals;
@@ -45,6 +46,7 @@ public:
 		path_pub = n.advertise<nav_msgs::Path>("local_path", 2);
 		gear_state_pub = n.advertise<std_msgs::UInt32>("gear_state",2);
 		parking_complished_pub = n.advertise<std_msgs::UInt32>("parking_complished",2);
+		parking_complished_pub = n.advertise<std_msgs::Int32>("nearest_goal_y",2);
 
 		task = light = motion = parking_space = -1;
 //////////////////////////		
@@ -216,12 +218,23 @@ public:
 			vector<Cor> path;
 			Cor x(0,w/2);
 			
+			// get nearest goal y to tracker calibrate the steering angle. which make vehicle regress to the centor
+			int nearest_goal_y{0};
+
 			// 1. initial gear_state is forward(0)
 			// 2. when parking_complished if true, time_parking_complished is recorded.
 			// 3. when 20s is passed, gear_state is changed to rear(1) and time_parking_complished is reset to 0.
 			// 4. finally, when unparking_complished is true, gear_state is changed to front(0).
 			bool parking_complished_changed = false, unparking_complished_changed = false;
-			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed, gear_state);
+			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed, gear_state, nearest_goal_y);
+			
+			if(task==DRIVING_SECTION){
+				std_msgs::Int32 msg;
+				msg.data = nearest_goal_y;
+				nearest_goal_y_pub.publish(msg);
+			}
+
+
 			printf("goal : %lf %lf\n",y.x,y.y);
 					
 			if(parking_complished_changed){
