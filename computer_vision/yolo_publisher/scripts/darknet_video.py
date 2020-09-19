@@ -105,26 +105,43 @@ def YOLO():
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
     os.system('v4l2-ctl -d 0 -c backlight_compensation=0')
-    #day exposure
-    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    #day exposure=5
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    #sunny exposure=3
+    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0000)
     #night exposure
     #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
-    #rainy exposure
+    #cloudy exposure=6
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0015)
+    #rainy exposure=7
     #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0020)
 
     #day brightness=14
-    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0588)
+   # cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0588)
     #day brightness lower=10
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0196)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0392)
+    #sunny brightness =4
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0157)
+    #zero brightness =0
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0000)
     #night brightness
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5882)
-    #rainy brightness
+    #rainy brightness=64
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.2510)
 
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     #cap.set(32, 1)
-    cap.set(cv2.CAP_PROP_GAIN, 0.0588)
-
+    #lower gain=0 
+    cap.set(cv2.CAP_PROP_GAIN, 0.0000)
+    #low gain=14 
+    #cap.set(cv2.CAP_PROP_GAIN, 0.0588)
+    #middle gain=28 
+    #cap.set(cv2.CAP_PROP_GAIN, 0.1098)
+    #second middle gain=50 
+    #cap.set(cv2.CAP_PROP_GAIN, 0.1961)
+    #high gain=65 
+    #cap.set(cv2.CAP_PROP_GAIN, 0.1961)
+    
     exposure = cap.get(cv2. CAP_PROP_EXPOSURE)
     brightness = cap.get(cv2. CAP_PROP_BRIGHTNESS)
     

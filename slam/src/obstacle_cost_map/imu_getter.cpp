@@ -25,7 +25,7 @@ class ImuGetter
     ImuGetter(){
         //imu_correct_pub = nh.advertise<sensor_msgs::Imu>("/imu_correct", 10);
         imu_raw_pub = nh.advertise<std_msgs::Float32>("/imu_raw", 10);
-        imu_data_sub = nh.subscribe("/imu/data",100, &ImuGetter::imu_data_callback, this);
+        imu_data_sub = nh.subscribe("/imu/data",1, &ImuGetter::imu_data_callback, this);
     }
 
     void imu_data_callback (const sensor_msgs::Imu::ConstPtr);

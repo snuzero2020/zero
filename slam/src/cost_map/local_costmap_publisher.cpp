@@ -65,9 +65,9 @@ class Local_costmap_publisher{
 			pub = nh.advertise<sensor_msgs::Image>("/local_costmap", 2);
 			//subscribe for not considering rear driving
 			//sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
-			costmap_sub = nh.subscribe("/filtered_data", 2, &Local_costmap_publisher::callback, this);
-			gear_state_sub = nh.subscribe("/gear_state", 2, &Local_costmap_publisher::gs_callback, this);
-			mission_state_sub = nh.subscribe("/mission_state", 2, &Local_costmap_publisher::ms_callback, this);
+			costmap_sub = nh.subscribe("/filtered_data", 1, &Local_costmap_publisher::callback, this);
+			gear_state_sub = nh.subscribe("/gear_state", 1, &Local_costmap_publisher::gs_callback, this);
+			mission_state_sub = nh.subscribe("/mission_state", 1, &Local_costmap_publisher::ms_callback, this);
 			obstacle_cost_map_sub = nh.subscribe("/obstacle_map/decaying_costmap", 1, &Local_costmap_publisher::obstacle_cost_map_callback, this);
 			cost_map_pub = nh.advertise<nav_msgs::OccupancyGrid>("/cost_map_with_goal_vector", 2);
 		}

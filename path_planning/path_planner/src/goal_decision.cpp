@@ -252,7 +252,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	
 ///////////////////////////////////////
 			int almost_obstacle{OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)};
-			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
+			if(task == OBSTACLE_STATIC && dist < 300 && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
 				go_sub_path = true;
 			}
 ///////////////////////////////////////
