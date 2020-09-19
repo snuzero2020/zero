@@ -41,6 +41,11 @@ add_executable(local_costmap_publisher src/cost_map/local_costmap_publisher.cpp 
 target_link_libraries(local_costmap_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(local_costmap_publisher slam_generate_messages_cpp)
 
+##add_executable for cost_map
+add_executable(local_map_merger src/cost_map/local_map_merger.cpp lib/XYToPixel.cpp)
+target_link_libraries(local_map_merger ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(local_map_merger slam_generate_messages_cpp)
+
 add_executable(map_cost_spreader src/cost_map/map_cost_spreader.cpp)
 target_link_libraries(map_cost_spreader ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
