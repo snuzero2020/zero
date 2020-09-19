@@ -24,7 +24,7 @@ int main(int argc, char**argv){
     ros::param::get("/is_kcity", is_kcity);
     is_kcity = true;
     if(is_kcity==true){
-       path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map_v.png";
+       path_stream1 << ros::package::getPath("slam") << "/config/KCity/KCity_color_map_v3.png";
        path_stream2 << ros::package::getPath("slam")<<"/config/KCity/KCity_discrete_velocity_map.png";
        path_stream3 << ros::package::getPath("slam")<<"/config/KCity/KCity_velocity_map_4.png";
        color_map = imread(path_stream1.str());
@@ -112,11 +112,11 @@ int main(int argc, char**argv){
              nRed = color_map.at<Vec3b>(i, j)[2];
             
             if(nBlue==0&&nGreen==0&&nRed==0){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
                 //Driving section
             }
             else if(nBlue==255&&nGreen==255&&nRed==255){
-                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
+                discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
             }
 
             else if(nGreen==255){
@@ -129,12 +129,12 @@ int main(int argc, char**argv){
             else if(nBlue==255){
                 
                 if(nRed==0 && nGreen==0){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 110;
                  //intersection buffer 1 //170->2 //110->3 //76 -> 4.5
                 }
                 
                 if(nGreen==100 && nRed==100){
-                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 76;
+                 discrete_velocity_map.at<cv::Vec3b>(i, j)[0] = 85;
                  //intersection
                 }
             } 
@@ -147,7 +147,7 @@ int main(int argc, char**argv){
             }
 
             else
-             discrete_velocity_map.at<cv::Vec3b>(i,j)[0]= 76;             
+             discrete_velocity_map.at<cv::Vec3b>(i,j)[0]= 85;             
         }
     }   
      

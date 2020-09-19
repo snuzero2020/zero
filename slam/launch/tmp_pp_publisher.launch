@@ -1,0 +1,7 @@
+<launch>
+  <node name="local_map_merger" pkg="slam" type="local_map_merger"/>
+  <node name="sector_publisher" pkg="slam" type="sector_publisher"/>
+  <node name="velocity_publisher" pkg="slam" type="velocity_publisher"/>
+  <node name="darknet_video" pkg="yolo_publisher" type="darknet_video.py"/>  
+  <rosparam file="$(find slam)/slam_para.yaml" />  
+</launch>
