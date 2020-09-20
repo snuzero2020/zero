@@ -107,6 +107,7 @@ class RosNode{
                                         Sector_Task(A,DRIVING_SECTION),
                                         Sector_Task(F,INTERSECTION_LEFT),
                                       	Sector_Task(A,OBSTACLE_SUDDEN),
+                                        //Sector_Task(A,DRIVING_SECTION),
                                       	Sector_Task(G,INTERSECTION_RIGHT),
 					Sector_Task(A,OBSTACLE_STATIC),
                                         Sector_Task(H,INTERSECTION_STRAIGHT),

@@ -1,0 +1,5 @@
+<launch>
+   <include file="$(find slam)/launch/sensor_driver.launch"/>
+   <include file="$(find slam)/launch/decaying_obstacle_costmap.launch"/>
+   <include file="$(find slam)/launch/tmp_pp_publisher.launch"/>
+</launch>
