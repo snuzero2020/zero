@@ -488,7 +488,7 @@ void Tracker::adjust_steering_angle()
 		first_regress = false;
 		return;
 	}
-	if((task==DRIVING_SECTION||task==INTERSECTION_STRAIGHT) && regress2center){
+	if((task==DRIVING_SECTION||task==CROSSWALK||task==INTERSECTION_STRAIGHT) && regress2center){
 		error_regress = -nearest_goal_y;
 		integral_error_regress = integral_error_regress + error_regress * (double(clock() - time_regress)/(double)CLOCKS_PER_SEC);
 		pid_input_regress = P_gain_regress * error_regress + I_gain_regress * integral_error_regress;
@@ -551,10 +551,16 @@ double Tracker::calculate_desired_vel(){
 	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	if(task!=PARKING)
+	if(task!=PARKING){
 		curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),0.75);
-	else
+		curvature_multiplier = max(curvature_multiplier,0.3);
+	}
+		
+	else{
 		curvature_multiplier = max(1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),1.5),0.5);
+		look_ahead_multiplier = max(look_ahead_multiplier, 0.5);
+	}
+		
 
 	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 

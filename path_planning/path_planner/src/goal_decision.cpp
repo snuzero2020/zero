@@ -175,7 +175,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	cout << endl;
 
 	double look_ahead_radius;
-	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
+	if(task==CROSSWALK) look_ahead_radius = 150;
+	else if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
 	else if(task==OBSTACLE_STATIC) look_ahead_radius = 180;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 150;
 	else if(motion == PARKING_MOTION){

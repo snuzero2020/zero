@@ -228,7 +228,7 @@ public:
 			bool parking_complished_changed = false, unparking_complished_changed = false;
 			Cor y = decision(goals.poses, cost_map, task, light, motion, parking_space, parking_complished_changed, unparking_complished_changed, gear_state, nearest_goal_y);
 				
-			if(task==DRIVING_SECTION){
+			if(task==DRIVING_SECTION || task == CROSSWALK){
 				std_msgs::Int32 msg;
 				msg.data = nearest_goal_y;
 				nearest_goal_y_pub.publish(msg);
