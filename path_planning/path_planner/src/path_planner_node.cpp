@@ -306,7 +306,7 @@ public:
 
 			y.y+=w/2;
 			
-			rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
+			bool is_rrt = rrt.solve(path,cost_map,x, y, task == OBSTACLE_SUDDEN);
 			
 			/*
 			for(Cor point :  path)
@@ -419,6 +419,10 @@ public:
 				local_path.header.stamp.sec += 1;
 			if (gear_state == 1)
 				local_path.header.stamp.sec +=2;
+
+			
+			if(is_rrt) local_path.header.stamp.nsec = 1;
+			else local_path.header.stamp.nsec = 0;
 
 			// publish
 			path_pub.publish(local_path);

@@ -1,5 +1,5 @@
-#include <chrono>
-#include <iostream>
+//#include <chrono>
+//#include <iostream>
 
 #include "ros/package.h"
 #include "ros/ros.h"
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     Mat img_spreaded = Mat::zeros(rows, cols, CV_16UC1);
     ushort* data_spreaded = (ushort*)img_spreaded.data;
 
-    std::chrono::system_clock::time_point time_start = std::chrono::system_clock::now();
+    //std::chrono::system_clock::time_point time_start = std::chrono::system_clock::now();
 
     for(int ii=spread_pixel_radius; ii<rows-spread_pixel_radius; ii++){
         for(int jj=spread_pixel_radius; jj<cols-spread_pixel_radius; jj++){
@@ -136,26 +136,26 @@ int main(int argc, char** argv) {
         }
 
         // calculate rest time
-        std::chrono::duration<double> elipsed_time = std::chrono::system_clock::now() - time_start;
-        std::chrono::milliseconds elipsed_time_mill  = std::chrono::duration_cast<std::chrono::milliseconds>(elipsed_time);
-        double rest_time_mill = elipsed_time_mill.count() * (rows-spread_pixel_radius-ii) / (ii-spread_pixel_radius + 1);
+        // std::chrono::duration<double> elipsed_time = std::chrono::system_clock::now() - time_start;
+        // std::chrono::milliseconds elipsed_time_mill  = std::chrono::duration_cast<std::chrono::milliseconds>(elipsed_time);
+        // double rest_time_mill = elipsed_time_mill.count() * (rows-spread_pixel_radius-ii) / (ii-spread_pixel_radius + 1);
 
-        int rest_time_hour = static_cast<int>(rest_time_mill) / 3600000;
-        int rest_time_minute = (static_cast<int>(rest_time_mill) - (rest_time_hour * 3600000)) / 60000;
-        int rest_time_second = ((static_cast<int>(rest_time_mill) - (rest_time_hour * 3600000)) - rest_time_minute * 60000) / 1000;
+        // int rest_time_hour = static_cast<int>(rest_time_mill) / 3600000;
+        // int rest_time_minute = (static_cast<int>(rest_time_mill) - (rest_time_hour * 3600000)) / 60000;
+        // int rest_time_second = ((static_cast<int>(rest_time_mill) - (rest_time_hour * 3600000)) - rest_time_minute * 60000) / 1000;
 
-        std::string rest_time_minute_string = to_string(rest_time_minute);
-        std::string rest_time_second_string = to_string(rest_time_second);
+        // std::string rest_time_minute_string = to_string(rest_time_minute);
+        // std::string rest_time_second_string = to_string(rest_time_second);
 
-        if (rest_time_minute < 10) rest_time_minute_string = "0" + to_string(rest_time_minute);
+        // if (rest_time_minute < 10) rest_time_minute_string = "0" + to_string(rest_time_minute);
 
-        if (rest_time_second < 10) rest_time_second_string = "0" + to_string(rest_time_second);
+        // if (rest_time_second < 10) rest_time_second_string = "0" + to_string(rest_time_second);
 
-        int percent = (ii-spread_pixel_radius) * 100 / (rows-2*spread_pixel_radius);
+        // int percent = (ii-spread_pixel_radius) * 100 / (rows-2*spread_pixel_radius);
 
-        //std::cout << elipsed_time_mill.count() << '\n';
-        //std::cout << rest_time_mill << "\n";
-        std::cout << "Complete after " << rest_time_hour << ":" << rest_time_minute_string << ":" << rest_time_second_string << "(" << percent << "% completed)    \r";
+        // //std::cout << elipsed_time_mill.count() << '\n';
+        // //std::cout << rest_time_mill << "\n";
+        // std::cout << "Complete after " << rest_time_hour << ":" << rest_time_minute_string << ":" << rest_time_second_string << "(" << percent << "% completed)    \r";
     }
 
     ROS_INFO("Image spreaded");

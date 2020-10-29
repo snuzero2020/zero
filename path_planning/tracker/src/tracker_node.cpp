@@ -488,7 +488,7 @@ void Tracker::adjust_steering_angle()
 		first_regress = false;
 		return;
 	}
-	if((task==DRIVING_SECTION||task==CROSSWALK||task==INTERSECTION_STRAIGHT) && regress2center){
+	if((task==DRIVING_SECTION||task==CROSSWALK||task==INTERSECTION_STRAIGHT) && regress2center && curr_local_path.header.stamp.nsec == 0){
 		error_regress = -nearest_goal_y;
 		integral_error_regress = integral_error_regress + error_regress * (double(clock() - time_regress)/(double)CLOCKS_PER_SEC);
 		pid_input_regress = P_gain_regress * error_regress + I_gain_regress * integral_error_regress;
