@@ -120,6 +120,7 @@ class Tracker
 		
 		bool regress2center;
 		double P_gain_regress;
+		double P_gain_regress_crosswalk;
 		double I_gain_regress;
 		double error_regress{0};
 		double integral_error_regress{0};
@@ -142,10 +143,12 @@ class Tracker
 		int motion{-1};
 		int light{-1};
 		int task{-1};
+		int sector{-1};
 		int parking_space{-1};
 		double max_vel_increase;
 		double max_obstacle_vel;
 		double max_parking_vel;
+		double max_start_vel;
 
 		VehicleState curr_vehicle_state{VehicleState()};
 		
@@ -171,6 +174,7 @@ class Tracker
 			nh.getParam("/I_gain_rear", I_gain_rear);
 			nh.getParam("/D_gain_rear", D_gain_rear);
 			nh.getParam("/P_gain_regress", P_gain_regress);
+			nh.getParam("/P_gain_regress_crosswalk", P_gain_regress_crosswalk);
 			nh.getParam("/I_gain_regress", I_gain_regress);
 			nh.getParam("/regress2center", regress2center);
 			nh.getParam("/upper_radius", upper_radius);
@@ -178,6 +182,7 @@ class Tracker
 			nh.getParam("/max_vel_increase", max_vel_increase);
 			nh.getParam("/max_obstacle_vel",max_obstacle_vel);
 			nh.getParam("/max_parking_vel",max_parking_vel);
+			nh.getParam("/max_start_vel",max_start_vel);
 		}
 
 		// setter function
@@ -297,7 +302,7 @@ void Tracker::missionstateCallback(const std_msgs::UInt32 & msg){
         motion = data & mask;
         light = (data>>4) & mask;
         task = (data>>8) & mask;
-        //parking_space = (data>>12) & mask;
+        sector = (data>>12) & mask;
         parking_space = 1;
 }
 
@@ -488,10 +493,15 @@ void Tracker::adjust_steering_angle()
 		first_regress = false;
 		return;
 	}
-	if((task==DRIVING_SECTION||task==CROSSWALK||task==INTERSECTION_STRAIGHT) && regress2center && curr_local_path.header.stamp.nsec == 0){
+	bool isRRT{curr_local_path.header.stamp.nsec};
+	if(((task==DRIVING_SECTION||task==INTERSECTION_STRAIGHT)&&(!isRRT))||task==CROSSWALK && regress2center){
+		double curvature_multiplier{1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),0.75)};
 		error_regress = -nearest_goal_y;
 		integral_error_regress = integral_error_regress + error_regress * (double(clock() - time_regress)/(double)CLOCKS_PER_SEC);
-		pid_input_regress = P_gain_regress * error_regress + I_gain_regress * integral_error_regress;
+		if(task!=CROSSWALK) 
+			pid_input_regress = (P_gain_regress * error_regress + I_gain_regress * integral_error_regress)*pow(curvature_multiplier,3);
+		else
+			pid_input_regress = (P_gain_regress_crosswalk * error_regress + I_gain_regress * integral_error_regress)*pow(curvature_multiplier,3);
 		// pid_input's limit is 6  
 		if (pid_input_regress > 5){
 			pid_input_regress = 5;
@@ -503,7 +513,7 @@ void Tracker::adjust_steering_angle()
 		time_regress = clock();
 		cout << "error_regress : " << error_regress << endl;
 		cout << "integral_error_regress : " << integral_error_regress << endl;
-		cout << "Pid_input regress : " << pid_input_regress << endl;
+		cout << "Pid_input regress : " << pid_input_regress << "\tcurvature multiplier^3 : " << pow(curvature_multiplier,3) << endl;
 		cout << "adjusted_steering_angle : " << steering_angle.data << endl;
 	}
 	else{
@@ -562,7 +572,7 @@ double Tracker::calculate_desired_vel(){
 	}
 		
 
-	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
+	desired_vel_after =  recommend_vel*min(curvature_multiplier,look_ahead_multiplier); // should be changed
 
 	/*	
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
@@ -579,8 +589,10 @@ double Tracker::calculate_desired_vel(){
 
 	if (task == OBSTACLE_STATIC || task == OBSTACLE_SUDDEN)
 		desired_vel_after = min(desired_vel_after,max_obstacle_vel);
-	if (task == PARKING)
+	else if (task == PARKING)
 		desired_vel_after = min(desired_vel_after,max_parking_vel);
+	else if (sector == 11) // sector is starting sector
+		desired_vel_after = min(desired_vel_after,max_start_vel);
 
 	cout << "look_ahead_multiplier : " << look_ahead_multiplier << "\ncurvature_multiplier : " << curvature_multiplier << endl;
 
