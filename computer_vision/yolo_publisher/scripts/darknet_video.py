@@ -106,9 +106,9 @@ def YOLO():
     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
     os.system('v4l2-ctl -d 0 -c backlight_compensation=0')
     #day exposure=5
-    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
+    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0010)
     #sunny exposure=3
-    cap.set(cv2.CAP_PROP_EXPOSURE, 0.0000)
+    #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0000)
     #night exposure
     #cap.set(cv2.CAP_PROP_EXPOSURE, 0.0108)
     #cloudy exposure=6
@@ -119,9 +119,9 @@ def YOLO():
     #day brightness=14
    # cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0588)
     #day brightness lower=10
-    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0392)
+    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0392)
     #sunny brightness =4
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0157)
+    #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0157)
     #zero brightness =0
     #cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.0000)
     #night brightness
