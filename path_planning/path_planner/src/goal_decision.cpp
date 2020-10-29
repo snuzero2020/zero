@@ -175,7 +175,8 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	cout << endl;
 
 	double look_ahead_radius;
-	if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
+	if(task==CROSSWALK) look_ahead_radius = 150;
+	else if(task==OBSTACLE_SUDDEN) look_ahead_radius = 200;
 	else if(task==OBSTACLE_STATIC) look_ahead_radius = 180;
 	else if(motion == LEFT_MOTION || motion == RIGHT_MOTION) look_ahead_radius = 150;
 	else if(motion == PARKING_MOTION){
@@ -252,7 +253,7 @@ Cor decision(const vector<geometry_msgs::PoseStamped> & goals, const vector<vect
 	
 ///////////////////////////////////////
 			int almost_obstacle{OBSTACLE-static_cast<int>(cost_scale*almost_obstacle_ratio)};
-			if(task == OBSTACLE_STATIC && dist < look_ahead_radius && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
+			if(task == OBSTACLE_STATIC && dist < 300 && pose_flag == 0 && costmap[(int)dx][(int)dy+costmap.size()/2] >= almost_obstacle){
 				go_sub_path = true;
 			}
 ///////////////////////////////////////

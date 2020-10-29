@@ -32,7 +32,7 @@ class velocity_publisher{
             ros::param::get("/is_kcity", is_kcity);
 
             if(is_kcity==true){
-            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map.png";
+            	path_stream << ros::package::getPath("slam") << "/config/KCity/KCity_velocity_map_5.png";
                 velocity_map = cv::imread(path_stream.str(), cv::IMREAD_COLOR);  
 
                 if(!velocity_map.empty()){

@@ -102,6 +102,9 @@ class Tracker
 		double P_gain;
 		double I_gain;
 		double D_gain;
+		double P_gain_rear;
+		double I_gain_rear;
+		double D_gain_rear;
 		double error{0};
 		double integral_error{0};
 		double differential_error{0};
@@ -164,9 +167,12 @@ class Tracker
 			nh.getParam("/P_gain", P_gain);
 			nh.getParam("/I_gain", I_gain);
 			nh.getParam("/D_gain", D_gain);
-			nh.getParam("/P_gain_regress", P_gain);
-			nh.getParam("/I_gain_regress", I_gain);
-			nh.getParam("/regress2center", P_gain);
+			nh.getParam("/P_gain_rear", P_gain_rear);
+			nh.getParam("/I_gain_rear", I_gain_rear);
+			nh.getParam("/D_gain_rear", D_gain_rear);
+			nh.getParam("/P_gain_regress", P_gain_regress);
+			nh.getParam("/I_gain_regress", I_gain_regress);
+			nh.getParam("/regress2center", regress2center);
 			nh.getParam("/upper_radius", upper_radius);
 			nh.getParam("/lower_radius", lower_radius);
 			nh.getParam("/max_vel_increase", max_vel_increase);
@@ -482,7 +488,7 @@ void Tracker::adjust_steering_angle()
 		first_regress = false;
 		return;
 	}
-	if(task==DRIVING_SECTION && regress2center){
+	if((task==DRIVING_SECTION||task==CROSSWALK||task==INTERSECTION_STRAIGHT) && regress2center){
 		error_regress = -nearest_goal_y;
 		integral_error_regress = integral_error_regress + error_regress * (double(clock() - time_regress)/(double)CLOCKS_PER_SEC);
 		pid_input_regress = P_gain_regress * error_regress + I_gain_regress * integral_error_regress;
@@ -497,7 +503,8 @@ void Tracker::adjust_steering_angle()
 		time_regress = clock();
 		cout << "error_regress : " << error_regress << endl;
 		cout << "integral_error_regress : " << integral_error_regress << endl;
-		cout << "Pid_input regress : " << steering_angle.data << endl;
+		cout << "Pid_input regress : " << pid_input_regress << endl;
+		cout << "adjusted_steering_angle : " << steering_angle.data << endl;
 	}
 	else{
 		pid_input_regress = 0;
@@ -544,10 +551,16 @@ double Tracker::calculate_desired_vel(){
 	//look_ahead_multiplier = sqrt(sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0);
 	look_ahead_multiplier = sqrt(look_ahead_point.x*look_ahead_point.x+look_ahead_point.y*look_ahead_point.y)/100.0;
 	look_ahead_multiplier = (look_ahead_multiplier>1+1E-6)? 1.0:look_ahead_multiplier;
-	if(task!=PARKING)
+	if(task!=PARKING){
 		curvature_multiplier = 1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),0.75);
-	else
+		curvature_multiplier = max(curvature_multiplier,0.3);
+	}
+		
+	else{
 		curvature_multiplier = max(1 - 1.0/pow((max(1.0/curvature/33.0,2.5)-1.5),1.5),0.5);
+		look_ahead_multiplier = max(look_ahead_multiplier, 0.5);
+	}
+		
 
 	desired_vel_after =  recommend_vel*curvature_multiplier*look_ahead_multiplier; // should be changed
 
@@ -596,11 +609,26 @@ void Tracker::calculate_input_signal(){
 	if (prev_gear_state==1)
 		current_vel = abs(current_vel);
 
+	int temp_p_gain{0};
+	int temp_i_gain{0};
+	int temp_d_gain{0};
+
+	if(prev_gear_state == 0){
+		temp_p_gain = P_gain;
+		temp_i_gain = I_gain;
+		temp_d_gain = D_gain;
+	}
+	else{
+		temp_p_gain = P_gain_rear;
+		temp_i_gain = I_gain_rear;
+		temp_d_gain = D_gain_rear;
+	}
+
 	error = calculate_desired_vel() - current_vel;
 	integral_error = integral_error + error * (double(clock() - time)/(double)CLOCKS_PER_SEC);
 	integral_error = (integral_error>0)? integral_error:0;
 	differential_error = -slope;
-	pid_input = P_gain * error + I_gain * integral_error + D_gain * differential_error + desired_vel_after;
+	pid_input = temp_p_gain * error + temp_i_gain * integral_error + temp_d_gain * differential_error + desired_vel_after;
 	// pid_input's limit is 6  
 	if (pid_input > 6){
 		pid_input = 6;
