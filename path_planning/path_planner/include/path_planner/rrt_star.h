@@ -159,7 +159,7 @@ class RRT {
 	bool straightCheck(Cor start, Cor dest);
 
 	// CALLING RRT STAR FUNCTION
-        void solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden=false);
+    bool solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden=false);
 	
 	// check obstacle between two points
 	bool isobstacle(Cor a, Cor b);

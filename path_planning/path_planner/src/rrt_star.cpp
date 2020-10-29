@@ -275,7 +275,7 @@ bool RRT::straightCheck(Cor start, Cor dest){
 	return true;	
 }
 
-void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden) {
+bool RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_map, Cor start, Cor goal, bool isObstacleSudden) {
 	Node* middle_start = new Node(), * middle_goal = new Node();
 	bool find_path = false;
 	// initialize
@@ -294,7 +294,7 @@ void RRT::solve(std::vector<Cor>& path, std::vector<std::vector<double>>& _cost_
 	if(straightCheck(start, goal)){
 		path.push_back(start);
 		path.push_back(goal);
-		return;
+		return false;
 	}
 
 	/*
@@ -404,7 +404,7 @@ debug();	//21
 */
 	
 	// cant find path
-	if(!find_path) return;
+	if(!find_path) return true;
 	
 	// make path
 
@@ -421,7 +421,7 @@ debug();	//21
 		path.push_back(cur->location);
 		cur = cur->parent;
 	}
-	return;
+	return true;
 }
 
 
