@@ -129,6 +129,7 @@ class ParkingSpotDetector{
 	    return;
 	}
         for(slam::ParkingSpot &spot : parking_spot) spot.count = 0;
+	parking_spot.at(0).count = 200;
         for(slam::Cluster cluster : msg->clusters){
             for(slam::LidarPoint point : cluster.points){
                 double x = position.first + point.point_2d.x*cos(heading) - point.point_2d.y*sin(heading);
@@ -146,6 +147,7 @@ class ParkingSpotDetector{
 		rt_count.push_back(parking_spot.at(index).count);
 		//ROS_INFO("%d th parking spot includes %d points", index, parking_spot.at(index).count);
 	}
+
 	rt_parking_count.data = rt_count;
 	pub_count.publish(rt_parking_count);
         for(slam::ParkingSpot &spot : parking_spot){
