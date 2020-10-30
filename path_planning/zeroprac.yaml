@@ -6,14 +6,16 @@ P_gain_rear: 1.0
 I_gain_rear: 10.0
 D_gain_rear: 1.0
 P_gain_regress: 0.02
+P_gain_regress_crosswalk: 0.02
 I_gain_regress: 0.0
 regress2center: true
 upper_radius: 160.0
 lower_radius: 50.0
 car_length: 105.0
 max_vel_increase: 0.02
-max_obstacle_vel: 3.0
+max_obstacle_vel: 2.7
 max_parking_vel: 1.0
+max_start_vel: 2.0
 predicted_parking: false
 predicted_parking_spot: 3
 # rrt_star.h
@@ -32,8 +34,8 @@ isTrackDriving: 0
 vel1: 3.0
 vel2: 2.0
 # mission recognizer
-mission_start : 7 
-isKcity : 0
+mission_start : 0
+isKcity : 1
 # goal decition
 lidar_detect_dist : 14
 almost_obstacle_ratio : 0.1
