@@ -16,6 +16,7 @@ max_vel_increase: 0.02
 max_obstacle_vel: 2.7
 max_parking_vel: 1.0
 max_start_vel: 2.0
+max_first_turn_vel: 2.0
 predicted_parking: false
 predicted_parking_spot: 3
 # rrt_star.h

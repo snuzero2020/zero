@@ -149,6 +149,7 @@ class Tracker
 		double max_obstacle_vel;
 		double max_parking_vel;
 		double max_start_vel;
+		double max_first_turn_vel;
 
 		VehicleState curr_vehicle_state{VehicleState()};
 		
@@ -183,6 +184,7 @@ class Tracker
 			nh.getParam("/max_obstacle_vel",max_obstacle_vel);
 			nh.getParam("/max_parking_vel",max_parking_vel);
 			nh.getParam("/max_start_vel",max_start_vel);
+			nh.getParam("/max_first_turn_vel",max_first_turn_vel);
 		}
 
 		// setter function
@@ -593,6 +595,8 @@ double Tracker::calculate_desired_vel(){
 		desired_vel_after = min(desired_vel_after,max_parking_vel);
 	else if (sector == 11) // sector is starting sector
 		desired_vel_after = min(desired_vel_after,max_start_vel);
+	else if ((sector == 1)&&(task==INTERSECTION_LEFT_UNSIGNED))
+		desired_vel_after = min(desired_vel_after,max_first_turn_vel);
 
 	cout << "look_ahead_multiplier : " << look_ahead_multiplier << "\ncurvature_multiplier : " << curvature_multiplier << endl;
 
