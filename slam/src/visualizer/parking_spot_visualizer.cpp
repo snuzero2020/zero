@@ -13,9 +13,8 @@
 
 
 int main() {
-    bool is_kcity;
-    ros::param::get("/is_kcity", is_kcity);
-
+    bool is_kcity = true;
+//    ros::param::get("/is_kcity", is_kcity);
     std::vector<std::vector<double>> coords;
 
     std::stringstream coord_path;

@@ -130,6 +130,7 @@ class ParkingSpotDetector{
 	}
         for(slam::ParkingSpot &spot : parking_spot) spot.count = 0;
 	parking_spot.at(0).count = 200;
+	parking_spot.at(1).count = 200;
         for(slam::Cluster cluster : msg->clusters){
             for(slam::LidarPoint point : cluster.points){
                 double x = position.first + point.point_2d.x*cos(heading) - point.point_2d.y*sin(heading);
