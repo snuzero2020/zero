@@ -1,12 +1,11 @@
 This is SLAM team repository!
 
-Driver 설치
----
-# GPS
+# Driver 설치
+## GPS
 ##### sudo apt-get install ros-melodic-nmea-msgs   
 ##### sudo apt-get install ros-melodic-nmea-navsat-driver   
 
-# IMU
+## IMU
 http://wiki.ros.org/xsens_mti_driver 참고   
 https://www.xsens.com/mt-software-suite/ 에서 왼쪽 위 MTi Products의 Latest Stable Software 다운   
 다운 받은 압축파일을 압축 푼 다음 터미널에서 그 디렉토리로 이동해서   
@@ -19,23 +18,21 @@ catkin_ws로 이동해서
 ##### pushd src/xsens_ros_mti_driver/lib/xspublic && make && popd   
 ##### catkin_make
 
-# 기타 패키지
+## 기타 패키지
 ##### sudo apt-get install python-pyproj
 
-Driver 사용
----
-# GPS
+# Driver 사용
+## GPS
 (roscore 혹은 roslaunch 필요)   
 ##### sudo chmod 777 /dev/포트이름   
 ##### rosrun nmea_navsat_driver nmea_topic_serial_reader _port:=/dev/포트이름 _baud:=115200
 
-# IMU
+## IMU
 ##### sudo chmod 777 /dev/포트이름   
 ##### roslaunch xsens_mti_driver xsens_mti_node.launch
 
-IMU Configuration
----
-# MTManager
+# IMU Configuration
+## MTManager
 https://www.xsens.com/mt-software-suite/에서 받은 압축파일을 압축 푼 다음   
 그 안에서 mtmanager를 찾아 압축 해제   
 압축 푼 mtmanager 디렉토리 /linux-x64/doc/MTM.README 참고   
@@ -48,7 +45,7 @@ https://www.xsens.com/mt-software-suite/에서 받은 압축파일을 압축 푼
 압축 푼 mtmanager 디렉토리 /linux-x64/bin 에서   
 ##### ./mtmanager
 
-# Calibration
+## Calibration
 우분투에서는 버전 문제로 잘 완되어서 Windows 사용   
 설명 동영상: https://tutorial.xsens.com/video/magnetic-calibration   
 
