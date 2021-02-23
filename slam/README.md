@@ -20,12 +20,15 @@ catkin_ws로 이동해서
 
 ## 기타 패키지
 ##### sudo apt-get install python-pyproj
-
+   
 # Driver 사용
+##### roslaunhch slam sensor_driver.launch
+각자 켜려면 아래 참고
+
 ## GPS
 (roscore 혹은 roslaunch 필요)   
 ##### sudo chmod 777 /dev/포트이름   
-##### rosrun nmea_navsat_driver nmea_topic_serial_reader _port:=/dev/포트이름 _baud:=115200
+##### rosrun nmea_navsat_driver nmea_serial_driver _port:=/dev/포트이름 _baud:=115200
 
 ## IMU
 ##### sudo chmod 777 /dev/포트이름   
