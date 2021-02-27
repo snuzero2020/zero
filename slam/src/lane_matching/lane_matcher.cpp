@@ -18,7 +18,7 @@ using namespace std;
 #define CENTER_X_PER_IMG_COLS 0.5
 #define CENTER_Y_PER_IMG_ROWS 0.5
 #define POS_STEP 1
-#define ANG_STEP 0.32
+#define ANG_STEP 1
 #define STEP_N_2 3
 
 void imshowall(vector<Mat> imgs);
@@ -42,17 +42,28 @@ void recurMatch(int& dx, int& dy, double& dth, Mat img1, Mat img2, int iter){
         dx *= 2;
         dy *= 2;
     }
-    Rect lane_rect = Rect((img1.cols-img2.cols)/2, img1.rows/2-img2.rows, img2.cols, img2.rows); 
+
+    warpEuclid(img1,temp_img1,dx,dy,dth+M_PI_2,true);
+    linearPolar(temp_img1, temp_img1, Point(img1.cols*CENTER_X_PER_IMG_COLS, img1.rows*CENTER_Y_PER_IMG_ROWS),
+                    img2.rows, INTER_LINEAR+WARP_FILL_OUTLIERS);
+    linearPolar(img2, temp_img2, Point(img2.cols*CENTER_X_PER_IMG_COLS, img2.rows),
+                    img2.rows, INTER_LINEAR+WARP_FILL_OUTLIERS);
+    resize(temp_img1, temp_img1, temp_img2.size());
+    
+    Rect lane_rect;
+    Rect lane_rect2;
     int min_cross = 200*200;
     double min_dth = dth;
-    int ang_step_n_2 = M_PI_2/ANG_STEP;
-    for(int i = -ang_step_n_2; i<=ang_step_n_2; i++){
-        warpEuclid(img1,temp_img1,dx,dy,dth+i*ANG_STEP/(1<<iter),true);
-        int cross = norm(temp_img1(lane_rect),img2);
+    // for(int i = -STEP_N_2; i<=STEP_N_2; i++){
+    for(int i = -temp_img2.rows/4; i<=temp_img2.rows/4; i++){
+        lane_rect = Rect(0, temp_img2.rows/4+i*ANG_STEP, temp_img2.cols, temp_img2.rows/2);
+        lane_rect2 = Rect(0, temp_img2.rows/2, temp_img2.cols, temp_img2.rows/2);
+        int cross = norm(temp_img1(lane_rect),temp_img2(lane_rect2));
         if(cross<min_cross){
             min_cross = cross;
-            min_dth = dth+i*ANG_STEP/(1<<iter);
+            min_dth = dth+i*ANG_STEP*2*M_PI/temp_img2.rows;
         }
+        //imshowall({temp_img1(lane_rect),temp_img2(lane_rect2)});
     }
     dth=min_dth;
     warpEuclid(img1,temp_img1,dx,dy,dth,true);    
@@ -73,7 +84,7 @@ void recurMatch(int& dx, int& dy, double& dth, Mat img1, Mat img2, int iter){
     dx = min_dx;
     dy = min_dy;
 
-    //temp_img1=warpEuclid(img1,dx,dy,dth,true);    
+    //warpEuclid(img1,temp_img1,dx,dy,dth,true);    
     //imshowall({img1(lane_rect), img2, temp_img1(lane_rect), temp_img1(lane_rect)-img2+128.});
     //ROS_INFO("%d %d %lf",dx,dy,dth);
 }
@@ -94,9 +105,9 @@ int main(int argc, char **argv)
         puts("no match1");
         return -1;
     }
-    int realx = 19;  //////////////////////////////////////////////////////
-    int realy = 19;    ////////////////////////////////////////////////////
-    double realth = 0.51;  ////////////////////////////////////////////////////
+    int realx = 0; //////////////////////////////////////////////////////
+    int realy = 0;    ////////////////////////////////////////////////////
+    double realth = 0;  ////////////////////////////////////////////////////
     warpEuclid(img1,img1,realx,realy,realth,false);
 
     img2= cv::imread(path_stream2.str(),cv::IMREAD_GRAYSCALE);
