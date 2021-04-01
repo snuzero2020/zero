@@ -1,4 +1,39 @@
-This is SLAM team repository!
+### 목차
+- [디렉토리 구조](#디렉토리-구조)
+- [Driver 설치](#driver-설치)
+  * [GPS](#gps)
+  * [IMU](#imu)
+  * [기타 패키지](#기타-패키지)
+- [Driver 사용](#driver-사용)
+  * [GPS](#gps-1)
+  * [IMU](#imu-1)
+- [IMU Configuration](#imu-configuration)
+  * [MTManager](#mtmanager)
+  * [Calibration](#calibration)
+
+# 디렉토리 구조
+* config/   
+FMTC와 K-City에서 활용하는 지도(global map, costmap, velocity map, ...)와 경로(global path)
+* include/   
+lib에 있는 함수들을 사용할 때 필요한 헤더 파일
+* launch/   
+여러 노드를 한번에 실행하기 위한 런치 파일 
+* lib/   
+여러 소스 코드에서 쓰이는 함수들
+* msg/   
+ROS 내부 통신에서 사용하는 커스텀 포맷(클러스터, YOLO 정보, 주차 영역, ...)
+* src/   
+소스 코드
+* CMakeLists*.txt   
+Cmake을 이용한 컴파일에 필요한 옵션을 제공하는 파일
+* ~~KMTC.yaml~~   
+사용하지 않음
+* slam_para.yaml   
+SLAM의 각 노드와 프로그램에서 필요로 하는 매개 변수(parameter)를 저장하는 파일
+* package.xml   
+ROS에서 각 노드의 존재와 관계를 알려주는 파일
+
+-----
 
 # Driver 설치
 ## GPS
