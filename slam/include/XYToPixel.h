@@ -10,6 +10,7 @@
 #endif
 
 void XYToPixel(int& pixel_x, int& pixel_y, double x, double y, bool is_kcity);
+void PixelToXY(double& x, double& y, int pixel_x, int pixel_y, bool is_kcity);
 
 //int XYToPixel(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, int place);
 // Convert a UTM52 coordinate to a position(pixel) on the received map.

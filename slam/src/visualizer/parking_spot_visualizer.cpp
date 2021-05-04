@@ -13,6 +13,7 @@
 
 
 int main() {
+    bool is_kcity;
     ros::param::get("/is_kcity", is_kcity); // get whether the target is for K-City or FMTC (변환 대상이 K-City인지 FMTC인지를 가져옴)
     std::vector<std::vector<double>> coords; // list for coordinates (좌표 여러개를 저장할 리스트)
 

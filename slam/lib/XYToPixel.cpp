@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "ros/ros.h"
-#include "opencv2/opencv.hpp"
+//#include "opencv2/opencv.hpp"
 
 #ifndef PLACE
 #define PLACE
@@ -32,9 +32,6 @@ double c2 = 138011335.78259039;
 */
 
 
-
-
-
 void XYToPixel(int& pixel_x, int& pixel_y, double x, double y, bool is_kcity) {
     if (is_kcity) {
         double a1 = 33.30845062530643;
@@ -60,6 +57,34 @@ void XYToPixel(int& pixel_x, int& pixel_y, double x, double y, bool is_kcity) {
 
     if (is_kcity) ROS_DEBUG_STREAM("XYToPixel(K-City): Coordiate (" << pixel_x << ", " << pixel_y << ")");
     else ROS_DEBUG_STREAM("XYToPixel(FMTC): Coordiate (" << pixel_x << ", " << pixel_y << ")");
+}
+
+void PixelToXY(double& x, double& y, int pixel_x, int pixel_y, bool is_kcity) {
+    if (is_kcity) {
+        double a1 = 0.030022410154851;
+        double b1 = 5.51174605692027E-06;
+        double c1 = 10098174.098572133;
+        double a2 = 5.51174605691764E-06;
+        double b2 = -0.030022410154851;
+        double c2 = -137371264.71873185;
+
+        pixel_x += c1; pixel_y += c2;
+        x = a1*pixel_x+b1*pixel_y;
+        y = a2*pixel_x+b2*pixel_y;
+    } else {
+        double a1 = 33.35682000061858;
+        double b1 = -0.6892112032054343;
+        double c1 = -7095938.941479745;
+        double a2 = -0.6892112032054311;
+        double b2 = -33.35682000061859;
+        double c2 = 138233386.34684;
+
+        pixel_x = a1*x+b1*y+c1;
+        pixel_y = a2*x+b2*y+c2;
+    }
+
+    if (is_kcity) ROS_DEBUG_STREAM("PixelToXY(K-City): Coordiate (" << x << ", " << y << ")");
+    else ROS_DEBUG_STREAM("PixelToXY(FMTC): Coordiate (" << x << ", " << y << ")");
 }
 
 // int XYToPixel_internal(cv::Mat img, double x, double y, int& pixel_x, int& pixel_y, double ref_x, double ref_y, int ref_pixel_x, int ref_pixel_y, double coefficient) {
