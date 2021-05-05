@@ -72,15 +72,16 @@ void PixelToXY(double& x, double& y, int pixel_x, int pixel_y, bool is_kcity) {
         x = a1*pixel_x+b1*pixel_y;
         y = a2*pixel_x+b2*pixel_y;
     } else {
-        double a1 = 33.35682000061858;
-        double b1 = -0.6892112032054343;
-        double c1 = -7095938.941479745;
-        double a2 = -0.6892112032054311;
-        double b2 = -33.35682000061859;
-        double c2 = 138233386.34684;
+        double a1 = 0.02996608409;
+        double b1 = -0.000619152571;
+        double c1 = 7095938.941479745;
+        double a2 = -0.000619152571;
+        double b2 = -0.02996608409;
+        double c2 = -138233386.34684;
 
-        pixel_x = a1*x+b1*y+c1;
-        pixel_y = a2*x+b2*y+c2;
+        pixel_x += c1; pixel_y += c2;
+        x = a1*pixel_x+b1*pixel_y;
+        y = a2*pixel_x+b2*pixel_y;
     }
 
     if (is_kcity) ROS_DEBUG_STREAM("PixelToXY(K-City): Coordiate (" << x << ", " << y << ")");
