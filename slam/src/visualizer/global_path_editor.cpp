@@ -153,7 +153,7 @@ int main(void) {
 		in_path_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_global_path.txt";
         in_map_stream << ros::package::getPath("slam") << "/config/FMTC/FMTC_map.png";
         out_visual_stream << ros::package::getPath("slam")<< "/config/FMTC/FMTC_global_path_visual.png";
-        default_position[0] = 529600; default_position[1] = 175600;
+        default_position[0] = 298551.982; default_position[1] = 4137857.464;
         is_kcity = false;
 	}
 
