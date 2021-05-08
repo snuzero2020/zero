@@ -16,8 +16,7 @@
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu11",
-            "cppStandard": "gnu++14",
-            "compileCommands": "${workspaceFolder}/slam/build/compile_commands.json"
+            "cppStandard": "gnu++14"
         }
     ],
     "version": 4
